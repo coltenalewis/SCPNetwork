@@ -46,6 +46,13 @@ export interface DirectorRequest {
   createdAt: string;
 }
 
+export interface DirectorMessage {
+  id: string;
+  role: 'player' | 'director' | 'system';
+  content: string;
+  timestamp: string;
+}
+
 export interface ScpProfileSettings {
   guide: string;
   metrics: CharacterMetric[];
@@ -64,6 +71,7 @@ export interface GameState {
   budget: number;
   inventory: InventoryItem[];
   directorRequest: DirectorRequest | null;
+  directorMessages: DirectorMessage[];
   missionStatus: MissionStatus;
   researchStatus: ResearchStatus;
   researchStartedAt?: string;

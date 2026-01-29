@@ -28,6 +28,7 @@ export const loadState = (): GameState | null => {
       budget: parsed.budget ?? base.budget,
       inventory: parsed.inventory ?? base.inventory,
       directorRequest: parsed.directorRequest ?? base.directorRequest,
+      directorMessages: parsed.directorMessages ?? base.directorMessages,
       missionStatus: parsed.missionStatus ?? base.missionStatus,
       researchStatus: parsed.researchStatus ?? base.researchStatus,
       researchStartedAt: parsed.researchStartedAt ?? base.researchStartedAt,

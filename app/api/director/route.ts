@@ -4,6 +4,7 @@ type DirectorRequest = {
   request?: string;
   appeal?: string;
   budget?: number;
+  messages?: Array<{ role: 'player' | 'director' | 'system'; content: string }>;
 };
 
 const parseJsonReply = (content: string) => {
@@ -39,8 +40,9 @@ export async function POST(request: Request) {
   const requestText = payload.request?.trim();
   const budget = payload.budget ?? 0;
   const appeal = payload.appeal?.trim();
+  const messages = payload.messages ?? [];
 
-  if (!requestText) {
+  if (!requestText && messages.length === 0) {
     return NextResponse.json({ error: 'Missing request text.' }, { status: 400 });
   }
 
@@ -57,11 +59,15 @@ export async function POST(request: Request) {
         {
           role: 'system',
           content:
-            'You are the SCP Site Director procurement system. Respond with a JSON object containing: itemName (string), description (string), cost (number). Price should be realistic for SCP containment procurement. If request is unsafe or impossible, return itemName "Denied", a short description, and cost 0. Output JSON only.'
+            'You are Site Director Harlow overseeing procurement and research queries. Speak with terse authority. If the user is requesting a resource, respond with JSON only: { "itemName": string, "description": string, "cost": number }. Deny unsafe or impossible requests by setting itemName to "Denied" and cost to 0. If the user is asking a research question, respond with a short paragraph in plain text. For appeals, weigh the justification and budget.'
         },
+        ...messages.map((message) => ({
+          role: message.role === 'player' ? 'user' : message.role === 'director' ? 'assistant' : 'system',
+          content: message.content
+        })),
         {
           role: 'user',
-          content: `Request: ${requestText}\nCurrent budget: ${budget}\nAppeal: ${appeal ?? 'None'}`
+          content: `Request: ${requestText ?? 'N/A'}\nCurrent budget: ${budget}\nAppeal: ${appeal ?? 'None'}`
         }
       ]
     })
@@ -86,12 +92,18 @@ export async function POST(request: Request) {
 
   const parsed = parseJsonReply(content);
   if (!parsed || typeof parsed !== 'object') {
-    return NextResponse.json({ error: 'Director response was not valid JSON.' }, { status: 502 });
+    return NextResponse.json({
+      reply: content,
+      item: null
+    });
   }
 
   return NextResponse.json({
-    itemName: parsed.itemName ?? 'Requested Asset',
-    description: parsed.description ?? 'No description provided.',
-    cost: Number(parsed.cost ?? 0)
+    reply: null,
+    item: {
+      itemName: parsed.itemName ?? 'Requested Asset',
+      description: parsed.description ?? 'No description provided.',
+      cost: Number(parsed.cost ?? 0)
+    }
   });
 }

@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useMemo, useReducer } from
 import { createInitialState } from './seed';
 import { clearState, loadState, saveState } from './storage';
 import {
+  DirectorMessage,
   DirectorRequest,
   GameState,
   InventoryItem,
@@ -26,6 +27,7 @@ interface GameAction {
     | 'REMOVE_ITEM'
     | 'DECREMENT_ITEM'
     | 'SET_DIRECTOR_REQUEST'
+    | 'ADD_DIRECTOR_MESSAGE'
     | 'SET_MISSION_STATUS'
     | 'SET_RESEARCH_STATUS'
     | 'CLEAR_SAVE';
@@ -98,15 +100,45 @@ const updateMetrics = (metrics: ScpProfileSettings['metrics'], message: Message)
 const applyMessageUpdates = (state: GameState, message: Message): GameState => {
   const updatedObjectives = updateObjectives(state.scpSettings.objectives, message);
   const allCompleted = updatedObjectives.length > 0 && updatedObjectives.every((objective) => objective.completedAt);
+  const updatedMetrics = updateMetrics(state.scpSettings.metrics, message);
+  const agitationMetric = updatedMetrics.find((metric) => metric.label.toLowerCase().includes('agitation'));
+  const complianceMetric = updatedMetrics.find((metric) => metric.label.toLowerCase().includes('compliance'));
+  let missionStatus = state.missionStatus;
+  const systemMessages: Message[] = [];
+
+  if (missionStatus === 'interview') {
+    if (agitationMetric && agitationMetric.value >= 85) {
+      missionStatus = 'terminated';
+      systemMessages.push({
+        id: `msg-${Date.now()}-system-breach`,
+        role: 'system',
+        speaker: 'System',
+        content:
+          'Containment breach triggered. SCP-049 became hostile and the interview was terminated immediately.',
+        timestamp: new Date().toISOString()
+      });
+    } else if (complianceMetric && complianceMetric.value <= 15) {
+      missionStatus = 'terminated';
+      systemMessages.push({
+        id: `msg-${Date.now()}-system-terminate`,
+        role: 'system',
+        speaker: 'System',
+        content:
+          'Compliance failure. SCP-049 refused cooperation and security ended the interview.',
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
   return {
     ...state,
-    messages: [...state.messages, message],
+    messages: [...state.messages, message, ...systemMessages],
     scpSettings: {
       ...state.scpSettings,
-      metrics: updateMetrics(state.scpSettings.metrics, message),
+      metrics: updatedMetrics,
       objectives: updatedObjectives
     },
-    missionStatus: allCompleted ? 'completed' : state.missionStatus
+    missionStatus: allCompleted ? 'completed' : missionStatus
   };
 };
 
@@ -180,6 +212,12 @@ const reducer = (state: GameState, action: GameAction): GameState => {
       return {
         ...state,
         directorRequest: action.payload as DirectorRequest | null
+      };
+    }
+    case 'ADD_DIRECTOR_MESSAGE': {
+      return {
+        ...state,
+        directorMessages: [...state.directorMessages, action.payload as DirectorMessage]
       };
     }
     case 'SET_MISSION_STATUS': {

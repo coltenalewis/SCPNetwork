@@ -56,6 +56,15 @@ export const createInitialState = (): GameState => ({
   budget: 1500,
   inventory: [],
   directorRequest: null,
+  directorMessages: [
+    {
+      id: 'director-msg-1',
+      role: 'director',
+      content:
+        'This is Site-47 Director Harlow. Submit procurement requests or research questions. Keep it concise.',
+      timestamp: now()
+    }
+  ],
   missionStatus: 'briefing',
   researchStatus: 'pending',
   researchStartedAt: undefined,
