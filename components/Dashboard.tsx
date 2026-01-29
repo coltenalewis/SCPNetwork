@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
 import { DirectorRequest, InventoryItem } from '@/lib/types';
 
@@ -8,7 +9,9 @@ const formatCredits = (amount: number) => `₡${amount.toLocaleString()}`;
 
 export const Dashboard = () => {
   const { state, dispatch } = useStore();
+  const router = useRouter();
   const [requestText, setRequestText] = useState('');
+  const [appealText, setAppealText] = useState('');
   const [isRequesting, setIsRequesting] = useState(false);
 
   const directorRequest = state.directorRequest;
@@ -20,21 +23,27 @@ export const Dashboard = () => {
     [state.scpSettings.objectives]
   );
 
-  const submitDirectorRequest = async () => {
-    if (!requestText.trim() || !canRequest) return;
+  const submitDirectorRequest = async (appeal = false) => {
+    const message = appeal ? appealText.trim() : requestText.trim();
+    const baseRequest = directorRequest?.request ?? requestText.trim();
+    if (!message || !canRequest) return;
     setIsRequesting(true);
     try {
       const response = await fetch('/api/director', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ request: requestText.trim(), budget: state.budget })
+        body: JSON.stringify({
+          request: baseRequest,
+          appeal: appeal ? message : undefined,
+          budget: state.budget
+        })
       });
       if (!response.ok) {
         dispatch({
           type: 'SET_DIRECTOR_REQUEST',
           payload: {
             id: `director-${Date.now()}`,
-            request: requestText.trim(),
+            request: baseRequest,
             itemName: 'Denied',
             description: 'Director channel unavailable. Check API connectivity.',
             cost: 0,
@@ -49,7 +58,7 @@ export const Dashboard = () => {
         type: 'SET_DIRECTOR_REQUEST',
         payload: {
           id: `director-${Date.now()}`,
-          request: requestText.trim(),
+          request: baseRequest,
           itemName: data.itemName ?? 'Requested Asset',
           description: data.description ?? 'No description returned.',
           cost: Number(data.cost ?? 0),
@@ -57,7 +66,11 @@ export const Dashboard = () => {
           createdAt: new Date().toISOString()
         } satisfies DirectorRequest
       });
-      setRequestText('');
+      if (!appeal) {
+        setRequestText('');
+      } else {
+        setAppealText('');
+      }
     } finally {
       setIsRequesting(false);
     }
@@ -94,32 +107,10 @@ export const Dashboard = () => {
           <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Researcher Dashboard</p>
           <h2 className="text-lg font-semibold">Mission Status: {state.missionStatus}</h2>
           <p className="text-xs text-slate-400">
-            Mode: {state.mode === 'chat' ? 'Roleplay Chat' : 'Roleplay Action'} · Budget Remaining:{' '}
-            <span className="text-accent-400 font-semibold">{formatCredits(state.budget)}</span>
+            Budget Remaining: <span className="text-accent-400 font-semibold">{formatCredits(state.budget)}</span>
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => dispatch({ type: 'SET_MODE', payload: 'chat' })}
-            className={`text-xs px-3 py-2 border rounded-md ${
-              state.mode === 'chat'
-                ? 'border-accent-500 text-accent-300'
-                : 'border-slate-700 text-slate-400'
-            }`}
-          >
-            Chat Mode
-          </button>
-          <button
-            onClick={() => dispatch({ type: 'SET_MODE', payload: 'action' })}
-            className={`text-xs px-3 py-2 border rounded-md ${
-              state.mode === 'action'
-                ? 'border-accent-500 text-accent-300'
-                : 'border-slate-700 text-slate-400'
-            }`}
-          >
-            Action Mode
-          </button>
-        </div>
+        <div className="text-xs text-slate-500">Procurement Console</div>
       </div>
 
       {state.missionStatus === 'completed' && (
@@ -189,7 +180,7 @@ export const Dashboard = () => {
                 {canRequest ? 'Procurement available until interview starts.' : 'Procurement closed.'}
               </span>
               <button
-                onClick={submitDirectorRequest}
+                onClick={() => submitDirectorRequest()}
                 disabled={!canRequest || isRequesting || !requestText.trim()}
                 className="px-3 py-2 bg-accent-600 text-slate-900 rounded-md text-xs font-semibold disabled:opacity-60"
               >
@@ -237,6 +228,27 @@ export const Dashboard = () => {
                   </button>
                 </div>
               )}
+              {directorRequest.status === 'denied' && canRequest && (
+                <div className="space-y-2">
+                  <p className="text-xs text-slate-400">
+                    Submit a persuasion note to the Director if you want to appeal the denial.
+                  </p>
+                  <textarea
+                    value={appealText}
+                    onChange={(event) => setAppealText(event.target.value)}
+                    placeholder="Appeal message (e.g., containment risk, medical necessity, budget justification)."
+                    className="w-full min-h-[70px] bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm"
+                    disabled={isRequesting}
+                  />
+                  <button
+                    onClick={() => submitDirectorRequest(true)}
+                    disabled={isRequesting || !appealText.trim()}
+                    className="px-3 py-1 border border-slate-700 text-slate-300 rounded-md text-xs"
+                  >
+                    Submit Appeal
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -246,19 +258,22 @@ export const Dashboard = () => {
               Complete the research inquiry, then begin the live SCP interview.
             </p>
             <button
-              onClick={() => dispatch({ type: 'SET_MISSION_STATUS', payload: 'interview' })}
+              onClick={() => {
+                dispatch({ type: 'SET_MISSION_STATUS', payload: 'interview' });
+                router.push('/');
+              }}
               disabled={!canStartInterview}
               className="mt-3 px-3 py-2 border border-slate-700 rounded-md text-xs text-slate-300 disabled:opacity-60"
             >
-              Begin Interview
+              Proceed to Interview
             </button>
           </div>
         </div>
       </div>
 
       <div className="text-xs text-slate-500">
-        Chat mode is for dialogue. Action mode is for physical actions (terminate test or use inventory). If the AI
-        detects an action in chat mode, it will ask you to switch modes.
+        Procurement must be finalized before entering the interview. You can appeal Director denials if the request is
+        mission-critical.
       </div>
     </section>
   );

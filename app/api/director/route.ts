@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 type DirectorRequest = {
   request?: string;
+  appeal?: string;
   budget?: number;
 };
 
@@ -37,6 +38,7 @@ export async function POST(request: Request) {
 
   const requestText = payload.request?.trim();
   const budget = payload.budget ?? 0;
+  const appeal = payload.appeal?.trim();
 
   if (!requestText) {
     return NextResponse.json({ error: 'Missing request text.' }, { status: 400 });
@@ -59,7 +61,7 @@ export async function POST(request: Request) {
         },
         {
           role: 'user',
-          content: `Request: ${requestText}\nCurrent budget: ${budget}`
+          content: `Request: ${requestText}\nCurrent budget: ${budget}\nAppeal: ${appeal ?? 'None'}`
         }
       ]
     })

@@ -2,13 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useStore } from '@/lib/store';
-import { Message } from '@/lib/types';
-
-const starterChips = [
-  'Confirm containment status.',
-  'Ask SCP-049 to describe the Pestilence.',
-  'Begin structured interview.'
-];
+import { InventoryItem, Message } from '@/lib/types';
 
 const logSystemMessage = (dispatch: ReturnType<typeof useStore>['dispatch'], content: string) => {
   dispatch({
@@ -32,15 +26,38 @@ export const ScpChat = () => {
   const [isSending, setIsSending] = useState(false);
   const aiSpeaker = useMemo(() => 'SCP-049', []);
   const [selectedItemId, setSelectedItemId] = useState<string>('');
+  const [pendingItem, setPendingItem] = useState<{
+    item: InventoryItem;
+    actionText: string;
+    originalContent?: string;
+  } | null>(null);
+  const [actionDraft, setActionDraft] = useState('');
 
   const canInteract = state.missionStatus === 'interview';
 
-  const sendMessage = async (content: string) => {
+  const detectItemMention = (content: string) => {
+    const lower = content.toLowerCase();
+    return state.inventory.find((item) => lower.includes(item.name.toLowerCase()));
+  };
+
+  const sendMessage = async (content: string, options?: { bypassItemCheck?: boolean }) => {
     if (!canInteract) {
       logSystemMessage(dispatch, 'Interview not started. Begin the research inquiry and start the interview.');
       return;
     }
     if (isSending) return;
+    if (!options?.bypassItemCheck) {
+      const mentionedItem = detectItemMention(content);
+      if (mentionedItem) {
+        setPendingItem({
+          item: mentionedItem,
+          actionText: `Offer ${mentionedItem.name} to SCP-049.`,
+          originalContent: content
+        });
+        setActionDraft(`Offer ${mentionedItem.name} to SCP-049.`);
+        return;
+      }
+    }
     const message: Message = {
       id: `msg-${Date.now()}`,
       role: 'player',
@@ -111,7 +128,7 @@ export const ScpChat = () => {
       logSystemMessage(dispatch, 'Interview not started. Begin the research inquiry and start the interview.');
       return;
     }
-    await sendMessage(`[ACTION] ${actionContent}`);
+    await sendMessage(`[ACTION] ${actionContent}`, { bypassItemCheck: true });
     if (itemId) {
       dispatch({ type: 'DECREMENT_ITEM', payload: itemId });
     }
@@ -145,41 +162,43 @@ export const ScpChat = () => {
             </div>
           </div>
         ))}
-        {isSending && (
-          <div className="flex justify-start">
-            <div className="max-w-xl rounded-lg border px-4 py-3 text-sm shadow-sm bg-slateCore-900 border-slate-700 text-slate-200 animate-pulse">
-              <div className="flex items-center justify-between text-xs mb-2 text-slate-400">
-                <span>{aiSpeaker}</span>
-                <span>{`${aiSpeaker} is thinking...`}</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-400">
-                <span className="inline-flex h-2 w-2 rounded-full bg-slate-500" />
-                <span className="inline-flex h-2 w-2 rounded-full bg-slate-600" />
-                <span className="inline-flex h-2 w-2 rounded-full bg-slate-500" />
-              </div>
-            </div>
-          </div>
-        )}
       </div>
       <div className="border-t border-slate-800 p-4 bg-slateCore-900/90">
-        <div className="flex flex-wrap gap-2 mb-3">
-          {starterChips.map((chip) => (
-            <button
-              key={chip}
-              onClick={() => sendMessage(chip)}
-              className="text-xs px-3 py-1 rounded-full border border-slate-700 text-slate-300 hover:border-accent-500"
-            >
-              {chip}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-slate-500">Mode</span>
+          <button
+            onClick={() => dispatch({ type: 'SET_MODE', payload: 'chat' })}
+            className={`text-xs px-3 py-1 border rounded-md ${
+              state.mode === 'chat' ? 'border-accent-500 text-accent-300' : 'border-slate-700 text-slate-400'
+            }`}
+          >
+            Chat
+          </button>
+          <button
+            onClick={() => dispatch({ type: 'SET_MODE', payload: 'action' })}
+            className={`text-xs px-3 py-1 border rounded-md ${
+              state.mode === 'action' ? 'border-accent-500 text-accent-300' : 'border-slate-700 text-slate-400'
+            }`}
+          >
+            Action
+          </button>
         </div>
         {state.mode === 'action' && (
           <div className="flex flex-wrap items-center gap-2 mb-3 rounded-md border border-slate-800 bg-slate-900/40 px-3 py-2 text-xs text-slate-300">
             <span className="uppercase tracking-[0.2em] text-[10px] text-slate-500">Action Mode</span>
             <button
               onClick={async () => {
-                await sendAction('Terminate the test immediately.');
-                dispatch({ type: 'SET_MISSION_STATUS', payload: 'terminated' });
+                setPendingItem({
+                  item: {
+                    id: 'terminate',
+                    name: 'Terminate Test',
+                    description: 'End the current SCP-049 interview.',
+                    cost: 0,
+                    quantity: 1
+                  },
+                  actionText: 'Terminate the test immediately.'
+                });
+                setActionDraft('Terminate the test immediately.');
               }}
               className="px-2 py-1 border border-danger-500 text-danger-400 rounded-md"
             >
@@ -203,13 +222,64 @@ export const ScpChat = () => {
                   if (!selectedItemId) return;
                   const item = state.inventory.find((entry) => entry.id === selectedItemId);
                   if (!item) return;
-                  sendAction(`Use inventory item: ${item.name}. ${item.description}`, item.id);
-                  setSelectedItemId('');
+                  setPendingItem({
+                    item,
+                    actionText: `Use inventory item: ${item.name}. ${item.description}`
+                  });
+                  setActionDraft(`Use inventory item: ${item.name}. ${item.description}`);
                 }}
                 className="px-2 py-1 border border-slate-700 rounded-md text-slate-300"
                 disabled={!selectedItemId}
               >
                 Use Item
+              </button>
+            </div>
+          </div>
+        )}
+        {pendingItem && (
+          <div className="mb-3 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-200 space-y-2">
+            <p className="font-semibold">
+              Would you like to use {pendingItem.item.name} with SCP-049?
+            </p>
+            <textarea
+              value={actionDraft}
+              onChange={(event) => setActionDraft(event.target.value)}
+              className="w-full min-h-[60px] bg-slate-900 border border-slate-700 rounded-md px-2 py-1 text-xs text-slate-200"
+            />
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={async () => {
+                  if (pendingItem.item.id === 'terminate') {
+                    await sendAction(actionDraft);
+                    dispatch({ type: 'SET_MISSION_STATUS', payload: 'terminated' });
+                  } else {
+                    await sendAction(actionDraft, pendingItem.item.id);
+                    setSelectedItemId('');
+                  }
+                  setPendingItem(null);
+                }}
+                className="px-3 py-1 bg-accent-600 text-slate-900 rounded-md text-xs font-semibold"
+              >
+                Confirm Action
+              </button>
+              <button
+                onClick={() => {
+                  if (pendingItem.originalContent) {
+                    sendMessage(pendingItem.originalContent, { bypassItemCheck: true });
+                  }
+                  setPendingItem(null);
+                }}
+                className="px-3 py-1 border border-slate-700 text-slate-300 rounded-md text-xs"
+              >
+                Keep as Chat
+              </button>
+              <button
+                onClick={() => {
+                  setPendingItem(null);
+                }}
+                className="px-3 py-1 border border-slate-700 text-slate-300 rounded-md text-xs"
+              >
+                Cancel
               </button>
             </div>
           </div>
@@ -220,7 +290,7 @@ export const ScpChat = () => {
             onChange={(event) => setInput(event.target.value)}
             placeholder="Enter response..."
             className="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm"
-            disabled={isSending || !canInteract || state.mode === 'action'}
+            disabled={isSending || !canInteract || state.mode === 'action' || Boolean(pendingItem)}
           />
           <button
             onClick={() => {
@@ -229,7 +299,7 @@ export const ScpChat = () => {
               setInput('');
             }}
             className="px-4 py-2 bg-accent-600 text-slate-900 rounded-md text-sm font-semibold disabled:opacity-60"
-            disabled={isSending || !canInteract || state.mode === 'action'}
+            disabled={isSending || !canInteract || state.mode === 'action' || Boolean(pendingItem)}
           >
             {isSending ? 'Sending...' : 'Send'}
           </button>

@@ -1,8 +1,6 @@
 'use client';
 
-import { Dashboard } from '@/components/Dashboard';
 import { Onboarding } from '@/components/Onboarding';
-import { ResearchInquiry } from '@/components/ResearchInquiry';
 import { ScpChat } from '@/components/ScpChat';
 import { useStore, useClearSave } from '@/lib/store';
 import Link from 'next/link';
@@ -13,6 +11,28 @@ export default function HomePage() {
 
   if (!state.player) {
     return <Onboarding />;
+  }
+
+  if (state.missionStatus !== 'interview') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slateCore-950 text-slate-100 p-6">
+        <div className="bg-slateCore-900 border border-slate-800 rounded-xl shadow-panel max-w-xl w-full p-8 space-y-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">SCP FOUNDATION // PROCUREMENT</p>
+            <h1 className="text-xl font-semibold mt-2">Interview Locked</h1>
+            <p className="text-sm text-slate-400 mt-2">
+              Complete the research inquiry and procurement requests before entering the SCP-049 interview room.
+            </p>
+          </div>
+          <Link
+            href="/procurement"
+            className="inline-flex items-center justify-center px-4 py-2 bg-accent-600 text-slate-900 rounded-md text-sm font-semibold"
+          >
+            Go to Procurement Console
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -41,20 +61,22 @@ export default function HomePage() {
         </div>
       </header>
       <main className="flex-1 overflow-hidden p-6">
-        <div className="flex flex-col gap-4 h-full min-h-0">
-          <div className="max-h-[45vh] overflow-y-auto pr-1">
-            <Dashboard />
-          </div>
-          <section className="bg-slateCore-900 border border-slate-800 rounded-xl shadow-panel flex flex-col flex-1 min-h-0">
-            <div className="border-b border-slate-800 px-6 py-4">
+        <section className="bg-slateCore-900 border border-slate-800 rounded-xl shadow-panel flex flex-col h-full min-h-0">
+          <div className="border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+            <div>
               <h2 className="text-lg font-semibold">Live SCP-049 Thread</h2>
               <p className="text-sm text-slate-400">Single-thread roleplay chat with SCP-049.</p>
             </div>
-            <ScpChat />
-          </section>
-        </div>
+            <Link
+              href="/procurement"
+              className="text-xs px-3 py-2 border border-slate-700 rounded-md text-slate-300 hover:border-accent-500"
+            >
+              Procurement Console
+            </Link>
+          </div>
+          <ScpChat />
+        </section>
       </main>
-      <ResearchInquiry />
     </div>
   );
 }
