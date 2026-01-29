@@ -26,7 +26,7 @@ export const ScpChat = () => {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col flex-1 min-h-0">
       <div className="flex-1 overflow-y-auto space-y-4 p-6">
         {state.messages.map((message) => (
           <div key={message.id} className={`flex ${message.role === 'player' ? 'justify-end' : 'justify-start'}`}>

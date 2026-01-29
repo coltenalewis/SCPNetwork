@@ -31,7 +31,7 @@ export default function HomePage() {
         </button>
       </header>
       <main className="flex-1 grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-6 p-6">
-        <section className="bg-slateCore-900 border border-slate-800 rounded-xl shadow-panel overflow-hidden">
+        <section className="bg-slateCore-900 border border-slate-800 rounded-xl shadow-panel flex flex-col min-h-[70vh]">
           <div className="border-b border-slate-800 px-6 py-4">
             <h2 className="text-lg font-semibold">Live SCP-049 Thread</h2>
             <p className="text-sm text-slate-400">Single-thread roleplay chat with SCP-049.</p>
