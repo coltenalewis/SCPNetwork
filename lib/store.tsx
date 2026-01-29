@@ -74,11 +74,11 @@ const reducer = (state: GameState, action: GameAction): GameState => {
     }
     case 'TICK_TIME': {
       const updated = advanceClock(state.clock);
-      const procurement = state.procurement.map((request) => {
+      const procurement: ProcurementRequest[] = state.procurement.map((request) => {
         if (request.status === 'delivering' && request.etaMinutes && request.etaMinutes > 0) {
           const eta = request.etaMinutes - 1;
           if (eta <= 0) {
-            return { ...request, etaMinutes: 0, status: 'delivered' };
+            return { ...request, etaMinutes: 0, status: 'delivered' as const };
           }
           return { ...request, etaMinutes: eta };
         }
