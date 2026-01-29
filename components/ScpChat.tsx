@@ -10,6 +10,22 @@ const starterChips = [
   'Begin structured interview.'
 ];
 
+const logNoResponse = (dispatch: ReturnType<typeof useStore>['dispatch']) => {
+  dispatch({
+    type: 'SEND_MESSAGE',
+    payload: {
+      conversationId: 'scp-049',
+      message: {
+        id: `msg-${Date.now()}-system`,
+        role: 'system',
+        speaker: 'System',
+        content: 'No response queued. This build is currently log-only for player input; connect AI routing when ready.',
+        timestamp: new Date().toISOString()
+      }
+    }
+  });
+};
+
 export const ScpChat = () => {
   const { state, dispatch } = useStore();
   const [input, setInput] = useState('');
@@ -23,6 +39,7 @@ export const ScpChat = () => {
       timestamp: new Date().toISOString()
     };
     dispatch({ type: 'SEND_MESSAGE', payload: { conversationId: 'scp-049', message } });
+    logNoResponse(dispatch);
   };
 
   return (
