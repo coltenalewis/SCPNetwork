@@ -1,3 +1,4 @@
+import { createInitialState } from './seed';
 import { GameState } from './types';
 
 const STORAGE_KEY = 'scp_facility_save_v1';
@@ -11,7 +12,15 @@ export const loadState = (): GameState | null => {
     if (!raw) {
       return null;
     }
-    return JSON.parse(raw) as GameState;
+    const parsed = JSON.parse(raw) as Partial<GameState>;
+    const base = createInitialState();
+    return {
+      ...base,
+      ...parsed,
+      player: parsed.player ?? base.player,
+      messages: parsed.messages ?? base.messages,
+      scpSettings: parsed.scpSettings ?? base.scpSettings
+    };
   } catch (error) {
     console.error('Failed to load save data', error);
     return null;
