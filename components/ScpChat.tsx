@@ -126,7 +126,7 @@ export const ScpChat = () => {
             <div className="max-w-xl rounded-lg border px-4 py-3 text-sm shadow-sm bg-slateCore-900 border-slate-700 text-slate-200 animate-pulse">
               <div className="flex items-center justify-between text-xs mb-2 text-slate-400">
                 <span>{aiSpeaker}</span>
-                <span>Typing...</span>
+                <span>{`${aiSpeaker} is thinking...`}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-400">
                 <span className="inline-flex h-2 w-2 rounded-full bg-slate-500" />
