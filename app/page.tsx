@@ -51,6 +51,37 @@ export default function HomePage() {
               ))}
             </div>
           </div>
+          <div className="bg-slateCore-900 border border-slate-800 rounded-xl p-6 shadow-panel">
+            <h2 className="text-lg font-semibold">Objectives</h2>
+            <p className="text-sm text-slate-400">Complete these goals during the interview.</p>
+            <div className="mt-4 space-y-3">
+              {state.scpSettings.objectives.map((objective) => (
+                <div
+                  key={objective.id}
+                  className="flex items-start gap-3 rounded-lg border border-slate-800/70 p-3 text-sm"
+                >
+                  <div
+                    className={`mt-1 h-4 w-4 rounded-full border flex items-center justify-center text-[10px] ${
+                      objective.completedAt
+                        ? 'border-emerald-500/60 bg-emerald-500/20 text-emerald-300'
+                        : 'border-slate-600 text-slate-500'
+                    }`}
+                  >
+                    {objective.completedAt ? '✓' : ''}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-semibold text-slate-200">{objective.title}</span>
+                      <span className="text-[11px] uppercase tracking-wide text-slate-500">
+                        {objective.completedAt ? 'Completed' : 'Pending'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-1">{objective.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           <ScpSettings />
         </section>
       </main>

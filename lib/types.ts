@@ -20,9 +20,18 @@ export interface CharacterMetric {
   value: number;
 }
 
+export interface Objective {
+  id: string;
+  title: string;
+  description: string;
+  triggerPhrases: string[];
+  completedAt?: string;
+}
+
 export interface ScpProfileSettings {
   guide: string;
   metrics: CharacterMetric[];
+  objectives: Objective[];
 }
 
 export interface GameState {

@@ -19,7 +19,12 @@ export const loadState = (): GameState | null => {
       ...parsed,
       player: parsed.player ?? base.player,
       messages: parsed.messages ?? base.messages,
-      scpSettings: parsed.scpSettings ?? base.scpSettings
+      scpSettings: {
+        ...base.scpSettings,
+        ...parsed.scpSettings,
+        metrics: parsed.scpSettings?.metrics ?? base.scpSettings.metrics,
+        objectives: parsed.scpSettings?.objectives ?? base.scpSettings.objectives
+      }
     };
   } catch (error) {
     console.error('Failed to load save data', error);

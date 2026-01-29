@@ -31,6 +31,26 @@ export const createInitialState = (): GameState => ({
       { id: 'compliance', label: 'Compliance', value: 68 },
       { id: 'rapport', label: 'Rapport', value: 52 },
       { id: 'agitation', label: 'Agitation', value: 18 }
+    ],
+    objectives: [
+      {
+        id: 'objective-containment',
+        title: 'Verify containment status',
+        description: 'Ask SCP-049 to confirm current containment conditions.',
+        triggerPhrases: ['containment status', 'confirm containment', 'containment conditions']
+      },
+      {
+        id: 'objective-pestilence',
+        title: 'Elicit details on the Pestilence',
+        description: 'Prompt SCP-049 to describe the Pestilence or its symptoms.',
+        triggerPhrases: ['pestilence', 'describe the pestilence', 'symptoms']
+      },
+      {
+        id: 'objective-protocol',
+        title: 'Establish cooperation protocol',
+        description: 'Secure agreement to follow interview protocol and authority cues.',
+        triggerPhrases: ['protocol', 'follow procedures', 'comply', 'cooperate']
+      }
     ]
   }
 });
