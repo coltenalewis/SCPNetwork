@@ -14,10 +14,6 @@ export const Onboarding = () => {
     () => ({
       firstName,
       lastName,
-      roleTitle: 'Junior Researcher',
-      clearanceLevel: 2,
-      reputation: 45,
-      trust: 40,
       createdAt: new Date().toISOString()
     }),
     [firstName, lastName]
@@ -25,17 +21,6 @@ export const Onboarding = () => {
 
   const handleCreate = () => {
     dispatch({ type: 'CREATE_PROFILE', payload: profile });
-    dispatch({
-      type: 'ADD_NOTIFICATION',
-      payload: {
-        id: `notif-${Date.now()}`,
-        type: 'message',
-        title: 'Assignment received',
-        detail: 'Test Cycle 049-A assigned. Review briefing.',
-        timestamp: new Date().toISOString(),
-        unread: true
-      }
-    });
   };
 
   const handleRandom = () => {
@@ -98,7 +83,7 @@ export const Onboarding = () => {
           </button>
         </div>
         <div className="text-xs text-slate-500">
-          Role: Junior Researcher • Clearance Level 2 • Initial Trust 40
+          Profile is local-only and can be reset from settings.
         </div>
       </div>
     </div>
