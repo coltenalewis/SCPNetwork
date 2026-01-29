@@ -52,5 +52,13 @@ export const createInitialState = (): GameState => ({
         triggerPhrases: ['protocol', 'follow procedures', 'comply', 'cooperate']
       }
     ]
-  }
+  },
+  budget: 1500,
+  inventory: [],
+  directorRequest: null,
+  missionStatus: 'briefing',
+  researchStatus: 'pending',
+  researchStartedAt: undefined,
+  researchEndsAt: undefined,
+  mode: 'chat'
 });

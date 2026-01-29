@@ -3,7 +3,16 @@
 import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
 import { createInitialState } from './seed';
 import { clearState, loadState, saveState } from './storage';
-import { GameState, Message, Objective, PlayerProfile, ScpProfileSettings } from './types';
+import {
+  DirectorRequest,
+  GameState,
+  InventoryItem,
+  Message,
+  Objective,
+  PlayerProfile,
+  RoleplayMode,
+  ScpProfileSettings
+} from './types';
 
 interface GameAction {
   type:
@@ -11,6 +20,14 @@ interface GameAction {
     | 'CREATE_PROFILE'
     | 'SEND_MESSAGE'
     | 'UPDATE_SCP_SETTINGS'
+    | 'SET_MODE'
+    | 'SET_BUDGET'
+    | 'ADD_ITEM'
+    | 'REMOVE_ITEM'
+    | 'DECREMENT_ITEM'
+    | 'SET_DIRECTOR_REQUEST'
+    | 'SET_MISSION_STATUS'
+    | 'SET_RESEARCH_STATUS'
     | 'CLEAR_SAVE';
   payload?: any;
 }
@@ -78,15 +95,20 @@ const updateMetrics = (metrics: ScpProfileSettings['metrics'], message: Message)
   });
 };
 
-const applyMessageUpdates = (state: GameState, message: Message): GameState => ({
-  ...state,
-  messages: [...state.messages, message],
-  scpSettings: {
-    ...state.scpSettings,
-    metrics: updateMetrics(state.scpSettings.metrics, message),
-    objectives: updateObjectives(state.scpSettings.objectives, message)
-  }
-});
+const applyMessageUpdates = (state: GameState, message: Message): GameState => {
+  const updatedObjectives = updateObjectives(state.scpSettings.objectives, message);
+  const allCompleted = updatedObjectives.length > 0 && updatedObjectives.every((objective) => objective.completedAt);
+  return {
+    ...state,
+    messages: [...state.messages, message],
+    scpSettings: {
+      ...state.scpSettings,
+      metrics: updateMetrics(state.scpSettings.metrics, message),
+      objectives: updatedObjectives
+    },
+    missionStatus: allCompleted ? 'completed' : state.missionStatus
+  };
+};
 
 const reducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -112,6 +134,66 @@ const reducer = (state: GameState, action: GameAction): GameState => {
       return {
         ...state,
         scpSettings: action.payload as ScpProfileSettings
+      };
+    }
+    case 'SET_MODE': {
+      return {
+        ...state,
+        mode: action.payload as RoleplayMode
+      };
+    }
+    case 'SET_BUDGET': {
+      return {
+        ...state,
+        budget: action.payload as number
+      };
+    }
+    case 'ADD_ITEM': {
+      const item = action.payload as InventoryItem;
+      const existing = state.inventory.find((entry) => entry.id === item.id);
+      return {
+        ...state,
+        inventory: existing
+          ? state.inventory.map((entry) =>
+              entry.id === item.id ? { ...entry, quantity: entry.quantity + item.quantity } : entry
+            )
+          : [...state.inventory, item]
+      };
+    }
+    case 'REMOVE_ITEM': {
+      const id = action.payload as string;
+      return {
+        ...state,
+        inventory: state.inventory.filter((item) => item.id !== id)
+      };
+    }
+    case 'DECREMENT_ITEM': {
+      const id = action.payload as string;
+      return {
+        ...state,
+        inventory: state.inventory
+          .map((item) => (item.id === id ? { ...item, quantity: item.quantity - 1 } : item))
+          .filter((item) => item.quantity > 0)
+      };
+    }
+    case 'SET_DIRECTOR_REQUEST': {
+      return {
+        ...state,
+        directorRequest: action.payload as DirectorRequest | null
+      };
+    }
+    case 'SET_MISSION_STATUS': {
+      return {
+        ...state,
+        missionStatus: action.payload as GameState['missionStatus']
+      };
+    }
+    case 'SET_RESEARCH_STATUS': {
+      return {
+        ...state,
+        researchStatus: action.payload.status as GameState['researchStatus'],
+        researchStartedAt: action.payload.startedAt ?? state.researchStartedAt,
+        researchEndsAt: action.payload.endsAt ?? state.researchEndsAt
       };
     }
     case 'CLEAR_SAVE': {

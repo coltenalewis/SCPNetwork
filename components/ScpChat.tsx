@@ -31,8 +31,15 @@ export const ScpChat = () => {
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const aiSpeaker = useMemo(() => 'SCP-049', []);
+  const [selectedItemId, setSelectedItemId] = useState<string>('');
+
+  const canInteract = state.missionStatus === 'interview';
 
   const sendMessage = async (content: string) => {
+    if (!canInteract) {
+      logSystemMessage(dispatch, 'Interview not started. Begin the research inquiry and start the interview.');
+      return;
+    }
     if (isSending) return;
     const message: Message = {
       id: `msg-${Date.now()}`,
@@ -50,6 +57,12 @@ export const ScpChat = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           guide: state.scpSettings.guide,
+          mode: state.mode,
+          inventory: state.inventory.map((item) => ({
+            name: item.name,
+            description: item.description,
+            quantity: item.quantity
+          })),
           messages: [...state.messages, message].map((entry) => ({
             role: entry.role,
             content: entry.content,
@@ -90,6 +103,17 @@ export const ScpChat = () => {
       logSystemMessage(dispatch, 'AI response unavailable. Network error while contacting the AI service.');
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const sendAction = async (actionContent: string, itemId?: string) => {
+    if (!canInteract) {
+      logSystemMessage(dispatch, 'Interview not started. Begin the research inquiry and start the interview.');
+      return;
+    }
+    await sendMessage(`[ACTION] ${actionContent}`);
+    if (itemId) {
+      dispatch({ type: 'DECREMENT_ITEM', payload: itemId });
     }
   };
 
@@ -149,13 +173,54 @@ export const ScpChat = () => {
             </button>
           ))}
         </div>
+        {state.mode === 'action' && (
+          <div className="flex flex-wrap items-center gap-2 mb-3 rounded-md border border-slate-800 bg-slate-900/40 px-3 py-2 text-xs text-slate-300">
+            <span className="uppercase tracking-[0.2em] text-[10px] text-slate-500">Action Mode</span>
+            <button
+              onClick={async () => {
+                await sendAction('Terminate the test immediately.');
+                dispatch({ type: 'SET_MISSION_STATUS', payload: 'terminated' });
+              }}
+              className="px-2 py-1 border border-danger-500 text-danger-400 rounded-md"
+            >
+              Terminate Test
+            </button>
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedItemId}
+                onChange={(event) => setSelectedItemId(event.target.value)}
+                className="bg-slate-800 border border-slate-700 rounded-md px-2 py-1 text-xs"
+              >
+                <option value="">Select inventory item</option>
+                {state.inventory.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} ({item.quantity})
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={() => {
+                  if (!selectedItemId) return;
+                  const item = state.inventory.find((entry) => entry.id === selectedItemId);
+                  if (!item) return;
+                  sendAction(`Use inventory item: ${item.name}. ${item.description}`, item.id);
+                  setSelectedItemId('');
+                }}
+                className="px-2 py-1 border border-slate-700 rounded-md text-slate-300"
+                disabled={!selectedItemId}
+              >
+                Use Item
+              </button>
+            </div>
+          </div>
+        )}
         <div className="flex gap-2">
           <input
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder="Enter response..."
             className="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm"
-            disabled={isSending}
+            disabled={isSending || !canInteract || state.mode === 'action'}
           />
           <button
             onClick={() => {
@@ -164,11 +229,21 @@ export const ScpChat = () => {
               setInput('');
             }}
             className="px-4 py-2 bg-accent-600 text-slate-900 rounded-md text-sm font-semibold disabled:opacity-60"
-            disabled={isSending}
+            disabled={isSending || !canInteract || state.mode === 'action'}
           >
             {isSending ? 'Sending...' : 'Send'}
           </button>
         </div>
+        {!canInteract && (
+          <p className="mt-2 text-xs text-slate-500">
+            Complete the research inquiry and start the interview to send messages.
+          </p>
+        )}
+        {state.mode === 'action' && (
+          <p className="mt-2 text-xs text-slate-500">
+            Action mode limits actions to terminating the test or using inventory items.
+          </p>
+        )}
       </div>
     </div>
   );

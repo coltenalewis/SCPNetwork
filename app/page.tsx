@@ -1,6 +1,8 @@
 'use client';
 
+import { Dashboard } from '@/components/Dashboard';
 import { Onboarding } from '@/components/Onboarding';
+import { ResearchInquiry } from '@/components/ResearchInquiry';
 import { ScpChat } from '@/components/ScpChat';
 import { useStore, useClearSave } from '@/lib/store';
 import Link from 'next/link';
@@ -39,14 +41,20 @@ export default function HomePage() {
         </div>
       </header>
       <main className="flex-1 overflow-hidden p-6">
-        <section className="bg-slateCore-900 border border-slate-800 rounded-xl shadow-panel flex flex-col h-full min-h-0">
-          <div className="border-b border-slate-800 px-6 py-4">
-            <h2 className="text-lg font-semibold">Live SCP-049 Thread</h2>
-            <p className="text-sm text-slate-400">Single-thread roleplay chat with SCP-049.</p>
+        <div className="flex flex-col gap-4 h-full min-h-0">
+          <div className="max-h-[45vh] overflow-y-auto pr-1">
+            <Dashboard />
           </div>
-          <ScpChat />
-        </section>
+          <section className="bg-slateCore-900 border border-slate-800 rounded-xl shadow-panel flex flex-col flex-1 min-h-0">
+            <div className="border-b border-slate-800 px-6 py-4">
+              <h2 className="text-lg font-semibold">Live SCP-049 Thread</h2>
+              <p className="text-sm text-slate-400">Single-thread roleplay chat with SCP-049.</p>
+            </div>
+            <ScpChat />
+          </section>
+        </div>
       </main>
+      <ResearchInquiry />
     </div>
   );
 }

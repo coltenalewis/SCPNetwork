@@ -9,6 +9,8 @@ type IncomingMessage = {
 type ChatRequest = {
   guide?: string;
   messages?: IncomingMessage[];
+  mode?: 'chat' | 'action';
+  inventory?: Array<{ name: string; description: string; quantity: number }>;
 };
 
 const roleMap: Record<IncomingMessage['role'], 'user' | 'assistant' | 'system'> = {
@@ -35,6 +37,8 @@ export async function POST(request: Request) {
 
   const guide = payload.guide?.trim();
   const messages = payload.messages ?? [];
+  const mode = payload.mode ?? 'chat';
+  const inventory = payload.inventory ?? [];
 
   if (!guide) {
     return NextResponse.json({ error: 'Missing SCP guide content.' }, { status: 400 });
@@ -43,7 +47,9 @@ export async function POST(request: Request) {
   const openAiMessages = [
     {
       role: 'system' as const,
-      content: `You are SCP-049. Follow this behavior guide strictly:\n${guide}`
+      content: `You are SCP-049. Follow this behavior guide strictly:\n${guide}\n\nRoleplay mode: ${mode}. In chat mode, respond with dialogue only. In action mode, the player intends to perform actions; only allow actions to terminate the test or use inventory items. If a player's request seems like an action while in chat mode, ask if they want to switch to action mode. If they reference an item, confirm it exists before proceeding. Inventory: ${inventory
+        .map((item) => `${item.name} (${item.quantity}) - ${item.description}`)
+        .join('; ') || 'None'}.`
     },
     ...messages.map((message) => ({
       role: roleMap[message.role],
