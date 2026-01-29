@@ -19,7 +19,8 @@ const logNoResponse = (dispatch: ReturnType<typeof useStore>['dispatch']) => {
         id: `msg-${Date.now()}-system`,
         role: 'system',
         speaker: 'System',
-        content: 'No response queued. This build is currently log-only for player input; connect AI routing when ready.',
+        content:
+          'AI response unavailable. This build only logs player input. To enable AI replies, add a server route that calls your model provider, ensure required API keys are set on the server, and wire this chat input to that route.',
         timestamp: new Date().toISOString()
       }
     }
@@ -52,11 +53,15 @@ export const ScpChat = () => {
                 message.role === 'player'
                   ? 'bg-accent-600/20 border-accent-500 text-white'
                   : message.role === 'system'
-                  ? 'bg-slate-800/70 border-slate-700 text-slate-300'
+                  ? 'bg-red-950/70 border-red-500/70 text-red-100'
                   : 'bg-slateCore-900 border-slate-700 text-slate-200'
               }`}
             >
-              <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+              <div
+                className={`flex items-center justify-between text-xs mb-2 ${
+                  message.role === 'system' ? 'text-red-200' : 'text-slate-400'
+                }`}
+              >
                 <span>{message.speaker}</span>
                 <span>
                   {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
