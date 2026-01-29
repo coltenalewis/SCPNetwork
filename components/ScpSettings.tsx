@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from 'react';
 import { useStore } from '@/lib/store';
-import { CharacterMetric, ScpProfileSettings } from '@/lib/types';
+import { CharacterMetric, Objective, ScpProfileSettings } from '@/lib/types';
 
 export const ScpSettings = () => {
   const { state, dispatch } = useStore();
   const [guide, setGuide] = useState(state.scpSettings.guide);
   const [metrics, setMetrics] = useState<CharacterMetric[]>(state.scpSettings.metrics);
+  const [objectives, setObjectives] = useState<Objective[]>(state.scpSettings.objectives);
 
   const canSave = useMemo(() => guide.trim().length > 0, [guide]);
 
@@ -29,9 +30,30 @@ export const ScpSettings = () => {
   const handleSave = () => {
     const payload: ScpProfileSettings = {
       guide: guide.trim(),
-      metrics
+      metrics,
+      objectives
     };
     dispatch({ type: 'UPDATE_SCP_SETTINGS', payload });
+  };
+
+  const updateObjective = (id: string, updates: Partial<Objective>) => {
+    setObjectives((prev) => prev.map((objective) => (objective.id === id ? { ...objective, ...updates } : objective)));
+  };
+
+  const addObjective = () => {
+    setObjectives((prev) => [
+      ...prev,
+      {
+        id: `objective-${Date.now()}`,
+        title: 'New Objective',
+        description: 'Describe the objective outcome.',
+        triggerPhrases: ['keyword']
+      }
+    ]);
+  };
+
+  const removeObjective = (id: string) => {
+    setObjectives((prev) => prev.filter((objective) => objective.id !== id));
   };
 
   return (
@@ -82,6 +104,67 @@ export const ScpSettings = () => {
               >
                 Remove
               </button>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-slate-200">Objectives</h3>
+          <button
+            onClick={addObjective}
+            className="text-xs px-3 py-1 border border-slate-700 rounded-md text-slate-300"
+          >
+            Add Objective
+          </button>
+        </div>
+        <div className="mt-3 space-y-4">
+          {objectives.map((objective) => (
+            <div key={objective.id} className="rounded-lg border border-slate-800 p-3 space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <input
+                  value={objective.title}
+                  onChange={(event) => updateObjective(objective.id, { title: event.target.value })}
+                  className="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm"
+                />
+                <span
+                  className={`text-[11px] px-2 py-1 rounded-full border ${
+                    objective.completedAt
+                      ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10'
+                      : 'border-slate-700 text-slate-400'
+                  }`}
+                >
+                  {objective.completedAt ? 'Completed' : 'Pending'}
+                </span>
+              </div>
+              <textarea
+                value={objective.description}
+                onChange={(event) => updateObjective(objective.id, { description: event.target.value })}
+                className="w-full min-h-[64px] bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm"
+              />
+              <label className="text-xs text-slate-400">
+                Trigger phrases (comma-separated)
+                <input
+                  value={objective.triggerPhrases.join(', ')}
+                  onChange={(event) =>
+                    updateObjective(objective.id, {
+                      triggerPhrases: event.target.value
+                        .split(',')
+                        .map((phrase) => phrase.trim())
+                        .filter(Boolean)
+                    })
+                  }
+                  className="mt-2 w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm"
+                />
+              </label>
+              <div className="flex items-center justify-end">
+                <button
+                  onClick={() => removeObjective(objective.id)}
+                  className="text-xs px-3 py-1 border border-danger-500 text-danger-500 rounded-md"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           ))}
         </div>
