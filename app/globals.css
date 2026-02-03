@@ -9,6 +9,8 @@
 body {
   @apply bg-cream text-espresso min-h-screen antialiased;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-image: radial-gradient(rgba(44, 31, 26, 0.04) 1px, transparent 1px);
+  background-size: 120px 120px;
 }
 
 * {
@@ -23,21 +25,12 @@ body {
   height: 40%;
   border-radius: 999px;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent 70%);
-  animation: steam 6s ease-in-out infinite;
+  animation: steam 8s ease-in-out infinite;
 }
 
 .steam-delayed {
   left: 55%;
   animation-delay: 2s;
-}
-
-.shelf-orb {
-  width: 100%;
-  height: 100%;
-  border-radius: 18px;
-  background: linear-gradient(145deg, rgba(216, 198, 182, 0.6), rgba(44, 31, 26, 0.2));
-  box-shadow: inset 0 0 12px rgba(44, 31, 26, 0.15);
-  animation: floatSlow 4s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

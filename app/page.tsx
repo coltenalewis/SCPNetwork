@@ -2,1185 +2,751 @@
 
 import { useMemo, useState } from 'react';
 
-const bases = [
-  {
-    id: 'starter-shot',
-    name: 'Starter Shot',
-    description: 'Fast MVP or drop-in install with clean defaults and fast turnaround.',
-    bestFor: 'Best for fresh launches or quick fixes.',
-    timeline: 'Timeline: 1-2 weeks'
-  },
-  {
-    id: 'house-latte',
-    name: 'House Latte',
-    description: 'Full integration into an existing codebase and gameplay loop.',
-    bestFor: 'Best for teams shipping live experiences.',
-    timeline: 'Timeline: 3-5 weeks'
-  },
-  {
-    id: 'cold-brew-ops',
-    name: 'Cold Brew Ops',
-    description: 'Ongoing updates, tuning, and live-ops support with steady velocity.',
-    bestFor: 'Best for long-term live-ops.',
-    timeline: 'Timeline: Monthly cadence'
-  }
-];
+type Step = 'landing' | 'category' | 'modules' | 'customize' | 'summary' | 'dashboard';
 
-const moduleCategories = [
+type Category = {
+  id: string;
+  title: string;
+  description: string;
+  modules: Module[];
+};
+
+type Module = {
+  id: string;
+  name: string;
+  description: string;
+  includes: string[];
+  bestFor: string;
+  subModules: SubModule[];
+};
+
+type SubModule = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+const categories: Category[] = [
   {
-    id: 'core',
-    name: 'Core Foundations',
-    items: [
+    id: 'core-foundations',
+    title: 'Core Foundations',
+    description: 'Reliable data, stats, and config systems that every build needs.',
+    modules: [
       {
         id: 'datastore-profile-core',
         name: 'DataStore Profile Core',
-        tags: ['foundational', 'popular'],
-        description: 'Versioning, migrations, safe saves, and session locks.',
-        includes: ['Schema versioning', 'Safe saves', 'Session locking', 'Migration helpers']
+        description: 'Versioning, migrations, and safe saves with session locks.',
+        includes: ['Schema versioning', 'Safe saves', 'Session locks', 'Migration helpers'],
+        bestFor: 'Best for any game with persistent data.',
+        subModules: [
+          { id: 'save-queues', name: 'Save queues', description: 'Retry logic with throttling.' },
+          { id: 'backup-snapshots', name: 'Backup snapshots', description: 'Optional archive copies.' },
+          { id: 'session-recovery', name: 'Session recovery', description: 'Auto-heal crashed sessions.' }
+        ]
       },
       {
         id: 'player-stats-core',
         name: 'Player Stats & Attributes Core',
-        tags: ['foundational'],
-        description: 'Stat definitions, replication rules, server authority.',
-        includes: ['Stat registry', 'Replication rules', 'Server authority', 'Access helpers']
-      },
-      {
-        id: 'leaderboard-system',
-        name: 'Leaderboard System',
-        tags: ['popular'],
-        description: 'Global, weekly, seasonal boards with anti-exploit scoring.',
-        includes: ['Seasonal tables', 'Anti-exploit scoring', 'Rollovers']
+        description: 'Clean stat definitions with server authority and replication rules.',
+        includes: ['Stat registry', 'Replication rules', 'Access helpers'],
+        bestFor: 'Best for RPG, RP, or progression loops.',
+        subModules: [
+          { id: 'stat-templates', name: 'Stat templates', description: 'Reusable stat presets.' },
+          { id: 'trait-hooks', name: 'Trait hooks', description: 'Triggers for stat thresholds.' }
+        ]
       },
       {
         id: 'settings-config-system',
         name: 'Settings & Config System',
-        tags: ['foundational'],
-        description: 'Feature flags, environment toggles, safe rollout switches.',
-        includes: ['Feature flags', 'Environment toggles', 'Rollout controls']
+        description: 'Feature flags, environment toggles, and safe rollouts.',
+        includes: ['Feature flags', 'Environment toggles', 'Rollout guards'],
+        bestFor: 'Best for live updates and staged releases.',
+        subModules: [
+          { id: 'regional-flags', name: 'Regional flags', description: 'Region-specific toggles.' },
+          { id: 'rollback-tools', name: 'Rollback tools', description: 'Safe revert switches.' }
+        ]
       }
     ]
   },
   {
-    id: 'competitive',
-    name: 'Competitive & Match',
-    items: [
+    id: 'competitive-match',
+    title: 'Competitive & Match',
+    description: 'Round flow, matchmaking, and mode control for competitive loops.',
+    modules: [
       {
         id: 'timer-state-machine',
         name: 'Timer + State Machine',
-        tags: ['best for competitive'],
         description: 'Round phases, intermission, overtime, and transitions.',
-        includes: ['Round phases', 'Intermission', 'Overtime', 'Transition hooks']
+        includes: ['Round phases', 'Overtime', 'Transition hooks'],
+        bestFor: 'Best for round-based competitive games.',
+        subModules: [
+          { id: 'spectator-mode', name: 'Spectator mode', description: 'Watch while waiting.' },
+          { id: 'anti-stall', name: 'Anti-stall mechanics', description: 'Prevent slow play.' }
+        ]
       },
       {
         id: 'matchmaking-queue',
         name: 'Matchmaking + Queue',
-        tags: ['popular', 'best for competitive'],
         description: 'Party and solo queues, balancing, join-in-progress toggles.',
-        includes: ['Party/solo', 'Role balancing', 'Join-in-progress']
+        includes: ['Party queue', 'Role balance', 'Join-in-progress'],
+        bestFor: 'Best for session-based experiences.',
+        subModules: [
+          { id: 'ranked-hooks', name: 'Ranked ladder hooks', description: 'Ranking integration.' },
+          { id: 'priority-queue', name: 'Priority queue', description: 'VIP routing logic.' }
+        ]
       },
       {
         id: 'team-role-assignment',
         name: 'Team & Role Assignment',
-        tags: ['best for competitive'],
-        description: 'Factions, auto-balancing, loadout constraints.',
-        includes: ['Faction setup', 'Auto-balance', 'Loadout rules']
-      },
-      {
-        id: 'arena-rotation',
-        name: 'Arena Rotation + Map Voting',
-        tags: ['popular'],
-        description: 'Weighted randomness, skip logic, map metadata.',
-        includes: ['Map metadata', 'Weighted rotation', 'Voting logic']
+        description: 'Factions, auto-balance, loadout constraints.',
+        includes: ['Faction setup', 'Auto-balance', 'Loadout rules'],
+        bestFor: 'Best for games with roles and squads.',
+        subModules: [
+          { id: 'role-constraints', name: 'Role constraints', description: 'Role limits + rules.' },
+          { id: 'loadout-locks', name: 'Loadout locks', description: 'Prevent mismatched kits.' }
+        ]
       }
     ]
   },
   {
-    id: 'economy',
-    name: 'Economy & Retention',
-    items: [
+    id: 'economy-progression',
+    title: 'Economy & Progression',
+    description: 'Currencies, progression, and retention loops that stay balanced.',
+    modules: [
       {
         id: 'currency-wallet',
         name: 'Currency & Wallet System',
-        tags: ['popular'],
         description: 'Multiple currencies, sinks/sources, inflation controls.',
-        includes: ['Multi-currency', 'Inflation controls', 'Wallet rules']
-      },
-      {
-        id: 'shop-dev-products',
-        name: 'Shop & Dev Products',
-        tags: ['best for RP'],
-        description: 'Bundles, receipts, retry logic, entitlement caching.',
-        includes: ['Bundles', 'Receipt retries', 'Entitlement cache']
+        includes: ['Multi-currency', 'Inflation controls', 'Ledger rules'],
+        bestFor: 'Best for economy-driven games.',
+        subModules: [
+          { id: 'price-elasticity', name: 'Price elasticity', description: 'Dynamic pricing rules.' },
+          { id: 'limited-rotations', name: 'Limited rotations', description: 'Timed inventory cycles.' }
+        ]
       },
       {
         id: 'daily-weekly-rewards',
         name: 'Daily/Weekly Rewards',
-        tags: ['retention'],
-        description: 'Streaks, catch-up logic, anti-abuse filters.',
-        includes: ['Streaks', 'Catch-up', 'Anti-abuse']
+        description: 'Streaks, catch-up logic, and anti-abuse checks.',
+        includes: ['Streaks', 'Catch-up logic', 'Anti-abuse'],
+        bestFor: 'Best for retention-focused loops.',
+        subModules: [
+          { id: 'calendar-streaks', name: 'Calendar streaks', description: 'Visual streak calendar.' },
+          { id: 'bonus-days', name: 'Bonus days', description: 'Bonus reward multipliers.' }
+        ]
       },
       {
         id: 'quests-objectives',
         name: 'Quests & Objectives',
-        tags: ['retention'],
         description: 'Templates, tracking, and reward pipelines.',
-        includes: ['Quest templates', 'Tracking hooks', 'Rewards']
-      },
-      {
-        id: 'progression-prestige',
-        name: 'Progression & Prestige Loop',
-        tags: ['retention'],
-        description: 'Levels, XP curves, resets with perks.',
-        includes: ['XP curves', 'Prestige resets', 'Perk hooks']
-      },
-      {
-        id: 'event-scheduler',
-        name: 'Event Scheduler',
-        tags: ['seasonal'],
-        description: 'Seasonal events, timed drops, limited items.',
-        includes: ['Seasonal timers', 'Drop logic', 'Limited items']
+        includes: ['Quest templates', 'Tracking hooks', 'Reward pipeline'],
+        bestFor: 'Best for guided progression.',
+        subModules: [
+          { id: 'quest-chains', name: 'Quest chains', description: 'Linked quest paths.' },
+          { id: 'milestone-badges', name: 'Milestone badges', description: 'Achievement badges.' }
+        ]
       }
     ]
   },
   {
-    id: 'admin',
-    name: 'Admin & Ops',
-    items: [
+    id: 'admin-ops',
+    title: 'Admin & Ops',
+    description: 'Moderation, logging, and live ops control for safe launches.',
+    modules: [
       {
         id: 'admin-permissions',
         name: 'Admin Commands + Permissions',
-        tags: ['foundational'],
-        description: 'Role keys, permission gates, audit logs.',
-        includes: ['Role keys', 'Permission gates', 'Audit logs']
+        description: 'Role keys, permission gates, and audit logs.',
+        includes: ['Role keys', 'Audit logs', 'Command framework'],
+        bestFor: 'Best for trust and control.',
+        subModules: [
+          { id: 'role-ladders', name: 'Role ladders', description: 'Tiered permission layers.' },
+          { id: 'action-history', name: 'Action history', description: 'Audit export history.' }
+        ]
       },
       {
         id: 'moderation-tools',
         name: 'Moderation Tools',
-        tags: ['ops'],
         description: 'Kick/ban/mute tools with escalation notes.',
-        includes: ['Kick/ban/mute', 'Escalation notes', 'History']
-      },
-      {
-        id: 'live-ops-panel',
-        name: 'Live Ops Panel',
-        tags: ['ops'],
-        description: 'Toggle features, spawn items, adjust rewards.',
-        includes: ['Feature toggles', 'Spawn tools', 'Reward tuning']
-      },
-      {
-        id: 'incident-logging',
-        name: 'Error/Incident Logging',
-        tags: ['ops'],
-        description: 'Server logs, alerts, reproduction metadata.',
-        includes: ['Log pipeline', 'Alert routing', 'Metadata']
+        includes: ['Kick/ban/mute', 'Escalation notes', 'History'],
+        bestFor: 'Best for community safety.',
+        subModules: [
+          { id: 'soft-bans', name: 'Soft bans', description: 'Timed restrictions.' },
+          { id: 'case-notes', name: 'Case notes', description: 'Moderator notes.' }
+        ]
       }
     ]
   },
   {
-    id: 'social',
-    name: 'Social & Community',
-    items: [
+    id: 'social-community',
+    title: 'Social & Community',
+    description: 'Social systems, party flow, and community integration.',
+    modules: [
       {
         id: 'party-system',
         name: 'Party System',
-        tags: ['best for RP'],
-        description: 'Invites, teleport follow, party chat hooks.',
-        includes: ['Invites', 'Teleport follow', 'Party chat']
+        description: 'Invites, teleport follow, and party chat hooks.',
+        includes: ['Invites', 'Teleport follow', 'Party chat'],
+        bestFor: 'Best for RP and social gameplay.',
+        subModules: [
+          { id: 'party-presence', name: 'Party presence', description: 'Presence tracking.' },
+          { id: 'party-reconnect', name: 'Party reconnect', description: 'Auto rejoin.' }
+        ]
       },
       {
         id: 'guild-group',
         name: 'Guild/Group Integration',
-        tags: ['community'],
         description: 'Rank sync, perks, group-locked content.',
-        includes: ['Rank sync', 'Perk sync', 'Group gating']
-      },
-      {
-        id: 'social-ui',
-        name: 'Social UI Components',
-        tags: ['polish'],
-        description: 'Profile cards, badges, and titles.',
-        includes: ['Profile cards', 'Badges', 'Titles']
-      }
-    ]
-  },
-  {
-    id: 'polish',
-    name: 'Polish & UX',
-    items: [
-      {
-        id: 'ui-kit',
-        name: 'UI Kit for Roblox',
-        tags: ['polish'],
-        description: 'Consistent components, toasts, modals.',
-        includes: ['Component kit', 'Toasts', 'Modals']
-      },
-      {
-        id: 'animation-feedback',
-        name: 'Animation & Feedback Pass',
-        tags: ['polish'],
-        description: 'Micro-animations, audio cues, satisfying feedback.',
-        includes: ['Micro-animations', 'Audio cues', 'Feel tuning']
-      },
-      {
-        id: 'performance-pass',
-        name: 'Performance Optimization Pass',
-        tags: ['polish'],
-        description: 'Streaming, replication tuning, object pooling.',
-        includes: ['Streaming tuning', 'Replication', 'Pooling']
+        includes: ['Rank sync', 'Perk sync', 'Group gating'],
+        bestFor: 'Best for community-driven games.',
+        subModules: [
+          { id: 'group-rewards', name: 'Group rewards', description: 'Group-only perks.' },
+          { id: 'rank-badges', name: 'Rank badges', description: 'Ranked cosmetics.' }
+        ]
       }
     ]
   }
 ];
 
-const customizations = [
+const aiSuggestions = [
   {
-    id: 'ui-skinning',
-    name: 'UI Skinning',
-    description: 'Premium UI layer aligned to your brand and theme.'
+    id: 'mvp',
+    label: 'Suggest a fast MVP',
+    message: 'Keep it tight: Core Foundations + DataStore Core + Stats Core.',
+    modules: ['datastore-profile-core', 'player-stats-core']
   },
-  {
-    id: 'performance-pass',
-    name: 'Performance Pass',
-    description: 'Profiling, bottleneck fixes, and runtime polish.'
-  },
-  {
-    id: 'telemetry-hooks',
-    name: 'Telemetry Hooks',
-    description: 'Analytics events, funnel tracking, and observability.'
-  },
-  {
-    id: 'anti-exploit',
-    name: 'Anti-Exploit Guardrails',
-    description: 'Server-side checks, exploit flags, and audit review.'
-  },
-  {
-    id: 'documentation',
-    name: 'Documentation Pack',
-    description: 'Clean docs with setup steps, API references, and handoff notes.'
-  },
-  {
-    id: 'integration-help',
-    name: 'Integration Help',
-    description: 'Pairing session to fit modules into your existing stack.'
-  }
-];
-
-const productCatalog = [
-  {
-    id: 'leaderboard-stats',
-    name: 'Leaderboard + Stats Core',
-    category: 'Core Foundations',
-    description: 'The trusted base for ranking, stat integrity, and season resets.',
-    solves: 'Reliable progression + competitive visibility.',
-    includes: ['Stat schema', 'Leaderboard sync', 'Season rollovers', 'Anti-exploit scoring'],
-    requirements: ['DataStore access', 'Server authority layer'],
-    addOns: ['Prestige tiers', 'Season rewards', 'Regional ladders']
-  },
-  {
-    id: 'timer-match',
-    name: 'Timer + Match System',
-    category: 'Competitive & Match',
-    description: 'Round flow, intermission, overtime, and match handling.',
-    solves: 'Consistent match pacing and game mode stability.',
-    includes: ['State machine', 'Timer controls', 'Phase hooks'],
-    requirements: ['Game mode definitions', 'UI event hooks'],
-    addOns: ['Spectator mode', 'Rejoin support', 'Anti-stall mechanics']
-  },
-  {
-    id: 'admin-permissions-kit',
-    name: 'Admin + Permissions Kit',
-    category: 'Admin & Ops',
-    description: 'Secure operations control with audit logs and escalation tools.',
-    solves: 'Safe moderation and live controls.',
-    includes: ['Role keys', 'Audit logs', 'Command framework'],
-    requirements: ['Role definitions', 'Command UI or console'],
-    addOns: ['Discord alerts', 'Escalation ladders', 'Custom reporting']
-  },
-  {
-    id: 'economy-wallet',
-    name: 'Economy + Wallet System',
-    category: 'Economy & Retention',
-    description: 'Multi-currency wallet with sinks and source control.',
-    solves: 'Stable long-term economy and retention loops.',
-    includes: ['Currency rules', 'Wallet ledger', 'Anti-inflation controls'],
-    requirements: ['Shop or rewards loop'],
-    addOns: ['Price elasticity', 'Limited rotations', 'Analytics events']
-  },
-  {
-    id: 'matchmaking-queue',
-    name: 'Matchmaking + Queue',
-    category: 'Competitive & Match',
-    description: 'Queue logic for party/solo, role balance, and fill rules.',
-    solves: 'Healthier matchmaking and fair sessions.',
-    includes: ['Party queue', 'Role balancing', 'Join-in-progress toggles'],
-    requirements: ['Player role rules', 'Match server hooks'],
-    addOns: ['Ranked ladder hooks', 'Cross-region rules', 'Priority queue']
-  },
-  {
-    id: 'event-scheduler',
-    name: 'Event Scheduler',
-    category: 'Economy & Retention',
-    description: 'Timed drops and seasonal event orchestration.',
-    solves: 'Live-event cadence with less manual effort.',
-    includes: ['Event calendar', 'Drop triggers', 'Limited-time flags'],
-    requirements: ['Item definition list'],
-    addOns: ['Announcement hooks', 'Event quests', 'Event-specific UI']
-  },
-  {
-    id: 'ui-kit',
-    name: 'UI Kit for Roblox',
-    category: 'Polish & UX',
-    description: 'Unified UI components for consistent menus and prompts.',
-    solves: 'Reliable UI consistency across systems.',
-    includes: ['Components', 'Toasts', 'Modal patterns'],
-    requirements: ['UI styling direction'],
-    addOns: ['Theme variants', 'Accessibility pass', 'Motion tuning']
-  },
-  {
-    id: 'live-ops-panel',
-    name: 'Live Ops Panel',
-    category: 'Admin & Ops',
-    description: 'Remote controls for feature toggles and rewards tuning.',
-    solves: 'Safer live updates and quicker response.',
-    includes: ['Feature toggles', 'Reward tuning', 'Deployment notes'],
-    requirements: ['Admin account mapping'],
-    addOns: ['Analytics overlays', 'Alert routing', 'Inventory tools']
-  }
-];
-
-const buildLogs = [
-  {
-    id: 'log-leaderboard',
-    name: 'Leaderboard + Stats Core',
-    goal: 'Ship reliable seasonal ranking for a competitive arena.',
-    role: 'Systems architecture + data pipeline.',
-    shipped: ['Season resets', 'Stat migration flow', 'Anti-exploit scoring rules']
-  },
-  {
-    id: 'log-timer',
-    name: 'Timer + Match System',
-    goal: 'Stabilize round flow and reduce match aborts.',
-    role: 'Gameplay systems + UI hooks.',
-    shipped: ['State machine', 'Intermission flow', 'Overtime logic']
-  },
-  {
-    id: 'log-admin',
-    name: 'Admin + Permissions Kit',
-    goal: 'Give moderators fast tools without compromising safety.',
-    role: 'Ops tooling + audit design.',
-    shipped: ['Permission gates', 'Audit logs', 'Quick action commands']
-  },
-  {
-    id: 'log-web',
-    name: 'Ops Dashboard (Web)',
-    goal: 'Track live event health and user spikes in real time.',
-    role: 'Full-stack build + data integrations.',
-    shipped: ['Live metrics', 'Alert routing', 'Event calendars']
-  }
-];
-
-const shelfItems = [
-  { id: 'trophy', label: 'Leaderboard' },
-  { id: 'clock', label: 'Timer' },
-  { id: 'badge', label: 'Permissions' },
-  { id: 'coin', label: 'Economy' },
-  { id: 'star', label: 'Rewards' }
-];
-
-const archetypes = [
-  {
-    id: 'solo',
-    title: 'Solo devs shipping a first serious game',
-    pains: ['DataStore reliability', 'Admin tools', 'Retention loops'],
-    mapping: 'Starter Shot + core foundations keep scope tight.'
-  },
-  {
-    id: 'studio',
-    title: 'Small studios scaling an existing experience',
-    pains: ['Match flow', 'Live events', 'Performance issues'],
-    mapping: 'House Latte + modules keep the stack consistent.'
-  },
-  {
-    id: 'community',
-    title: 'Community-driven RP or competitive projects',
-    pains: ['Moderation', 'Economy tuning', 'Social systems'],
-    mapping: 'Cold Brew Ops + ongoing tuning keeps it stable.'
-  }
-];
-
-const aiPresets = [
   {
     id: 'competitive',
-    label: "I'm building a competitive game",
-    base: 'house-latte',
-    modules: ['timer-state-machine', 'matchmaking-queue', 'team-role-assignment', 'datastore-profile-core'],
-    reply:
-      "For a round-based competitive game, I'd start with House Latte + Timer/State Machine + Queue + Team Assignment + DataStore Core."
+    label: 'Competitive game',
+    message: 'Consider Timer + State Machine, Matchmaking + Queue, and Team Assignment.',
+    modules: ['timer-state-machine', 'matchmaking-queue', 'team-role-assignment']
   },
   {
     id: 'rp',
-    label: "I'm building an RP game",
-    base: 'starter-shot',
-    modules: ['datastore-profile-core', 'player-stats-core', 'party-system', 'admin-permissions'],
-    reply:
-      "For RP, I'd start with Starter Shot + DataStore Core + Player Stats + Party System + Admin/Permissions."
+    label: 'RP or social game',
+    message: 'Focus on Party System, Admin + Permissions, and DataStore Core.',
+    modules: ['party-system', 'admin-permissions', 'datastore-profile-core']
+  }
+];
+
+const portfolioHighlights = [
+  {
+    id: 'leaderboard-core',
+    title: 'Leaderboard + Stats Core',
+    summary: 'Reliable seasonal rankings for a competitive arena.',
+    shipped: ['Stat schema', 'Season resets', 'Anti-exploit scoring']
   },
   {
-    id: 'fast-mvp',
-    label: 'Fast MVP mode',
-    base: 'starter-shot',
-    modules: ['datastore-profile-core', 'player-stats-core', 'ui-kit'],
-    reply: 'For a fast MVP, keep it tight: Starter Shot + DataStore Core + Player Stats + UI Kit.'
+    id: 'match-system',
+    title: 'Timer + Match System',
+    summary: 'Stabilized match flow and reduced aborts.',
+    shipped: ['State machine', 'Overtime logic', 'Round hooks']
+  },
+  {
+    id: 'admin-kit',
+    title: 'Admin + Permissions Kit',
+    summary: 'Secure ops tooling for community safety.',
+    shipped: ['Role gates', 'Audit logs', 'Command UI']
   }
 ];
 
 export default function HomePage() {
-  const [activeOrderView, setActiveOrderView] = useState<'builder' | 'catalog'>('builder');
-  const [selectedBase, setSelectedBase] = useState<string>('house-latte');
-  const [selectedModules, setSelectedModules] = useState<string[]>(["datastore-profile-core"]);
-  const [selectedCustomizations, setSelectedCustomizations] = useState<string[]>(['ui-skinning']);
-  const [expandedMenu, setExpandedMenu] = useState<string | null>('bases');
-  const [activeProduct, setActiveProduct] = useState<string | null>(null);
+  const [step, setStep] = useState<Step>('landing');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [selectedSubModules, setSelectedSubModules] = useState<string[]>([]);
   const [aiOpen, setAiOpen] = useState(true);
   const [aiMessage, setAiMessage] = useState(
-    'Tell me what you’re building, and I’ll recommend a clean base + modules.'
+    'Tell me what you’re building. I’ll suggest a small, clean system set.'
+  );
+  const [universeEntries, setUniverseEntries] = useState<Array<{ id: string; label: string }>>([]);
+  const [universeId, setUniverseId] = useState('');
+  const [universeLabel, setUniverseLabel] = useState('');
+
+  const progress = useMemo(() => {
+    const map: Record<Step, number> = {
+      landing: 10,
+      category: 30,
+      modules: 55,
+      customize: 75,
+      summary: 90,
+      dashboard: 100
+    };
+    return map[step];
+  }, [step]);
+
+  const selectedCategory = useMemo(
+    () => categories.find((category) => category.id === selectedCategoryId),
+    [selectedCategoryId]
   );
 
   const selectedModuleItems = useMemo(() => {
-    const allModules = moduleCategories.flatMap((category) => category.items);
-    return allModules.filter((module) => selectedModules.includes(module.id));
+    return categories.flatMap((category) => category.modules).filter((module) => selectedModules.includes(module.id));
   }, [selectedModules]);
 
-  const selectedCustomizationItems = useMemo(() => {
-    return customizations.filter((item) => selectedCustomizations.includes(item.id));
-  }, [selectedCustomizations]);
+  const selectedSubModuleItems = useMemo(() => {
+    return selectedModuleItems
+      .flatMap((module) => module.subModules)
+      .filter((item) => selectedSubModules.includes(item.id));
+  }, [selectedModuleItems, selectedSubModules]);
 
-  const selectedBaseItem = useMemo(() => bases.find((base) => base.id === selectedBase), [selectedBase]);
-
-  const complexityLabel = useMemo(() => {
-    const score = selectedModules.length + selectedCustomizations.length;
-    if (score <= 3) return 'Low complexity';
-    if (score <= 6) return 'Medium complexity';
-    return 'High complexity';
-  }, [selectedModules.length, selectedCustomizations.length]);
-
-  const receiptItems = [
-    selectedBaseItem?.name ?? 'No base selected',
-    ...selectedModuleItems.map((item) => item.name),
-    ...selectedCustomizationItems.map((item) => item.name)
-  ];
-
-  const handleToggleModule = (id: string) => {
+  const toggleModule = (moduleId: string) => {
     setSelectedModules((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(moduleId) ? prev.filter((id) => id !== moduleId) : [...prev, moduleId]
     );
   };
 
-  const handleToggleCustomization = (id: string) => {
-    setSelectedCustomizations((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+  const toggleSubModule = (subModuleId: string) => {
+    setSelectedSubModules((prev) =>
+      prev.includes(subModuleId) ? prev.filter((id) => id !== subModuleId) : [...prev, subModuleId]
     );
   };
 
-  const handleAiPreset = (presetId: string) => {
-    const preset = aiPresets.find((item) => item.id === presetId);
-    if (!preset) return;
-    setSelectedBase(preset.base);
-    setSelectedModules(preset.modules);
-    setAiMessage(preset.reply);
+  const handleAiSuggestion = (id: string) => {
+    const suggestion = aiSuggestions.find((item) => item.id === id);
+    if (!suggestion) return;
+    setAiMessage(suggestion.message);
+    setSelectedModules((prev) => Array.from(new Set([...prev, ...suggestion.modules])));
   };
 
-  const activeProductItem = productCatalog.find((item) => item.id === activeProduct);
+  const handleAddUniverse = () => {
+    if (!universeId.trim()) return;
+    setUniverseEntries((prev) => [...prev, { id: universeId.trim(), label: universeLabel.trim() || 'Primary' }]);
+    setUniverseId('');
+    setUniverseLabel('');
+  };
 
   return (
     <div className="min-h-screen bg-cream text-espresso">
       <div className="fixed inset-x-0 top-0 z-40 h-1 bg-cream">
-        <div className="h-full w-1/3 animate-pour-bar rounded-full bg-espresso/80" />
+        <div className="h-full rounded-full bg-espresso/70 transition-all duration-700" style={{ width: `${progress}%` }} />
       </div>
 
       <header className="sticky top-0 z-30 border-b border-espresso/10 bg-cream/90 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full border border-espresso/20 bg-espresso text-cream flex items-center justify-center text-xs font-semibold">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-espresso/20 bg-espresso text-xs font-semibold text-cream">
               Coco
             </div>
-            <div>
-              <p className="text-[0.65rem] uppercase tracking-[0.35em] text-espresso/60">Coco</p>
+            <div className="leading-tight">
+              <p className="text-[0.6rem] uppercase tracking-[0.4em] text-espresso/50">Coco</p>
               <p className="text-sm font-semibold">Modular Roblox Systems</p>
             </div>
           </div>
-          <nav className="hidden items-center gap-6 text-sm md:flex">
-            <a className="hover:text-espresso/80" href="#who">
-              Who We Are
-            </a>
-            <a className="hover:text-espresso/80" href="#order">
-              Order
-            </a>
-            <a className="hover:text-espresso/80" href="#portfolio">
-              Portfolio
-            </a>
-          </nav>
-          <div className="hidden md:flex">
-            <a
-              href="#order"
-              className="rounded-full bg-espresso px-4 py-2 text-xs font-semibold uppercase tracking-widest text-cream shadow-soft transition hover:-translate-y-0.5"
-            >
+          <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-espresso/50">
+            <button onClick={() => setStep('landing')} className="hover:text-espresso">
+              Home
+            </button>
+            <button onClick={() => setStep('category')} className="hover:text-espresso">
               Start an Order
-            </a>
-          </div>
-          <div className="md:hidden">
-            <button className="rounded-full border border-espresso/20 px-3 py-1 text-xs uppercase tracking-widest">
-              Menu
+            </button>
+            <button onClick={() => setStep('summary')} className="hover:text-espresso">
+              Receipt
             </button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-6 pb-20">
-        <section id="who" className="relative overflow-hidden py-16">
-          <div className="absolute right-0 top-6 hidden h-40 w-40 rounded-full bg-espresso/10 blur-3xl md:block" />
-          <div className="grid gap-10 md:grid-cols-[1.2fr_0.8fr]">
+      <main className="mx-auto w-full max-w-5xl px-6 py-16">
+        {step === 'landing' && (
+          <section className="grid gap-12 md:grid-cols-[1.1fr_0.9fr]">
             <div className="space-y-6">
-              <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Welcome to Coco</p>
-              <h1 className="text-4xl font-semibold leading-tight md:text-5xl">
-                Modular Roblox systems, brewed fast and tuned clean.
-              </h1>
-              <p className="text-base text-espresso/70">
-                Coco builds repeatable, production-ready Roblox systems that reduce rework, speed up
-                shipping, and scale better than one-off scripts.
+              <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Welcome</p>
+              <h1 className="text-4xl font-semibold leading-tight">Coco builds modular Roblox systems.</h1>
+              <p className="text-sm text-espresso/70">
+                Proven foundations. Customizable modules. Clean delivery.
               </p>
               <div className="flex flex-wrap gap-3">
-                <a
-                  href="#order"
+                <button
+                  onClick={() => setStep('category')}
                   className="rounded-full bg-espresso px-5 py-2 text-xs font-semibold uppercase tracking-widest text-cream shadow-soft"
                 >
-                  Build your order
-                </a>
-                <a
-                  href="#order"
+                  Start an Order
+                </button>
+                <button
+                  onClick={() => setStep('summary')}
                   className="rounded-full border border-espresso/20 px-5 py-2 text-xs font-semibold uppercase tracking-widest"
                 >
-                  Browse the menu
-                </a>
+                  View Portfolio
+                </button>
               </div>
             </div>
-            <div className="relative space-y-4 rounded-3xl border border-espresso/15 bg-cream/80 p-6 shadow-soft">
-              <div className="absolute -top-6 right-4 h-24 w-24 rounded-full bg-espresso/10 blur-2xl" />
-              <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Ambient</p>
-              <div className="relative h-40 overflow-hidden rounded-2xl border border-espresso/10 bg-espresso/5">
+            <div className="relative overflow-hidden rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
+              <div className="absolute inset-0 opacity-40">
                 <div className="steam" />
                 <div className="steam steam-delayed" />
-                <div className="absolute inset-0 flex items-center justify-center text-xs uppercase tracking-[0.3em] text-espresso/50">
-                  Steam Drift
-                </div>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                {['Base', 'Modules', 'Custom'].map((item, index) => (
-                  <div
-                    key={item}
-                    className="flex flex-col items-start gap-2 rounded-2xl border border-espresso/10 bg-cream/90 p-3"
-                  >
-                    <span className="text-xs uppercase tracking-[0.35em] text-espresso/50">0{index + 1}</span>
-                    <span className="text-sm font-semibold">{item}</span>
-                    <div className="h-2 w-full rounded-full bg-espresso/10">
-                      <div
-                        className="h-full rounded-full bg-espresso/60"
-                        style={{ width: `${35 + index * 20}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
+              <div className="relative space-y-4">
+                <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Ambient</p>
+                <div className="h-32 rounded-2xl border border-espresso/10 bg-espresso/5" />
+                <div className="h-2 w-full rounded-full bg-espresso/10">
+                  <div className="h-full w-1/2 rounded-full bg-espresso/60 animate-cup-fill" />
+                </div>
+                <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">Quiet motion</p>
               </div>
             </div>
-          </div>
+          </section>
+        )}
 
-          <div className="mt-16 grid gap-6 md:grid-cols-3">
-            {[
-              {
-                id: 'bases',
-                title: 'Bases',
-                description: 'Proven foundations that ship fast.',
-                examples: ['Starter Shot', 'House Latte', 'Cold Brew Ops']
-              },
-              {
-                id: 'modules',
-                title: 'Modules',
-                description: 'Plug-in systems like stats, matchmaking, economy.',
-                examples: ['DataStore core', 'Match flow', 'Economy loops']
-              },
-              {
-                id: 'custom',
-                title: 'Customizations',
-                description: 'Performance, UI skin, guardrails.',
-                examples: ['UI skinning', 'Telemetry', 'Anti-exploit']
-              }
-            ].map((tile) => (
+        {step === 'category' && (
+          <section className="space-y-8">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Step 1</p>
+                <h2 className="text-3xl font-semibold">What kind of system are you building?</h2>
+                <p className="text-sm text-espresso/70">Choose a core category to start your order.</p>
+              </div>
               <button
-                key={tile.id}
-                onClick={() => setExpandedMenu(expandedMenu === tile.id ? null : tile.id)}
-                className="group rounded-3xl border border-espresso/10 bg-cream/80 p-6 text-left shadow-soft transition hover:-translate-y-1"
+                onClick={() => setStep('landing')}
+                className="text-xs uppercase tracking-[0.3em] text-espresso/50"
               >
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">{tile.title}</h3>
-                  <span className="rounded-full border border-espresso/10 px-2 py-1 text-[0.6rem] uppercase tracking-[0.3em]">
-                    Expand
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-espresso/70">{tile.description}</p>
-                {expandedMenu === tile.id && (
-                  <div className="mt-4 space-y-2 text-xs text-espresso/70">
-                    {tile.examples.map((example) => (
-                      <div key={example} className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-espresso/60" />
-                        <span>{example}</span>
-                      </div>
-                    ))}
-                    <div className="mt-3 h-2 w-full rounded-full bg-espresso/10">
-                      <div className="h-full w-2/3 rounded-full bg-espresso/60 animate-cup-fill" />
-                    </div>
-                  </div>
-                )}
+                Back
               </button>
-            ))}
-          </div>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => {
+                    setSelectedCategoryId(category.id);
+                    setStep('modules');
+                  }}
+                  className="rounded-3xl border border-espresso/10 bg-cream/80 p-6 text-left shadow-soft transition hover:-translate-y-1"
+                >
+                  <h3 className="text-lg font-semibold">{category.title}</h3>
+                  <p className="mt-2 text-sm text-espresso/70">{category.description}</p>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
 
-          <div className="mt-16 grid gap-10 md:grid-cols-[1.1fr_0.9fr]">
-            <div className="space-y-6">
-              <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">How We Brew</p>
-              <h2 className="text-2xl font-semibold">Pick a base. Add modules. Ship and tune.</h2>
-              <div className="space-y-4 text-sm text-espresso/70">
-                <p>
-                  We start with a proven base, add only the modules you need, then tune performance
-                  and polish for launch.
-                </p>
-                <ol className="space-y-2">
-                  <li>01 — Choose a base that fits your scope.</li>
-                  <li>02 — Layer modules like stats, matchmaking, economy.</li>
-                  <li>03 — Customize, tune, and ship with confidence.</li>
-                </ol>
+        {step === 'modules' && selectedCategory && (
+          <section className="space-y-8">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Step 2</p>
+                <h2 className="text-3xl font-semibold">Select systems in {selectedCategory.title}.</h2>
+                <p className="text-sm text-espresso/70">Add modules that match your loop.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setStep('category')}
+                  className="text-xs uppercase tracking-[0.3em] text-espresso/50"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={() => setStep('customize')}
+                  className="rounded-full bg-espresso px-4 py-2 text-xs uppercase tracking-widest text-cream"
+                >
+                  Continue
+                </button>
               </div>
             </div>
-            <div className="rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
-              <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Brew Meter</p>
-              <div className="mt-4 h-40 rounded-2xl border border-espresso/10 bg-espresso/5 p-4">
-                <div className="flex h-full items-end justify-between">
-                  {[35, 55, 75].map((height, index) => (
-                    <div key={height} className="flex w-1/3 flex-col items-center gap-2">
-                      <div className="h-full w-6 rounded-full bg-espresso/10">
-                        <div
-                          className="animate-cup-fill rounded-full bg-espresso/60"
-                          style={{ height: `${height}%` }}
-                        />
-                      </div>
-                      <span className="text-[0.65rem] uppercase tracking-[0.35em] text-espresso/50">
-                        Step 0{index + 1}
-                      </span>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {selectedCategory.modules.map((module) => {
+                const isSelected = selectedModules.includes(module.id);
+                return (
+                  <button
+                    key={module.id}
+                    onClick={() => toggleModule(module.id)}
+                    className={`rounded-3xl border p-6 text-left shadow-soft transition hover:-translate-y-1 ${
+                      isSelected ? 'border-espresso bg-espresso text-cream' : 'border-espresso/10 bg-cream/80'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold">{module.name}</h3>
+                      {isSelected && <span className="text-xs uppercase tracking-[0.3em]">Selected</span>}
                     </div>
+                    <p className="mt-2 text-xs opacity-80">{module.description}</p>
+                    <p className="mt-3 text-[0.65rem] uppercase tracking-[0.3em] opacity-70">
+                      {module.bestFor}
+                    </p>
+                    <ul className="mt-3 space-y-1 text-[0.65rem] opacity-70">
+                      {module.includes.map((item) => (
+                        <li key={item}>• {item}</li>
+                      ))}
+                    </ul>
+                  </button>
+                );
+              })}
+            </div>
+
+            {aiOpen && (
+              <div className="rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">AI Barista</p>
+                    <p className="text-sm font-semibold">Short, clear recommendations.</p>
+                  </div>
+                  <button
+                    onClick={() => setAiOpen(false)}
+                    className="text-xs uppercase tracking-[0.3em] text-espresso/50"
+                  >
+                    Minimize
+                  </button>
+                </div>
+                <div className="mt-4 rounded-2xl border border-espresso/10 bg-cream/90 p-4 text-sm text-espresso/70">
+                  {aiMessage}
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {aiSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion.id}
+                      onClick={() => handleAiSuggestion(suggestion.id)}
+                      className="rounded-full border border-espresso/20 px-3 py-1 text-xs"
+                    >
+                      {suggestion.label}
+                    </button>
                   ))}
                 </div>
               </div>
-              <p className="mt-4 text-sm text-espresso/70">
-                The brew meter rises as you progress. Gentle motion, zero friction.
-              </p>
-            </div>
-          </div>
+            )}
+            {!aiOpen && (
+              <button
+                onClick={() => setAiOpen(true)}
+                className="rounded-full border border-espresso/20 px-4 py-2 text-xs uppercase tracking-widest"
+              >
+                Open AI Barista
+              </button>
+            )}
+          </section>
+        )}
 
-          <div className="mt-16 space-y-6">
-            <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Who it’s for</p>
-            <div className="grid gap-4 md:grid-cols-3">
-              {archetypes.map((item) => (
-                <div key={item.id} className="rounded-3xl border border-espresso/10 bg-cream/80 p-5 shadow-soft">
-                  <h3 className="text-sm font-semibold">{item.title}</h3>
-                  <ul className="mt-3 space-y-1 text-xs text-espresso/70">
-                    {item.pains.map((pain) => (
-                      <li key={pain}>• {pain}</li>
-                    ))}
-                  </ul>
-                  <p className="mt-4 text-xs text-espresso/60">{item.mapping}</p>
+        {step === 'customize' && (
+          <section className="space-y-8">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Step 3</p>
+                <h2 className="text-3xl font-semibold">Refine with sub-modules.</h2>
+                <p className="text-sm text-espresso/70">Select details for each system you chose.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setStep('modules')}
+                  className="text-xs uppercase tracking-[0.3em] text-espresso/50"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={() => setStep('summary')}
+                  className="rounded-full bg-espresso px-4 py-2 text-xs uppercase tracking-widest text-cream"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {selectedModuleItems.map((module) => (
+                <div key={module.id} className="rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold">{module.name}</h3>
+                      <p className="text-sm text-espresso/70">{module.description}</p>
+                    </div>
+                    <span className="text-xs uppercase tracking-[0.3em] text-espresso/50">Details</span>
+                  </div>
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    {module.subModules.map((subModule) => {
+                      const isSelected = selectedSubModules.includes(subModule.id);
+                      return (
+                        <button
+                          key={subModule.id}
+                          onClick={() => toggleSubModule(subModule.id)}
+                          className={`rounded-2xl border p-4 text-left transition ${
+                            isSelected
+                              ? 'border-espresso bg-espresso text-cream'
+                              : 'border-espresso/10 bg-cream/90'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-sm font-semibold">{subModule.name}</h4>
+                            {isSelected && <span className="text-[0.6rem] uppercase tracking-[0.3em]">Added</span>}
+                          </div>
+                          <p className="mt-2 text-xs opacity-80">{subModule.description}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
-        <section id="order" className="py-16">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Order</p>
-              <h2 className="text-3xl font-semibold">Choose your base, add modules, customize.</h2>
-              <p className="text-sm text-espresso/70">
-                Build a package or browse the catalog. Your order tray stays with you.
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setActiveOrderView('builder')}
-                className={`rounded-full px-4 py-2 text-xs uppercase tracking-widest ${
-                  activeOrderView === 'builder'
-                    ? 'bg-espresso text-cream'
-                    : 'border border-espresso/20 text-espresso'
-                }`}
-              >
-                Build a Package
-              </button>
-              <button
-                onClick={() => setActiveOrderView('catalog')}
-                className={`rounded-full px-4 py-2 text-xs uppercase tracking-widest ${
-                  activeOrderView === 'catalog'
-                    ? 'bg-espresso text-cream'
-                    : 'border border-espresso/20 text-espresso'
-                }`}
-              >
-                Browse Products
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-10 grid gap-8 lg:grid-cols-[1.5fr_0.6fr]">
-            <div className="space-y-8">
-              {aiOpen && (
-                <div className="rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-espresso text-cream flex items-center justify-center text-xs font-semibold">
-                        AI
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.35em] text-espresso/50">AI Barista</p>
-                        <p className="text-sm font-semibold">Short, practical guidance.</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setAiOpen(false)}
-                      className="text-xs uppercase tracking-[0.3em] text-espresso/50"
-                    >
-                      Minimize
-                    </button>
-                  </div>
-                  <div className="mt-4 rounded-2xl border border-espresso/10 bg-cream/90 p-4 text-sm text-espresso/70">
-                    {aiMessage}
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {aiPresets.map((preset) => (
-                      <button
-                        key={preset.id}
-                        onClick={() => handleAiPreset(preset.id)}
-                        className="rounded-full border border-espresso/20 px-3 py-1 text-xs"
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                    <button className="rounded-full border border-espresso/20 px-3 py-1 text-xs">
-                      Add recommended modules
-                    </button>
-                    <button className="rounded-full border border-espresso/20 px-3 py-1 text-xs">
-                      Show cheaper option
-                    </button>
-                    <button className="rounded-full border border-espresso/20 px-3 py-1 text-xs">
-                      Skip and browse
-                    </button>
-                    <button className="rounded-full border border-espresso/20 px-3 py-1 text-xs">
-                      Place order
-                    </button>
-                  </div>
-                  <div className="mt-4 flex items-center gap-3 rounded-2xl border border-espresso/10 bg-cream/90 px-4 py-3">
-                    <span className="text-xs uppercase tracking-[0.3em] text-espresso/50">Tell me</span>
-                    <input
-                      placeholder="Tell me what you’re building"
-                      className="w-full bg-transparent text-sm outline-none placeholder:text-espresso/40"
-                    />
-                    <button className="rounded-full bg-espresso px-3 py-1 text-xs uppercase tracking-widest text-cream">
-                      Send
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {!aiOpen && (
+        {step === 'summary' && (
+          <section className="space-y-8">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Summary</p>
+                <h2 className="text-3xl font-semibold">Receipt summary</h2>
+                <p className="text-sm text-espresso/70">Confirm your selections before the dashboard.</p>
+              </div>
+              <div className="flex gap-3">
                 <button
-                  onClick={() => setAiOpen(true)}
-                  className="rounded-full border border-espresso/20 px-4 py-2 text-xs uppercase tracking-widest"
+                  onClick={() => setStep('customize')}
+                  className="text-xs uppercase tracking-[0.3em] text-espresso/50"
                 >
-                  Open AI Barista
+                  Back
                 </button>
-              )}
-
-              {activeOrderView === 'builder' ? (
-                <div className="space-y-8">
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-semibold">Stage 1 — Choose a base</h3>
-                    <div className="grid gap-4 md:grid-cols-3">
-                      {bases.map((base) => (
-                        <button
-                          key={base.id}
-                          onClick={() => setSelectedBase(base.id)}
-                          className={`rounded-3xl border p-5 text-left shadow-soft transition hover:-translate-y-1 ${
-                            selectedBase === base.id
-                              ? 'border-espresso bg-espresso text-cream'
-                              : 'border-espresso/10 bg-cream/80'
-                          }`}
-                        >
-                          <h4 className="text-sm font-semibold">{base.name}</h4>
-                          <p className="mt-2 text-xs opacity-80">{base.description}</p>
-                          <p className="mt-3 text-[0.65rem] uppercase tracking-[0.3em] opacity-70">
-                            {base.bestFor}
-                          </p>
-                          <p className="mt-2 text-[0.65rem] uppercase tracking-[0.3em] opacity-70">
-                            {base.timeline}
-                          </p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-semibold">Stage 2 — Pick your modules</h3>
-                    {moduleCategories.map((category) => (
-                      <div key={category.id} className="space-y-3">
-                        <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">{category.name}</p>
-                        <div className="grid gap-4 md:grid-cols-2">
-                          {category.items.map((module) => (
-                            <button
-                              key={module.id}
-                              onClick={() => handleToggleModule(module.id)}
-                              className={`rounded-3xl border p-5 text-left shadow-soft transition hover:-translate-y-1 ${
-                                selectedModules.includes(module.id)
-                                  ? 'border-espresso bg-espresso text-cream'
-                                  : 'border-espresso/10 bg-cream/80'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <h4 className="text-sm font-semibold">{module.name}</h4>
-                                <div className="flex gap-1 text-[0.55rem] uppercase tracking-[0.3em]">
-                                  {module.tags.map((tag) => (
-                                    <span key={tag} className="rounded-full border px-2 py-1">
-                                      {tag}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                              <p className="mt-2 text-xs opacity-80">{module.description}</p>
-                              <ul className="mt-3 space-y-1 text-[0.65rem] opacity-70">
-                                {module.includes.map((item) => (
-                                  <li key={item}>• {item}</li>
-                                ))}
-                              </ul>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-semibold">Stage 3 — Customizations</h3>
-                    <div className="grid gap-4 md:grid-cols-2">
-                      {customizations.map((custom) => (
-                        <button
-                          key={custom.id}
-                          onClick={() => handleToggleCustomization(custom.id)}
-                          className={`rounded-3xl border p-5 text-left shadow-soft transition hover:-translate-y-1 ${
-                            selectedCustomizations.includes(custom.id)
-                              ? 'border-espresso bg-espresso text-cream'
-                              : 'border-espresso/10 bg-cream/80'
-                          }`}
-                        >
-                          <h4 className="text-sm font-semibold">{custom.name}</h4>
-                          <p className="mt-2 text-xs opacity-80">{custom.description}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Receipt Preview</p>
-                        <h3 className="text-lg font-semibold">Request this order</h3>
-                      </div>
-                      <span className="rounded-full border border-espresso/20 px-3 py-1 text-xs uppercase tracking-widest">
-                        {complexityLabel}
-                      </span>
-                    </div>
-                    <div className="mt-4 space-y-2 rounded-2xl border border-espresso/10 bg-cream/90 p-4 text-sm">
-                      {receiptItems.map((item) => (
-                        <div key={item} className="flex items-center justify-between">
-                          <span>{item}</span>
-                          <span className="text-xs uppercase tracking-[0.3em] text-espresso/50">Scope-based</span>
-                        </div>
-                      ))}
-                    </div>
-                    <form className="mt-4 grid gap-3 text-xs">
-                      <input
-                        className="rounded-full border border-espresso/20 bg-transparent px-4 py-2"
-                        placeholder="Name"
-                      />
-                      <input
-                        className="rounded-full border border-espresso/20 bg-transparent px-4 py-2"
-                        placeholder="Email"
-                      />
-                      <textarea
-                        className="min-h-[96px] rounded-3xl border border-espresso/20 bg-transparent px-4 py-3"
-                        placeholder="Tell us about your experience, timeline, and constraints."
-                      />
-                      <button
-                        type="button"
-                        className="rounded-full bg-espresso px-4 py-2 text-xs uppercase tracking-widest text-cream"
-                      >
-                        Request This Order
-                      </button>
-                      <p className="text-[0.65rem] uppercase tracking-[0.3em] text-espresso/50">
-                        Order placed → We review and respond with a build plan.
-                      </p>
-                    </form>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div className="flex gap-3">
-                      <input
-                        className="rounded-full border border-espresso/20 bg-transparent px-4 py-2 text-xs"
-                        placeholder="Search products"
-                      />
-                      <select className="rounded-full border border-espresso/20 bg-transparent px-4 py-2 text-xs">
-                        <option>All categories</option>
-                        {moduleCategories.map((category) => (
-                          <option key={category.id}>{category.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">
-                      {productCatalog.length} products
-                    </p>
-                  </div>
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {productCatalog.map((product) => (
-                      <button
-                        key={product.id}
-                        onClick={() => setActiveProduct(product.id)}
-                        className="rounded-3xl border border-espresso/10 bg-cream/80 p-5 text-left shadow-soft transition hover:-translate-y-1"
-                      >
-                        <p className="text-[0.65rem] uppercase tracking-[0.3em] text-espresso/50">
-                          {product.category}
-                        </p>
-                        <h4 className="mt-2 text-sm font-semibold">{product.name}</h4>
-                        <p className="mt-2 text-xs text-espresso/70">{product.description}</p>
-                        <span className="mt-3 inline-flex rounded-full border border-espresso/20 px-3 py-1 text-[0.6rem] uppercase tracking-[0.3em]">
-                          View details
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-
-                  {activeProductItem && (
-                    <div className="rounded-3xl border border-espresso/15 bg-cream/90 p-6 shadow-soft">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">
-                            {activeProductItem.category}
-                          </p>
-                          <h3 className="text-xl font-semibold">{activeProductItem.name}</h3>
-                        </div>
-                        <button
-                          onClick={() => setActiveProduct(null)}
-                          className="text-xs uppercase tracking-[0.3em] text-espresso/50"
-                        >
-                          Close
-                        </button>
-                      </div>
-                      <p className="mt-3 text-sm text-espresso/70">{activeProductItem.description}</p>
-                      <div className="mt-4 grid gap-4 md:grid-cols-3">
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">Solves</p>
-                          <p className="mt-2 text-sm">{activeProductItem.solves}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">Includes</p>
-                          <ul className="mt-2 space-y-1 text-xs text-espresso/70">
-                            {activeProductItem.includes.map((item) => (
-                              <li key={item}>• {item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">Requirements</p>
-                          <ul className="mt-2 space-y-1 text-xs text-espresso/70">
-                            {activeProductItem.requirements.map((item) => (
-                              <li key={item}>• {item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">Add-ons</p>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {activeProductItem.addOns.map((item) => (
-                            <span key={item} className="rounded-full border border-espresso/20 px-3 py-1 text-xs">
-                              {item}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="mt-6 flex flex-wrap gap-3">
-                        <button className="rounded-full bg-espresso px-4 py-2 text-xs uppercase tracking-widest text-cream">
-                          Request build
-                        </button>
-                        <button className="rounded-full border border-espresso/20 px-4 py-2 text-xs uppercase tracking-widest">
-                          Add to order tray
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                <button
+                  onClick={() => setStep('dashboard')}
+                  className="rounded-full bg-espresso px-4 py-2 text-xs uppercase tracking-widest text-cream"
+                >
+                  Continue
+                </button>
+              </div>
             </div>
 
-            <aside className="sticky top-24 h-fit rounded-3xl border border-espresso/15 bg-cream/90 p-6 shadow-soft">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Order Tray</p>
-                  <h3 className="text-lg font-semibold">Your selections</h3>
-                </div>
-                <div className="h-10 w-10 rounded-full border border-espresso/20 bg-espresso/10 p-2">
-                  <div className="h-full w-full rounded-full bg-espresso/40 animate-cup-fill" />
-                </div>
-              </div>
-              <div className="mt-4 space-y-4 text-sm">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">Base</p>
-                  <p className="mt-2 font-semibold">{selectedBaseItem?.name}</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">Modules</p>
-                  <ul className="mt-2 space-y-1 text-xs text-espresso/70">
-                    {selectedModuleItems.map((item) => (
-                      <li key={item.id}>• {item.name}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">Customizations</p>
-                  <ul className="mt-2 space-y-1 text-xs text-espresso/70">
-                    {selectedCustomizationItems.map((item) => (
-                      <li key={item.id}>• {item.name}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="rounded-2xl border border-espresso/15 bg-cream/80 p-3 text-xs">
-                  <p className="uppercase tracking-[0.3em] text-espresso/50">Complexity</p>
-                  <p className="mt-2 text-sm font-semibold">{complexityLabel}</p>
-                </div>
-                <button className="w-full rounded-full bg-espresso px-4 py-2 text-xs uppercase tracking-widest text-cream">
-                  Request Build Slot
-                </button>
-              </div>
-            </aside>
-          </div>
-        </section>
-
-        <section id="portfolio" className="py-16">
-          <div className="grid gap-10 md:grid-cols-[1.1fr_0.9fr]">
-            <div className="space-y-4">
-              <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Portfolio + About</p>
-              <h2 className="text-3xl font-semibold">Systems builder. Roblox specialist. Full-stack when it matters.</h2>
-              <p className="text-sm text-espresso/70">
-                Modular architecture, clear service boundaries, and production discipline. Build logs
-                tell the story without fluff.
-              </p>
+            <div className="grid gap-6 md:grid-cols-[1.2fr_0.8fr]">
               <div className="rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
-                <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Skills & Tooling</p>
-                <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                  {[
-                    'Roblox Lua architecture',
-                    'Client/server networking',
-                    'DataStore patterns',
-                    'Modular service frameworks',
-                    'UI systems',
-                    'Discord bots + web dashboards',
-                    'Optional AI hooks'
-                  ].map((skill) => (
-                    <span key={skill} className="rounded-full border border-espresso/20 px-3 py-1">
-                      {skill}
-                    </span>
+                <h3 className="text-lg font-semibold">Your build</h3>
+                <div className="mt-4 space-y-3 text-sm">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">Category</p>
+                    <p className="mt-2">{selectedCategory?.title ?? 'Not selected'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">Modules</p>
+                    <ul className="mt-2 space-y-1 text-xs text-espresso/70">
+                      {selectedModuleItems.length === 0 && <li>None selected.</li>}
+                      {selectedModuleItems.map((module) => (
+                        <li key={module.id}>• {module.name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">Sub-modules</p>
+                    <ul className="mt-2 space-y-1 text-xs text-espresso/70">
+                      {selectedSubModuleItems.length === 0 && <li>No refinements selected.</li>}
+                      {selectedSubModuleItems.map((item) => (
+                        <li key={item.id}>• {item.name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
+                <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Portfolio</p>
+                <div className="mt-4 space-y-4">
+                  {portfolioHighlights.map((item) => (
+                    <div key={item.id} className="rounded-2xl border border-espresso/10 bg-cream/90 p-4">
+                      <h4 className="text-sm font-semibold">{item.title}</h4>
+                      <p className="mt-2 text-xs text-espresso/70">{item.summary}</p>
+                      <ul className="mt-3 space-y-1 text-[0.65rem] text-espresso/60">
+                        {item.shipped.map((detail) => (
+                          <li key={detail}>• {detail}</li>
+                        ))}
+                      </ul>
+                    </div>
                   ))}
                 </div>
               </div>
             </div>
+          </section>
+        )}
+
+        {step === 'dashboard' && (
+          <section className="space-y-8">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Dashboard</p>
+                <h2 className="text-3xl font-semibold">Client access & licensing</h2>
+                <p className="text-sm text-espresso/70">Manage Universe IDs and access status.</p>
+              </div>
+              <button
+                onClick={() => setStep('summary')}
+                className="text-xs uppercase tracking-[0.3em] text-espresso/50"
+              >
+                Back
+              </button>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-[1.2fr_0.8fr]">
+              <div className="rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
+                <h3 className="text-lg font-semibold">Active systems</h3>
+                <ul className="mt-4 space-y-2 text-sm text-espresso/70">
+                  {selectedModuleItems.length === 0 && <li>No modules selected yet.</li>}
+                  {selectedModuleItems.map((module) => (
+                    <li key={module.id} className="flex items-center justify-between">
+                      <span>{module.name}</span>
+                      <span className="text-[0.65rem] uppercase tracking-[0.3em] text-espresso/50">Requested</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
+                <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">License key</p>
+                <div className="mt-4 rounded-2xl border border-espresso/10 bg-cream/90 p-4 text-sm">
+                  <p className="text-xs uppercase tracking-[0.3em] text-espresso/50">Token</p>
+                  <p className="mt-2 font-mono text-sm">COCO-48F2-19AS-7XQ9</p>
+                  <p className="mt-3 text-xs text-espresso/60">
+                    Store securely (Roblox Secrets Store recommended).
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
-              <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">3D Shelf</p>
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                {shelfItems.map((item, index) => (
-                  <div key={item.id} className="flex flex-col items-center gap-3 rounded-2xl border border-espresso/10 bg-cream/90 p-4">
-                    <div
-                      className="flex h-16 w-16 items-center justify-center rounded-2xl border border-espresso/20 bg-espresso/10 text-sm font-semibold"
-                      style={{ animationDelay: `${index * 0.4}s` }}
-                    >
-                      <span className="shelf-orb" />
+              <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">Universe access</h3>
+                  <p className="text-sm text-espresso/70">Whitelist the experiences that can load your systems.</p>
+                </div>
+                <button
+                  onClick={handleAddUniverse}
+                  className="rounded-full bg-espresso px-4 py-2 text-xs uppercase tracking-widest text-cream"
+                >
+                  Add Universe
+                </button>
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <input
+                  value={universeId}
+                  onChange={(event) => setUniverseId(event.target.value)}
+                  className="rounded-full border border-espresso/20 bg-transparent px-4 py-2 text-sm"
+                  placeholder="Universe ID"
+                />
+                <input
+                  value={universeLabel}
+                  onChange={(event) => setUniverseLabel(event.target.value)}
+                  className="rounded-full border border-espresso/20 bg-transparent px-4 py-2 text-sm"
+                  placeholder="Label (optional)"
+                />
+              </div>
+              <div className="mt-6 space-y-3">
+                {universeEntries.length === 0 && (
+                  <p className="text-sm text-espresso/60">No Universe IDs added yet.</p>
+                )}
+                {universeEntries.map((entry) => (
+                  <div
+                    key={`${entry.id}-${entry.label}`}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-espresso/10 bg-cream/90 p-4 text-sm"
+                  >
+                    <div>
+                      <p className="font-semibold">{entry.label}</p>
+                      <p className="text-xs text-espresso/60">Universe ID: {entry.id}</p>
                     </div>
-                    <span className="text-xs uppercase tracking-[0.3em] text-espresso/60">{item.label}</span>
+                    <span className="text-[0.65rem] uppercase tracking-[0.3em] text-espresso/50">Active</span>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
-
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
-            {buildLogs.map((log) => (
-              <div key={log.id} className="rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
-                <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Build log</p>
-                <h3 className="mt-2 text-lg font-semibold">{log.name}</h3>
-                <p className="mt-2 text-sm text-espresso/70">{log.goal}</p>
-                <p className="mt-3 text-xs uppercase tracking-[0.3em] text-espresso/50">Role</p>
-                <p className="text-sm">{log.role}</p>
-                <ul className="mt-3 space-y-1 text-xs text-espresso/70">
-                  {log.shipped.map((item) => (
-                    <li key={item}>• {item}</li>
-                  ))}
-                </ul>
-                <a
-                  href="#order"
-                  className="mt-4 inline-flex rounded-full border border-espresso/20 px-4 py-2 text-xs uppercase tracking-widest"
-                >
-                  Request something like this
-                </a>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-12 rounded-3xl border border-espresso/10 bg-cream/80 p-6 shadow-soft">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.4em] text-espresso/50">Engagement models</p>
-                <h3 className="text-xl font-semibold">One-time builds or an ongoing tab.</h3>
-                <p className="text-sm text-espresso/70">
-                  Consistent improvements and quick fixes, like being a regular at the café.
-                </p>
-              </div>
-              <a
-                href="#order"
-                className="rounded-full bg-espresso px-4 py-2 text-xs uppercase tracking-widest text-cream"
-              >
-                Start an order
-              </a>
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
       </main>
 
       <footer className="border-t border-espresso/10 bg-cream/90">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-8 md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-6 py-8 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-espresso/70">
             Coco brews modular Roblox systems—built from proven bases, customized to taste.
           </p>
           <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.3em] text-espresso/50">
             <span>contact@coco.dev</span>
             <span>Build slots: 2 open</span>
-            <a href="#order" className="text-espresso/80">
-              Request a build slot
-            </a>
           </div>
         </div>
       </footer>
