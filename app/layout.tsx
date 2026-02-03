@@ -1,18 +1,16 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { StoreProvider } from '@/lib/store';
 
 export const metadata: Metadata = {
-  title: 'SCP Facility Console',
-  description: 'SCP management and research simulation console.'
+  title: 'Coco — Modular Roblox Systems',
+  description:
+    'Coco is a minimalist, café-styled Roblox systems studio with modular bases, plug-in modules, and customizations.'
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <StoreProvider>{children}</StoreProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

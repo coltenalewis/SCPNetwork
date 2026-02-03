@@ -3,36 +3,49 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  @apply bg-slateCore-950 text-slate-100 min-h-screen;
+  @apply bg-cream text-espresso min-h-screen antialiased;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-.scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
+* {
+  scroll-behavior: smooth;
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: rgba(148, 163, 184, 0.35);
+.steam {
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  width: 40%;
+  height: 40%;
   border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent 70%);
+  animation: steam 6s ease-in-out infinite;
 }
 
-.scanlines {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-  background-size: 100% 3px;
+.steam-delayed {
+  left: 55%;
+  animation-delay: 2s;
 }
 
-.redaction {
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(15, 23, 42, 0.9) 0px,
-    rgba(15, 23, 42, 0.9) 6px,
-    rgba(30, 41, 59, 0.9) 6px,
-    rgba(30, 41, 59, 0.9) 12px
-  );
-  border-radius: 2px;
-  color: transparent;
+.shelf-orb {
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(216, 198, 182, 0.6), rgba(44, 31, 26, 0.2));
+  box-shadow: inset 0 0 12px rgba(44, 31, 26, 0.15);
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
