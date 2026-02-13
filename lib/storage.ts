@@ -1,46 +1,34 @@
 import { createInitialState } from './seed';
-import { GameState } from './types';
+import { AnankeState } from './types';
 
-const STORAGE_KEY = 'scp_facility_save_v1';
+const STORAGE_KEY = 'ananke_cache_v01';
 
-export const loadState = (): GameState | null => {
-  if (typeof window === 'undefined') {
-    return null;
-  }
+export const loadState = (): AnankeState | null => {
+  if (typeof window === 'undefined') return null;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return null;
-    }
-    const parsed = JSON.parse(raw) as Partial<GameState>;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<AnankeState>;
     const base = createInitialState();
     return {
       ...base,
       ...parsed,
-      player: parsed.player ?? base.player,
-      messages: parsed.messages ?? base.messages,
-      scpSettings: parsed.scpSettings ?? base.scpSettings
+      journals: parsed.journals ?? base.journals,
+      timeline: parsed.timeline ?? base.timeline,
+      nodes: parsed.nodes ?? base.nodes,
+      links: parsed.links ?? base.links,
+      goals: parsed.goals ?? base.goals,
+      milestones: parsed.milestones ?? base.milestones,
+      ideas: parsed.ideas ?? base.ideas,
+      preferences: { ...base.preferences, ...(parsed.preferences ?? {}) }
     };
   } catch (error) {
-    console.error('Failed to load save data', error);
+    console.error('Failed to load ANANKE cache', error);
     return null;
   }
 };
 
-export const saveState = (state: GameState) => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch (error) {
-    console.error('Failed to persist save data', error);
-  }
-};
-
-export const clearState = () => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  window.localStorage.removeItem(STORAGE_KEY);
+export const saveState = (state: AnankeState) => {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 };

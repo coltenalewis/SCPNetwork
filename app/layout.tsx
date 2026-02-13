@@ -3,8 +3,8 @@ import './globals.css';
 import { StoreProvider } from '@/lib/store';
 
 export const metadata: Metadata = {
-  title: 'SCP Facility Console',
-  description: 'SCP management and research simulation console.'
+  title: 'ANANKE',
+  description: 'Personal trajectory codex.'
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
