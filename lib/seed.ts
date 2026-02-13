@@ -1,36 +1,54 @@
-import { GameState } from './types';
+import { AnankeState } from './types';
 
-const now = () => new Date().toISOString();
+const now = new Date();
+const isoDay = now.toISOString().slice(0, 10);
+const month = now.toISOString().slice(0, 7);
 
-export const firstNames = ['Avery', 'Morgan', 'Riley', 'Jamie', 'Quinn', 'Dakota', 'Emerson'];
-export const lastNames = ['Nguyen', 'Patel', 'Sato', 'Ramirez', 'Okafor', 'Ivanov', 'Kowalski'];
-
-export const createInitialState = (): GameState => ({
+export const createInitialState = (): AnankeState => ({
   version: 1,
-  player: null,
-  messages: [
+  journals: [],
+  timeline: [
     {
-      id: 'msg-049-1',
-      role: 'system',
-      speaker: 'System',
-      content: 'Conversation initialized with SCP-049. Maintain protocol and log deviations.',
-      timestamp: now()
-    },
-    {
-      id: 'msg-049-2',
-      role: 'npc',
-      speaker: 'SCP-049',
-      content: 'I remain prepared to assist your physicians in addressing the Pestilence.',
-      timestamp: now()
+      id: 'tl-1',
+      title: 'Quarter planning review',
+      date: isoDay,
+      type: 'milestone',
+      monthFocus: 'Ship ANANKE prototype'
     }
   ],
-  scpSettings: {
-    guide:
-      'SCP-049 is articulate, clinical, and convinced it can cure the Pestilence. It avoids humor, prefers procedural language, and respects authority cues. It never leaves containment or acts outside its established limits.',
-    metrics: [
-      { id: 'compliance', label: 'Compliance', value: 68 },
-      { id: 'rapport', label: 'Rapport', value: 52 },
-      { id: 'agitation', label: 'Agitation', value: 18 }
-    ]
+  nodes: [
+    {
+      id: 'node-1',
+      title: 'ANANKE v0.1 launch',
+      type: 'Milestone',
+      status: 'active',
+      targetDate: isoDay,
+      linkedCalendarItemIds: ['tl-1'],
+      whyItMatters: 'Creates operational continuity for goals, journal, and causality.'
+    }
+  ],
+  links: [],
+  goals: [
+    {
+      id: 'goal-1',
+      title: 'Build calm operational life system',
+      horizon: 'year',
+      theme: 'Consistency over intensity',
+      milestones: ['ms-1']
+    }
+  ],
+  milestones: [
+    {
+      id: 'ms-1',
+      title: 'Deploy ANANKE prototype',
+      month,
+      status: 'active',
+      goalId: 'goal-1'
+    }
+  ],
+  ideas: [],
+  preferences: {
+    northStarMonth: 'Convert captured thoughts into structured time.',
+    monthlyTheme: 'Execution discipline'
   }
 });
