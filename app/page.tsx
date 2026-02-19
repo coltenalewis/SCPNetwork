@@ -3,109 +3,66 @@
 import { useEffect, useMemo, useState } from 'react';
 
 const HERO_BACKDROP_URL =
-  'https://chatgpt.com/backend-api/estuary/content?id=file_00000000a85071f78690afc2cedb112f&ts=492093&p=fs&cid=1&sig=9e9d5824eac8120b48d26a1d2d289e7680c1dd154b31bf03efaebce1adcbd16c&v=0';
+  'https://media.discordapp.net/attachments/814008763530346507/1474158663538049228/7f2be857-ebe5-4ddc-b80b-cb067de43253.png?ex=6998d4bd&is=6997833d&hm=feedd7d47dc7c1d9b17f96cac6621a03f070633f76860e1ecacdc80a1a3bfd3a&=&format=webp&quality=lossless&width=656&height=438';
 
 const previewPanels = [
   {
     title: '🌾 Farm Dashboard',
-    detail: 'Daily priorities, arrivals, and weather windows in one place.',
-    points: ['11 active chores', '2 arrivals expected', 'Irrigation watch 14:00']
+    points: ['11 active chores', '2 arrivals expected', 'Irrigation check at 14:00']
   },
   {
     title: '🗓️ Volunteer Schedule',
-    detail: 'Clear shifts and guidance reduce uncertainty before arrival.',
     points: ['Mon: Orchard support', 'Tue: Compost + seed trays', 'Wed: Animal round']
   },
   {
     title: '🐓 Animal Log',
-    detail: 'Health records and routines shared across caretakers.',
-    points: ['Goat Daisy fed 07:00', 'Henhouse cleaned', 'Vet reminder in 2 weeks']
+    points: ['Daisy fed 07:00', 'Henhouse cleaned', 'Vet reminder in 2 weeks']
   },
   {
     title: '💬 Community Discussion',
-    detail: 'Regional peers exchange practical, moderated knowledge.',
-    points: ['Soil restoration Q&A', 'Tool-safety checklist', 'Host orientation template']
+    points: ['Soil restoration Q&A', 'Tool safety checklist', 'Host orientation template']
   }
 ];
 
-const sections = [
-  {
-    title: '🤝 Enhanced Vetting Through Transparency and Preparation',
-    body:
-      'After a volunteer is approved through existing WWOOF channels, the platform can serve as a deeper onboarding environment where hosts may optionally share protocols, expectations, schedules, safety procedures, and daily routines. This allows prospective WWOOFers to understand not only what a farm does, but how life on that farm actually operates, reducing misunderstandings and improving placement success. Volunteers can submit additional information about skills, dietary needs, physical capabilities, comfort levels with animals or machinery, language preferences, and travel logistics.'
-  },
-  {
-    title: '💬 Moderated Communication and Pre-Arrival Connection',
-    body:
-      'Clear communication before arrival is one of the strongest predictors of a positive exchange. The platform can provide moderated messaging spaces where hosts and volunteers can discuss logistics, ask questions, and build rapport while maintaining safety standards. Structured channels reduce reliance on scattered email threads or external messaging apps and allow WWOOF organizations to intervene if needed, supporting both independence and accountability.'
-  },
-  {
-    title: '📋 Presence Awareness, Feedback, and Well-Being',
-    body:
-      'Once volunteers arrive, the system can offer optional presence tracking and daily check-ins that help hosts maintain awareness of who is on site, working, or away—especially valuable for larger farms or remote locations. This is not surveillance, but a practical safety layer for emergencies, evacuations, or unexpected situations. Structured feedback tools also help both hosts and volunteers flag concerns early and celebrate successes.'
-  },
-  {
-    title: '🐐 Farm Protocols, Animal Care Context, and Daily Life Orientation',
-    body:
-      'Many farms operate with complex routines involving animals, crops, tools, and seasonal workflows. The platform allows hosts to document these systems in accessible formats—from feeding schedules and safety guidelines to quiet hours and communal responsibilities. Volunteers can review this information before arrival, reducing onboarding time and preventing accidental harm to animals, infrastructure, or crops.'
-  },
-  {
-    title: '🌐 A Living Global Community Layer',
-    body:
-      'Beyond individual placements, the platform can foster a broader sense of belonging across regions. Optional discussion spaces, resource sharing, travel tips, and peer advice enable participants to learn from one another while maintaining respectful moderation aligned with WWOOF values. This creates a unified digital commons rooted in sustainability, cooperation, and cultural exchange.'
-  },
-  {
-    title: '🌿 Respecting Autonomy While Strengthening Trust',
-    body:
-      'Participation remains flexible. Farms choose what to share, which features to enable, and how to interact digitally. The goal is empowerment through optional tools that enhance clarity and safety without imposing unnecessary administrative burden—preserving local autonomy while offering global support infrastructure.'
-  }
+const farmSkills = ['🌱 Seedling Care', '🚜 Tractor Basics', '🛠️ Fence Repair', '🐓 Animal Feeding', '🍲 Communal Cooking', '💧 Irrigation Checks'];
+
+const protocolRows = [
+  { animal: '🐐 Daisy', feed: 2.2, health: 98, milk: 3.6 },
+  { animal: '🐐 Clover', feed: 2.6, health: 96, milk: 4.1 },
+  { animal: '🐓 Hens', feed: 5.1, health: 94, milk: 0 },
+  { animal: '🐄 Maple', feed: 8.4, health: 92, milk: 12.3 }
 ];
 
-const farmSkills = [
-  '🌱 Seedling Care',
-  '🚜 Tractor Basics',
-  '🛠️ Fence Repair',
-  '🐓 Animal Feeding',
-  '🍲 Communal Cooking',
-  '🧺 Harvest Sorting',
-  '💧 Irrigation Checks',
-  '🌾 Compost Systems'
+const forumSeed = [
+  'How do you prepare volunteers for first-day tool safety? 🧰',
+  'Any region-specific compost methods for wet climates? 🌧️',
+  'Best communication rhythm before volunteer arrival? 💬',
+  'Template for quiet-hours and shared-space agreements? 🏡'
 ];
 
-const regions = [
-  { name: '🌎 Latin America', value: 'Agroforestry collaboration and seed circles.' },
-  { name: '🌍 Europe', value: 'Soil health workshops and tool-sharing networks.' },
-  { name: '🌏 East Africa', value: 'Water stewardship and dry-season planning resources.' },
-  { name: '🌊 Oceania', value: 'Biodiversity notes and seasonal resilience exchanges.' }
-];
-
-const chatFlow = [
-  'Host: Welcome! We’ll start your first morning with a calm site orientation. 😊',
-  'Volunteer: Perfect, I reviewed the farm protocol and packing guide. ✅',
-  'Host: Great. Please arrive by 17:00 so we can introduce the team and spaces. 🌿',
-  'Volunteer: Sounds good—thank you for the clear guidance! 🙌'
+const chatTimeline = [
+  'Host typing: Welcome! We are excited for your arrival next week…',
+  'Volunteer typing: Thank you! I reviewed your protocol summary and packing notes.',
+  'Host typing: Great. I have now approved your pre-arrival onboarding packet.',
+  'System: ✅ Farm owner approved — embedded onboarding unlocked.'
 ];
 
 export default function HomePage() {
   const [previewIndex, setPreviewIndex] = useState(0);
-  const [activeRegion, setActiveRegion] = useState(regions[0]);
-  const [chatCount, setChatCount] = useState(1);
   const [step, setStep] = useState(0);
-
   const [name, setName] = useState('');
   const [skills, setSkills] = useState<string[]>([]);
   const [contractAccepted, setContractAccepted] = useState(false);
   const [videoProgress, setVideoProgress] = useState(0);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [error, setError] = useState('');
+  const [typedIndex, setTypedIndex] = useState(0);
+  const [typedText, setTypedText] = useState('');
+  const [forumIndex, setForumIndex] = useState(0);
+  const [protocolFrame, setProtocolFrame] = useState(0);
 
   useEffect(() => {
     const id = setInterval(() => setPreviewIndex((p) => (p + 1) % previewPanels.length), 3800);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const id = setInterval(() => setChatCount((c) => Math.min(c + 1, chatFlow.length)), 1800);
     return () => clearInterval(id);
   }, []);
 
@@ -119,9 +76,35 @@ export default function HomePage() {
         }
         return p + 5;
       });
-    }, 220);
+    }, 180);
     return () => clearInterval(id);
   }, [videoPlaying]);
+
+  useEffect(() => {
+    const current = chatTimeline[typedIndex];
+    if (!current) return;
+    if (typedText.length < current.length) {
+      const t = setTimeout(() => setTypedText(current.slice(0, typedText.length + 1)), 25);
+      return () => clearTimeout(t);
+    }
+    const pause = setTimeout(() => {
+      if (typedIndex < chatTimeline.length - 1) {
+        setTypedIndex((i) => i + 1);
+        setTypedText('');
+      }
+    }, 1200);
+    return () => clearTimeout(pause);
+  }, [typedText, typedIndex]);
+
+  useEffect(() => {
+    const id = setInterval(() => setForumIndex((i) => (i + 1) % forumSeed.length), 1800);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setProtocolFrame((f) => f + 1), 1100);
+    return () => clearInterval(id);
+  }, []);
 
   const canContinue = useMemo(() => {
     if (step === 0) return name.trim().length > 1;
@@ -146,33 +129,33 @@ export default function HomePage() {
   return (
     <div className="min-h-screen w-full bg-[#efe8d8] text-[#2a2f22]">
       <section
-        className="relative min-h-[92vh] w-full overflow-hidden border-b border-white/20"
+        className="relative min-h-[95vh] w-full overflow-hidden border-b border-white/20"
         style={{
-          backgroundImage: `linear-gradient(120deg, rgba(49,87,90,0.58), rgba(69,40,98,0.46), rgba(230,145,58,0.26)), url(${HERO_BACKDROP_URL}), url('/wwoof-backdrop.svg')`,
+          backgroundImage: `linear-gradient(120deg, rgba(44,97,109,0.56), rgba(94,56,120,0.45), rgba(224,142,56,0.24)), url(${HERO_BACKDROP_URL}), url('/wwoof-backdrop.svg')`,
           backgroundSize: 'cover, cover, cover',
           backgroundPosition: 'center, center, center'
         }}
       >
         <div className="absolute inset-0 backdrop-blur-[3px]" />
-        <div className="relative mx-auto grid w-full max-w-[1500px] gap-8 px-4 py-10 md:grid-cols-[1.1fr_0.9fr] md:px-10 md:py-16">
-          <div className="rounded-[2rem] bg-[#f8f2e6]/86 p-6 shadow-2xl ring-1 ring-white/60 md:p-10">
+        <div className="relative mx-auto grid w-full max-w-[1600px] gap-7 px-4 py-10 md:grid-cols-[1.1fr_0.9fr] md:px-10 md:py-16">
+          <div className="rounded-[2rem] bg-[#f8f2e6]/88 p-6 shadow-2xl ring-1 ring-white/60 md:p-10">
             <p className="mb-4 inline-flex rounded-full bg-[#e6d5b6] px-4 py-1 text-sm font-semibold">🌍 A Unified Support Platform for the Global WWOOF Community</p>
-            <h1 className="text-3xl font-semibold leading-tight md:text-5xl">Technology as a quiet support layer for trust, preparedness, and meaningful human exchange.</h1>
-            <p className="mt-5 text-lg leading-relaxed text-[#494930]">
-              The World Wide Opportunities on Organic Farms network has connected hosts and volunteers for decades. This concept introduces a complementary platform that strengthens coordination, safety, and transparency while preserving WWOOF’s human-centered spirit.
+            <h1 className="text-3xl font-semibold leading-tight md:text-5xl">Technology as a calm support layer for trust, preparedness, and meaningful exchange.</h1>
+            <p className="mt-4 text-lg leading-relaxed text-[#494930]">
+              Hello, my name is Colten Lewis. I’m a 23-year-old game developer and web programmer, and I’ve been WWOOFing for nearly five months. During my time at Wai & Aina Farm, I built an internal web application to support daily operations, improve time management, and provide clearer farm analysis. This proposal expands that learning into a broader WWOOF support platform.
             </p>
             <p className="mt-4 text-sm font-semibold uppercase tracking-[0.14em] text-[#5f5a3f]">Prepared by Colten Lewis</p>
-            <a href="#onboarding" className="mt-6 inline-flex rounded-full bg-[#2f6f49] px-6 py-3 font-semibold text-white transition hover:bg-[#24583a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f6f49]">
-              🌱 View interactive onboarding demo
+            <a href="#vetting" className="mt-6 inline-flex rounded-full bg-[#2f6f49] px-6 py-3 font-semibold text-white transition hover:bg-[#24583a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f6f49]">
+              🌱 Jump to enhanced vetting + onboarding demo
             </a>
           </div>
 
-          <div className="rounded-[2rem] bg-[#f6f2e8]/88 p-5 shadow-2xl ring-1 ring-white/60 md:p-8">
+          <div className="rounded-[2rem] bg-[#f6f2e8]/90 p-5 shadow-2xl ring-1 ring-white/60 md:p-8">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-semibold">✨ Live Concept Preview</h2>
               <span className="text-sm text-[#655b45]">{previewIndex + 1} / {previewPanels.length}</span>
             </div>
-            <div className="relative min-h-[300px] overflow-hidden rounded-3xl bg-gradient-to-br from-[#e9f3e3] via-[#f7efe1] to-[#ffe8cc]">
+            <div className="relative min-h-[320px] overflow-hidden rounded-3xl bg-gradient-to-br from-[#e9f3e3] via-[#f7efe1] to-[#ffe8cc]">
               {previewPanels.map((panel, i) => (
                 <article
                   key={panel.title}
@@ -181,8 +164,7 @@ export default function HomePage() {
                   }`}
                 >
                   <h3 className="text-lg font-semibold text-[#2d6644]">{panel.title}</h3>
-                  <p className="mt-1 text-sm text-[#5a4f38]">{panel.detail}</p>
-                  <ul className="mt-4 space-y-2 text-sm">
+                  <ul className="mt-3 space-y-2 text-sm">
                     {panel.points.map((p) => (
                       <li key={p} className="rounded-xl bg-[#f7f2e8] px-3 py-2">{p}</li>
                     ))}
@@ -194,153 +176,159 @@ export default function HomePage() {
         </div>
       </section>
 
-      <main className="mx-auto w-full max-w-[1500px] space-y-8 px-4 py-10 md:px-10">
-        <section id="onboarding" className="grid gap-6 rounded-[2rem] bg-[#f9f4e9] p-5 ring-1 ring-[#dbcdb0] md:grid-cols-2 md:p-8">
-          <div>
-            <h2 className="text-2xl font-semibold md:text-3xl">🧭 Interactive onboarding demo</h2>
-            <p className="mt-3 leading-relaxed text-[#4f4835]">
-              This second-layer experience begins after normal WWOOF approval and helps both sides prepare with confidence. Hosts can share protocols and expectations; volunteers can present practical readiness details before arrival.
-            </p>
-            <div className="mt-5 rounded-2xl bg-[#eaf4e7] p-4 text-sm">
-              Step {Math.min(step + 1, 5)} of 5
-              <div className="mt-2 h-2 rounded-full bg-[#cfe2c6]">
-                <div className="h-2 rounded-full bg-[#4c8654] transition-all" style={{ width: `${(Math.min(step + 1, 5) / 5) * 100}%` }} />
+      <main className="mx-auto w-full max-w-[1600px] space-y-8 px-4 py-10 md:px-10">
+        <section id="vetting" className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
+          <h2 className="text-2xl font-semibold">🤝 Enhanced Vetting Through Transparency and Preparation</h2>
+          <p className="mt-3 leading-relaxed text-[#514a36]">
+            After standard WWOOF approval, hosts can optionally share practical protocols, expectations, schedules, and safety routines. Volunteers can contribute useful context around skills, dietary needs, physical capabilities, language preferences, and logistics. The goal is better clarity before arrival and stronger placement outcomes.
+          </p>
+
+          <details className="mt-5 rounded-2xl border border-[#d8caaf] bg-white p-4" open>
+            <summary className="cursor-pointer text-lg font-semibold">🧭 Expand interactive onboarding demo</summary>
+            <div className="mt-4 grid gap-5 md:grid-cols-2">
+              <div>
+                <p className="text-sm text-[#4f4835]">Step {Math.min(step + 1, 5)} of 5</p>
+                <div className="mt-2 h-2 rounded-full bg-[#cfe2c6]">
+                  <div className="h-2 rounded-full bg-[#4c8654] transition-all" style={{ width: `${(Math.min(step + 1, 5) / 5) * 100}%` }} />
+                </div>
+              </div>
+              <div className="rounded-2xl bg-[#fffdf9] p-4 ring-1 ring-[#dbcdb0]">
+                <h3 className="font-semibold">✅ Volunteer readiness wizard</h3>
+                {error && <p className="mt-2 rounded-xl bg-[#fff2e7] p-2 text-sm text-[#9f4f20]">{error}</p>}
+                <div className="mt-4 min-h-[250px]">
+                  {step === 0 && (
+                    <div className="space-y-3">
+                      <p className="text-sm text-[#5a5038]">1) Name or preferred nickname</p>
+                      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Colten / Col" className="w-full rounded-xl border border-[#d8cab0] p-3" />
+                    </div>
+                  )}
+                  {step === 1 && (
+                    <div>
+                      <p className="mb-3 text-sm text-[#5a5038]">2) Select farm-specific skills</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {farmSkills.map((skill) => {
+                          const active = skills.includes(skill);
+                          return (
+                            <button
+                              key={skill}
+                              onClick={() => setSkills((prev) => (active ? prev.filter((s) => s !== skill) : [...prev, skill]))}
+                              className={`rounded-xl border p-2 text-left text-sm transition active:scale-[0.98] ${active ? 'border-[#4c8654] bg-[#edf7ea]' : 'border-[#ddceb3] bg-[#fffdf9]'}`}
+                            >
+                              {skill} {active ? '✅' : ''}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  {step === 2 && (
+                    <div className="space-y-3">
+                      <p className="text-sm text-[#5a5038]">3) Mini contract acknowledgement</p>
+                      <div className="rounded-2xl bg-[#f8f3e8] p-3 text-sm text-[#534a36]">
+                        I agree to respect quiet hours, animal handling rules, shared kitchen standards, and emergency communication procedures.
+                      </div>
+                      <label className="flex items-center gap-2 text-sm">
+                        <input type="checkbox" checked={contractAccepted} onChange={(e) => setContractAccepted(e.target.checked)} />
+                        I acknowledge and accept this farm agreement.
+                      </label>
+                    </div>
+                  )}
+                  {step === 3 && (
+                    <div className="space-y-3">
+                      <p className="text-sm text-[#5a5038]">4) Safety video simulation</p>
+                      <button onClick={() => videoProgress < 100 && setVideoPlaying(true)} className="rounded-full bg-[#2f6f49] px-4 py-2 text-sm font-semibold text-white">▶️ Play safety video</button>
+                      <div className="h-3 rounded-full bg-[#dfd3bc]">
+                        <div className="h-3 rounded-full bg-[#4f8a58] transition-all" style={{ width: `${videoProgress}%` }} />
+                      </div>
+                      <p className="text-sm text-[#5a5038]">Progress: {videoProgress}% {videoProgress >= 100 ? '✅ Complete' : '⏳ In progress'}</p>
+                    </div>
+                  )}
+                  {step === 4 && <div className="rounded-2xl bg-[#ecf8e8] p-4 text-[#35623a]">🎉 Onboarding complete! Ready for arrival support.</div>}
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <button onClick={() => setStep((s) => Math.max(0, s - 1))} className="rounded-full border border-[#d2c3a8] px-4 py-2">Back</button>
+                  <button onClick={nextStep} className="rounded-full bg-[#e08a3c] px-4 py-2 font-semibold text-white">Next</button>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="rounded-3xl bg-white p-5 ring-1 ring-[#dbcdb0]">
-            <h3 className="font-semibold">✅ Volunteer readiness wizard</h3>
-            {error && <p className="mt-2 rounded-xl bg-[#fff2e7] p-2 text-sm text-[#9f4f20]">{error}</p>}
-
-            <div className="mt-4 min-h-[260px]">
-              {step === 0 && (
-                <div className="space-y-3">
-                  <p className="text-sm text-[#5a5038]">1) The user’s name or preferred nickname</p>
-                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Maya / M" className="w-full rounded-xl border border-[#d8cab0] p-3" />
-                </div>
-              )}
-
-              {step === 1 && (
-                <div>
-                  <p className="mb-3 text-sm text-[#5a5038]">2) Select farm-specific skills</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {farmSkills.map((skill) => {
-                      const active = skills.includes(skill);
-                      return (
-                        <button
-                          key={skill}
-                          onClick={() => setSkills((prev) => (active ? prev.filter((s) => s !== skill) : [...prev, skill]))}
-                          className={`rounded-xl border p-2 text-left text-sm transition active:scale-[0.98] ${active ? 'border-[#4c8654] bg-[#edf7ea]' : 'border-[#ddceb3] bg-[#fffdf9]'}`}
-                        >
-                          {skill} {active ? '✅' : ''}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {step === 2 && (
-                <div className="space-y-3">
-                  <p className="text-sm text-[#5a5038]">3) Mini contract acknowledgement</p>
-                  <div className="rounded-2xl bg-[#f8f3e8] p-3 text-sm text-[#534a36]">
-                    I agree to respect quiet hours, animal handling rules, shared kitchen standards, and emergency communication procedures.
-                  </div>
-                  <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" checked={contractAccepted} onChange={(e) => setContractAccepted(e.target.checked)} />
-                    I acknowledge and accept this farm agreement.
-                  </label>
-                </div>
-              )}
-
-              {step === 3 && (
-                <div className="space-y-3">
-                  <p className="text-sm text-[#5a5038]">4) Watch safety video simulation</p>
-                  <button
-                    onClick={() => {
-                      if (videoProgress < 100) setVideoPlaying(true);
-                    }}
-                    className="rounded-full bg-[#2f6f49] px-4 py-2 text-sm font-semibold text-white"
-                  >
-                    ▶️ Play safety video
-                  </button>
-                  <div className="h-3 rounded-full bg-[#dfd3bc]">
-                    <div className="h-3 rounded-full bg-[#4f8a58] transition-all" style={{ width: `${videoProgress}%` }} />
-                  </div>
-                  <p className="text-sm text-[#5a5038]">Progress: {videoProgress}% {videoProgress >= 100 ? '✅ Complete' : '⏳ In progress'}</p>
-                </div>
-              )}
-
-              {step === 4 && (
-                <div className="rounded-2xl bg-[#ecf8e8] p-4 text-[#35623a]">
-                  🎉 Onboarding complete! Hosts can now view your readiness profile and prepare a safer, smoother arrival.
-                </div>
-              )}
-            </div>
-
-            <div className="mt-4 flex gap-2">
-              <button onClick={() => setStep((s) => Math.max(0, s - 1))} className="rounded-full border border-[#d2c3a8] px-4 py-2">Back</button>
-              <button onClick={nextStep} className="rounded-full bg-[#e08a3c] px-4 py-2 font-semibold text-white">Next</button>
-            </div>
-          </div>
+          </details>
         </section>
 
-        <section className="grid gap-5 md:grid-cols-2">
-          {sections.slice(0, 4).map((s) => (
-            <article key={s.title} className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
-              <h3 className="text-xl font-semibold">{s.title}</h3>
-              <p className="mt-3 leading-relaxed text-[#514a36]">{s.body}</p>
-            </article>
-          ))}
-        </section>
-
-        <section className="grid gap-5 rounded-3xl bg-[#faf4e8] p-6 ring-1 ring-[#ddcfb4] md:grid-cols-2">
-          <div>
-            <h3 className="text-2xl font-semibold">🌐 Global community layer</h3>
-            <p className="mt-2 text-[#514a36]">Hover or focus a region to preview active peer-learning opportunities and practical collaboration topics.</p>
-            <div className="mt-4 grid gap-2 md:grid-cols-2">
-              {regions.map((r) => (
-                <button
-                  key={r.name}
-                  onMouseEnter={() => setActiveRegion(r)}
-                  onFocus={() => setActiveRegion(r)}
-                  onClick={() => setActiveRegion(r)}
-                  className={`rounded-2xl border p-3 text-left transition ${activeRegion.name === r.name ? 'border-[#4f8a58] bg-[#eef7eb]' : 'border-[#ddcfb4] bg-white/80'}`}
-                >
-                  <p className="font-semibold">{r.name}</p>
-                  <p className="text-sm text-[#5b503a]">{r.value}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="rounded-2xl bg-white p-4 ring-1 ring-[#d9cab0]">
-            <h4 className="font-semibold">💬 Moderated pre-arrival message flow</h4>
-            <div className="mt-3 space-y-2">
-              {chatFlow.slice(0, chatCount).map((line) => (
-                <p key={line} className="rounded-xl bg-[#f6f2e8] p-2 text-sm">{line}</p>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="grid gap-5 md:grid-cols-2">
+        <section className="grid gap-6 md:grid-cols-2">
           <article className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
-            <h3 className="text-xl font-semibold">🌿 Respecting autonomy while strengthening trust</h3>
-            <p className="mt-3 leading-relaxed text-[#514a36]">{sections[5].body}</p>
+            <h3 className="text-xl font-semibold">💬 Moderated Communication and Pre-Arrival Connection</h3>
+            <p className="mt-2 text-[#514a36]">A calm, moderated flow helps hosts and volunteers coordinate respectfully and consistently.</p>
+            <div className="mt-4 rounded-2xl bg-[#fff] p-4 ring-1 ring-[#d9cab0]">
+              <p className="min-h-[50px] rounded-xl bg-[#f6f2e8] p-3 text-sm font-mono">{typedText}<span className="animate-pulse">|</span></p>
+              <div className="mt-3 rounded-xl border border-dashed border-[#d8caaf] bg-[#f9f5ec] p-3 text-sm text-[#5c523b]">
+                <p className="font-semibold">Embedded onboarding section (preview only)</p>
+                <p className="mt-1">[ Profile ✅ ] [ Skills ✅ ] [ Contract ✅ ] [ Safety video 🔒 ]</p>
+              </div>
+            </div>
           </article>
+
           <article className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
-            <h3 className="text-xl font-semibold">✨ Supporting the future of meaningful agricultural exchange</h3>
-            <p className="mt-3 leading-relaxed text-[#514a36]">
-              As global travel evolves and expectations around safety, transparency, and communication rise, a human-centered digital environment helps WWOOF stay resilient and welcoming for decades to come. The platform supports personal connection; it does not replace it. 🌻
-            </p>
+            <h3 className="text-xl font-semibold">🐐 Farm Protocols, Animal Care Context, and Daily Life Orientation</h3>
+            <p className="mt-2 text-[#514a36]">Animated operations snapshot with changing values, goat context, and a mini yield graph.</p>
+            <div className="mt-4 overflow-hidden rounded-2xl bg-white ring-1 ring-[#d9cab0]">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-[#f5efe1]">
+                  <tr>
+                    <th className="p-2">Animal</th>
+                    <th className="p-2">Feed kg</th>
+                    <th className="p-2">Health</th>
+                    <th className="p-2">Milk L</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {protocolRows.map((row, i) => {
+                    const wobble = ((protocolFrame + i) % 3) * 0.1;
+                    return (
+                      <tr key={row.animal} className="border-t border-[#eee3cf]">
+                        <td className="p-2">{row.animal}</td>
+                        <td className="p-2">{(row.feed + wobble).toFixed(1)}</td>
+                        <td className="p-2">{Math.max(88, row.health - ((protocolFrame + i) % 4))}%</td>
+                        <td className="p-2">{Math.max(0, row.milk + wobble).toFixed(1)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <div className="p-3">
+                <p className="text-xs text-[#675e45]">Mini milk yield trend 🥛</p>
+                <div className="mt-2 flex h-16 items-end gap-2">
+                  {[42, 51, 47, 58, 62, 55].map((h, i) => (
+                    <div key={h + i} className="w-6 rounded-t bg-[#80a869] transition-all" style={{ height: `${h + ((protocolFrame + i) % 4) * 2}%` }} />
+                  ))}
+                </div>
+              </div>
+            </div>
           </article>
+        </section>
+
+        <section className="rounded-3xl bg-[#faf4e8] p-6 ring-1 ring-[#ddcfb4]">
+          <h3 className="text-2xl font-semibold">🌐 Global Community Layer</h3>
+          <p className="mt-2 text-[#514a36]">An animated forum feed shows practical questions and peer-to-peer support in motion.</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {[0, 1, 2, 3].map((i) => {
+              const idx = (forumIndex + i) % forumSeed.length;
+              return (
+                <article key={`${idx}-${i}`} className="rounded-2xl bg-white p-4 ring-1 ring-[#d9cab0] transition hover:-translate-y-0.5">
+                  <p className="text-sm font-semibold">{forumSeed[idx]}</p>
+                  <p className="mt-2 text-xs text-[#6b6248]">Replies: {6 + ((forumIndex + i) % 9)} · Upvotes: {14 + ((forumIndex + i) % 20)}</p>
+                </article>
+              );
+            })}
+          </div>
         </section>
 
         <section className="rounded-3xl bg-[#f4ecdd] p-8 text-center ring-1 ring-[#d8c8aa]">
-          <h2 className="text-2xl font-semibold">Prepared by Colten Lewis</h2>
-          <p className="mt-2 text-[#554d39]">I welcome feedback and collaboration on this proposal concept.</p>
-          <p className="mt-3 font-medium">📧 colten.lewis@example.com · ☎️ +1 (555) 013-2041</p>
+          <h2 className="text-2xl font-semibold">✨ Supporting the Future of Meaningful Agricultural Exchange</h2>
+          <p className="mt-2 text-[#554d39]">
+            This proposal is intended to strengthen trust, preparedness, and resilience across WWOOF while preserving local autonomy and cultural diversity.
+          </p>
+          <p className="mt-4 font-medium">Prepared by Colten Lewis</p>
+          <p className="mt-2 font-medium">📧 coltenalewis@gmail.com · ☎️ 317-602-0112</p>
         </section>
       </main>
 
