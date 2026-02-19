@@ -7,26 +7,26 @@ const HERO_BACKDROP_URL =
 
 const scheduleDays = ['Mon', 'Tue', 'Wed', 'Thu'];
 
-const scheduleData: Record<string, { title: string; owner: string; window: string; status: 'Queue' | 'In Progress' | 'Done' }[]> = {
+const scheduleEvents: Record<string, { time: string; title: string; owner: string; color: string }[]> = {
   Mon: [
-    { title: 'Irrigation manifold check', owner: 'Host Team', window: '07:30-08:15', status: 'Queue' },
-    { title: 'Goat feed cycle A', owner: 'WWOOFer', window: '08:30-09:00', status: 'In Progress' },
-    { title: 'Compost temperature log', owner: 'WWOOFer', window: '16:00-16:20', status: 'Done' }
+    { time: '07:30', title: 'Irrigation manifold check', owner: 'Host Team', color: 'bg-[#d7ecff]' },
+    { time: '09:00', title: 'Goat feed cycle A', owner: 'WWOOFer', color: 'bg-[#e6f7df]' },
+    { time: '16:00', title: 'Compost temperature log', owner: 'WWOOFer', color: 'bg-[#ffeccf]' }
   ],
   Tue: [
-    { title: 'Seed tray prep', owner: 'WWOOFer', window: '08:00-09:10', status: 'Queue' },
-    { title: 'Perimeter fence walk', owner: 'Host Team', window: '10:00-10:40', status: 'In Progress' },
-    { title: 'Tool return plus inventory', owner: 'WWOOFer', window: '17:00-17:20', status: 'Done' }
+    { time: '08:00', title: 'Seed tray prep', owner: 'WWOOFer', color: 'bg-[#e6f7df]' },
+    { time: '10:00', title: 'Perimeter fence walk', owner: 'Host Team', color: 'bg-[#d7ecff]' },
+    { time: '17:00', title: 'Tool inventory closeout', owner: 'WWOOFer', color: 'bg-[#ffeccf]' }
   ],
   Wed: [
-    { title: 'Livestock hydration audit', owner: 'Host Team', window: '07:00-07:45', status: 'Queue' },
-    { title: 'Harvest lane sorting', owner: 'WWOOFer', window: '09:00-10:00', status: 'In Progress' },
-    { title: 'Safety huddle', owner: 'All', window: '12:30-12:45', status: 'Done' }
+    { time: '07:00', title: 'Livestock hydration audit', owner: 'Host Team', color: 'bg-[#d7ecff]' },
+    { time: '09:15', title: 'Harvest lane sorting', owner: 'WWOOFer', color: 'bg-[#e6f7df]' },
+    { time: '12:30', title: 'Safety huddle', owner: 'All', color: 'bg-[#efe4ff]' }
   ],
   Thu: [
-    { title: 'Drip line pressure map', owner: 'Host Team', window: '07:40-08:20', status: 'Queue' },
-    { title: 'Egg station sanitation', owner: 'WWOOFer', window: '09:15-09:40', status: 'In Progress' },
-    { title: 'Daily closeout report', owner: 'WWOOFer', window: '17:10-17:30', status: 'Done' }
+    { time: '07:40', title: 'Drip line pressure map', owner: 'Host Team', color: 'bg-[#d7ecff]' },
+    { time: '09:20', title: 'Egg station sanitation', owner: 'WWOOFer', color: 'bg-[#e6f7df]' },
+    { time: '17:10', title: 'Daily closeout report', owner: 'WWOOFer', color: 'bg-[#ffeccf]' }
   ]
 };
 
@@ -38,10 +38,10 @@ const forumSeed = [
 ];
 
 const baseLivestock = [
-  { animal: '🐐 Daisy', dmi: 2.25, bcs: 3.4, fcr: 1.83, scc: 182000, milk: 3.6 },
-  { animal: '🐐 Clover', dmi: 2.48, bcs: 3.3, fcr: 1.91, scc: 165000, milk: 4.1 },
-  { animal: '🐄 Maple', dmi: 8.4, bcs: 3.1, fcr: 1.74, scc: 121000, milk: 12.3 },
-  { animal: '🐓 Layer Coop', dmi: 5.1, bcs: 3.0, fcr: 2.11, scc: 0, milk: 0 }
+  { animal: '🐐 Daisy', dmi: 2.25, bcs: 3.4, fcr: 1.83, scc: 182000 },
+  { animal: '🐐 Clover', dmi: 2.48, bcs: 3.3, fcr: 1.91, scc: 165000 },
+  { animal: '🐄 Maple', dmi: 8.4, bcs: 3.1, fcr: 1.74, scc: 121000 },
+  { animal: '🐓 Layer Coop', dmi: 5.1, bcs: 3.0, fcr: 2.11, scc: 0 }
 ];
 
 const farmSkills = ['🌱 Seedling Care', '🚜 Tractor Basics', '🛠️ Fence Repair', '🐓 Animal Feeding', '🍲 Communal Cooking', '💧 Irrigation Checks'];
@@ -54,10 +54,10 @@ const threadMessages = [
 ];
 
 export default function HomePage() {
-  const [day, setDay] = useState<keyof typeof scheduleData>('Mon');
+  const [day, setDay] = useState<keyof typeof scheduleEvents>('Mon');
   const [forumIndex, setForumIndex] = useState(0);
   const [protocolFrame, setProtocolFrame] = useState(0);
-  const [chatVisible, setChatVisible] = useState(1);
+  const [chatVisible, setChatVisible] = useState(0);
 
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
@@ -73,11 +73,6 @@ export default function HomePage() {
 
   useEffect(() => {
     const id = setInterval(() => setProtocolFrame((f) => f + 1), 1200);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const id = setInterval(() => setChatVisible((v) => Math.min(v + 1, threadMessages.length)), 1400);
     return () => clearInterval(id);
   }, []);
 
@@ -103,19 +98,30 @@ export default function HomePage() {
     return false;
   }, [step, name, skills, contractAccepted, videoProgress]);
 
+  const startChatAnimation = () => setChatVisible(1);
+
+  useEffect(() => {
+    if (chatVisible === 0 || chatVisible >= threadMessages.length) return;
+    const id = setTimeout(() => setChatVisible((v) => Math.min(v + 1, threadMessages.length)), 1100);
+    return () => clearTimeout(id);
+  }, [chatVisible]);
+
   return (
     <div className="min-h-screen w-full bg-[#efe8d8] text-[#23281f]">
       <section
-        className="relative min-h-[92vh] w-full overflow-hidden border-b border-white/20"
+        className="relative min-h-[88vh] w-full overflow-hidden border-b border-white/20"
         style={{
-          backgroundImage: `linear-gradient(135deg, rgba(7,16,23,0.72), rgba(19,26,36,0.7), rgba(24,45,49,0.58)), url(${HERO_BACKDROP_URL}), url('/wwoof-backdrop.svg')`,
-          backgroundSize: 'cover, cover, cover',
-          backgroundPosition: 'center, center, center'
+          backgroundImage: `radial-gradient(circle at 16% 18%, rgba(123,231,255,0.25), transparent 35%), radial-gradient(circle at 82% 15%, rgba(205,126,255,0.24), transparent 32%), linear-gradient(135deg, rgba(7,16,23,0.76), rgba(16,29,41,0.72), rgba(24,47,54,0.62)), url(${HERO_BACKDROP_URL}), url('/wwoof-backdrop.svg')`,
+          backgroundSize: 'cover, cover, cover, cover, cover',
+          backgroundPosition: 'center, center, center, center, center'
         }}
       >
-        <div className="absolute inset-0 bg-[#071019]/35 backdrop-blur-[2px]" />
-        <div className="relative mx-auto grid w-full max-w-[1600px] gap-7 px-4 py-10 md:grid-cols-[1.15fr_0.85fr] md:px-10 md:py-16">
-          <div className="rounded-[2rem] bg-[#fff8eb]/95 p-6 shadow-2xl ring-1 ring-white/80 md:p-10">
+        <div className="absolute inset-0 bg-[#09131d]/40 backdrop-blur-[2px]" />
+        <div className="pointer-events-none absolute -left-20 top-20 h-64 w-64 rounded-full bg-[#70dcff]/20 blur-3xl" />
+        <div className="pointer-events-none absolute right-10 top-16 h-72 w-72 rounded-full bg-[#c58cff]/18 blur-3xl" />
+
+        <div className="relative mx-auto w-full max-w-[1600px] px-4 py-10 md:px-10 md:py-16">
+          <div className="rounded-[2rem] border border-white/55 bg-[#fff9ed]/95 p-6 shadow-2xl md:p-10">
             <p className="mb-4 inline-flex rounded-full bg-[#f0e1c3] px-4 py-1 text-sm font-semibold text-[#2c2d22]">🌍 A Unified Support Platform for the Global WWOOF Community</p>
             <h1 className="text-3xl font-semibold leading-tight text-[#1a241c] md:text-5xl">Technology as a calm support layer for trust, preparedness, and meaningful exchange.</h1>
             <p className="mt-5 text-base leading-relaxed text-[#414028] md:text-lg">
@@ -127,62 +133,68 @@ export default function HomePage() {
             <p className="mt-5 text-sm font-semibold uppercase tracking-[0.14em] text-[#605a3e]">Prepared by Colten Lewis</p>
             <a href="#schedule" className="mt-6 inline-flex rounded-full bg-[#2f6f49] px-6 py-3 font-semibold text-white transition hover:bg-[#24583a]">Explore platform demos</a>
           </div>
-
-          <div className="rounded-[2rem] bg-[#fff8eb]/92 p-5 shadow-2xl ring-1 ring-white/70 md:p-8">
-            <h2 className="mb-3 text-xl font-semibold text-[#1a241c]">📌 Proposal preview</h2>
-            <div className="space-y-3 text-sm text-[#4f4d33]">
-              <p className="rounded-xl bg-white p-3 ring-1 ring-[#ddcfb4]">Operations scheduling for hosts and volunteers</p>
-              <p className="rounded-xl bg-white p-3 ring-1 ring-[#ddcfb4]">Pre arrival communication with approval workflow</p>
-              <p className="rounded-xl bg-white p-3 ring-1 ring-[#ddcfb4]">Animal telemetry dashboards and trend analysis</p>
-              <p className="rounded-xl bg-white p-3 ring-1 ring-[#ddcfb4]">Configurable onboarding modules by farm</p>
-            </div>
-          </div>
         </div>
       </section>
 
       <main className="mx-auto w-full max-w-[1600px] space-y-8 px-4 py-10 md:px-10">
+        <section className="rounded-3xl bg-[#fbf7ef] p-5 ring-1 ring-[#ddcfb4] md:p-6">
+          <p className="text-sm text-[#4f4835]">The sections below are demonstrative examples of what can live inside the unified web application and how each module supports host and WWOOFer outcomes.</p>
+        </section>
+
         <section id="schedule" className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
-          <h2 className="text-2xl font-semibold">🗓️ Farm operations schedule demo</h2>
-          <p className="mt-2 text-[#4f4835]">Simplified hub style schedule board showing daily task windows, ownership, and execution status.</p>
+          <h2 className="text-2xl font-semibold">🗓️ Farm operations schedule</h2>
+          <p className="mt-2 text-[#4f4835]">A calendar style operations layer centralizes daily priorities, ownership, and execution timing so hosts and volunteers can work from one trusted rhythm.</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {scheduleDays.map((d) => (
-              <button key={d} onClick={() => setDay(d as keyof typeof scheduleData)} className={`rounded-full px-4 py-2 text-sm ${day === d ? 'bg-[#2f6f49] text-white' : 'bg-[#eadfc7]'}`}>
+              <button key={d} onClick={() => setDay(d as keyof typeof scheduleEvents)} className={`rounded-full px-4 py-2 text-sm ${day === d ? 'bg-[#2f6f49] text-white' : 'bg-[#eadfc7]'}`}>
                 {d}
               </button>
             ))}
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            {['Queue', 'In Progress', 'Done'].map((column) => (
-              <article key={column} className="rounded-2xl bg-white p-4 ring-1 ring-[#d8caaf]">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-[#665d43]">{column}</h3>
-                <div className="mt-3 space-y-2">
-                  {scheduleData[day]
-                    .filter((item) => item.status === column)
-                    .map((item) => (
-                      <div key={item.title} className="rounded-xl bg-[#f7f2e8] p-3">
-                        <p className="text-sm font-semibold">{item.title}</p>
-                        <p className="mt-1 text-xs text-[#665d43]">Owner: {item.owner}</p>
-                        <p className="text-xs text-[#665d43]">Window: {item.window}</p>
-                      </div>
-                    ))}
-                </div>
-              </article>
-            ))}
+          <div className="mt-5 overflow-hidden rounded-2xl border border-[#d8caaf] bg-white">
+            <div className="grid grid-cols-[80px_1fr] border-b border-[#e8dcc8] bg-[#f8f3ea] text-xs text-[#665d43]">
+              <div className="p-2 font-semibold">Time</div>
+              <div className="p-2 font-semibold">Calendar lane</div>
+            </div>
+            <div className="max-h-[360px] overflow-y-auto">
+              {['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'].map((slot) => {
+                const event = scheduleEvents[day].find((e) => e.time.startsWith(slot.slice(0, 2)));
+                return (
+                  <div key={slot} className="grid grid-cols-[80px_1fr] border-b border-[#f0e6d5]">
+                    <div className="p-2 text-xs text-[#6a6146]">{slot}</div>
+                    <div className="p-2">
+                      {event ? (
+                        <div className={`rounded-xl p-3 text-sm ring-1 ring-[#d3c5ab] ${event.color}`}>
+                          <p className="font-semibold">{event.title}</p>
+                          <p className="text-xs text-[#5f553e]">Owner: {event.owner}</p>
+                          <p className="text-xs text-[#5f553e]">Start: {event.time}</p>
+                        </div>
+                      ) : (
+                        <div className="h-12 rounded-xl bg-[#faf6ee]" />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-6">
             <article className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
-              <h3 className="text-xl font-semibold">💬 Pre arrival communication thread</h3>
-              <p className="mt-2 text-[#514a36]">Structured host to WWOOFer messaging with clear approval handoff and embedded onboarding access.</p>
+              <h3 className="text-xl font-semibold">💬 Pre arrival communication</h3>
+              <p className="mt-2 text-[#514a36]">This messaging flow demonstrates how approvals, logistics, and readiness updates can happen in a structured conversation channel before arrival.</p>
               <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-[#d9cab0]">
+                <div className="mb-3 flex justify-end">
+                  <button onClick={startChatAnimation} className="rounded-full bg-[#275e85] px-4 py-2 text-sm font-semibold text-white">Start conversation playback</button>
+                </div>
                 <div className="space-y-2">
                   {threadMessages.slice(0, chatVisible).map((m, i) => {
                     const isHost = m.from.includes('Host');
                     const isSystem = m.from === 'System';
                     return (
-                      <div key={`${m.ts}-${i}`} className={`max-w-[88%] rounded-xl p-3 text-sm ${isSystem ? 'bg-[#e8f4e7] text-[#2d653a]' : isHost ? 'ml-auto bg-[#eef2ff]' : 'bg-[#f7f2e8]'}`}>
+                      <div key={`${m.ts}-${i}`} className={`max-w-[88%] rounded-2xl p-3 text-sm shadow-sm ${isSystem ? 'bg-[#e8f4e7] text-[#2d653a]' : isHost ? 'ml-auto bg-[#eef2ff]' : 'bg-[#f7f2e8]'}`}>
                         <p className="font-semibold">{m.from}</p>
                         <p>{m.text}</p>
                         <p className="mt-1 text-[11px] opacity-70">{m.ts}</p>
@@ -190,15 +202,21 @@ export default function HomePage() {
                     );
                   })}
                 </div>
-                <div className="mt-4 flex">
-                  <a href="#onboarding" className="ml-auto inline-flex items-center rounded-full bg-[#2f6f49] px-4 py-2 text-sm font-semibold text-white shadow-sm">Onboarding &gt;</a>
-                </div>
+                {chatVisible >= threadMessages.length && (
+                  <div className="mt-3 flex justify-end">
+                    <div className="relative rounded-2xl bg-[#dff2e0] px-4 py-3 text-sm text-[#1f4f2d] ring-1 ring-[#b7dcb9]">
+                      Continue to onboarding
+                      <span className="absolute -right-2 top-4 h-3 w-3 rotate-45 bg-[#dff2e0] ring-1 ring-[#b7dcb9]" />
+                      <a href="#onboarding" className="ml-3 inline-flex rounded-full bg-[#2f6f49] px-3 py-1 font-semibold text-white">Onboarding &gt;</a>
+                    </div>
+                  </div>
+                )}
               </div>
             </article>
 
             <article id="onboarding" className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
-              <h3 className="text-xl font-semibold">🤝 Enhanced vetting and onboarding module</h3>
-              <p className="mt-2 text-[#514a36]">Optional post approval workflow, intentionally secondary to operations and communication systems.</p>
+              <h3 className="text-xl font-semibold">🤝 Onboarding module</h3>
+              <p className="mt-2 text-[#514a36]">This workflow demonstrates configurable readiness capture that each host can adapt without changing the wider application architecture.</p>
               <details className="mt-4 rounded-2xl border border-[#d8caaf] bg-white p-4">
                 <summary className="cursor-pointer text-lg font-semibold">Farmer Joe&apos;s Farm</summary>
                 <div className="mt-4 grid gap-5 md:grid-cols-2">
@@ -279,7 +297,7 @@ export default function HomePage() {
 
           <article className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
             <h3 className="text-xl font-semibold">🐐 Animal analytics dashboard</h3>
-            <p className="mt-2 text-[#514a36]">Technical metrics: dry matter intake (DMI), body condition score (BCS), feed conversion ratio (FCR), and somatic cell count (SCC).</p>
+            <p className="mt-2 text-[#514a36]">This analytics area shows how host teams can track livestock condition and protocol adherence with a practical operational dashboard.</p>
             <div className="mt-4 overflow-hidden rounded-2xl bg-white ring-1 ring-[#d9cab0]">
               <table className="w-full text-left text-sm">
                 <thead className="bg-[#f5efe1]">
@@ -347,7 +365,7 @@ export default function HomePage() {
 
         <section className="rounded-3xl bg-[#faf4e8] p-6 ring-1 ring-[#ddcfb4]">
           <h3 className="text-2xl font-semibold">🌐 Global Community Layer</h3>
-          <p className="mt-2 text-[#514a36]">Slower rotating community forum feed for questions, templates, and practice sharing across regions.</p>
+          <p className="mt-2 text-[#514a36]">This community layer demonstrates how knowledge exchange, troubleshooting, and regional collaboration can remain active and searchable across farms.</p>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {[0, 1, 2, 3].map((i) => {
               const idx = (forumIndex + i) % forumSeed.length;
@@ -364,7 +382,7 @@ export default function HomePage() {
         <section className="rounded-3xl bg-[#f4ecdd] p-6 ring-1 ring-[#d8c8aa]">
           <h3 className="text-2xl font-semibold">📊 Platform signal highlights</h3>
           <p className="mt-2 text-[#554d39]">
-            Over time, this platform can collect structured operational and readiness signals to help tailor better experiences for WWOOFers and hosts alike. By combining onboarding completion, communication response quality, protocol adherence, and schedule outcomes, farms can identify where support is needed early and improve placements with evidence based iteration.
+            These signals illustrate how the platform can collect structured readiness and operations data to help tailor stronger placements, faster interventions, and better host plus WWOOFer experiences over time.
           </p>
           <div className="mt-4 grid gap-3 text-sm md:grid-cols-2">
             {[
