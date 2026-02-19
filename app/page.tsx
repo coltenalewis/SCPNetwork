@@ -58,6 +58,7 @@ export default function HomePage() {
   const [forumIndex, setForumIndex] = useState(0);
   const [protocolFrame, setProtocolFrame] = useState(0);
   const [chatVisible, setChatVisible] = useState(0);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
 
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
@@ -65,6 +66,13 @@ export default function HomePage() {
   const [contractAccepted, setContractAccepted] = useState(false);
   const [videoProgress, setVideoProgress] = useState(0);
   const [videoPlaying, setVideoPlaying] = useState(false);
+
+  const [gameRunning, setGameRunning] = useState(false);
+  const [goatY, setGoatY] = useState(0);
+  const [velocity, setVelocity] = useState(0);
+  const [obstacleX, setObstacleX] = useState(92);
+  const [score, setScore] = useState(0);
+  const [bestScore, setBestScore] = useState(0);
 
   useEffect(() => {
     const id = setInterval(() => setForumIndex((i) => (i + 1) % forumSeed.length), 5200);
@@ -90,6 +98,43 @@ export default function HomePage() {
     return () => clearInterval(id);
   }, [videoPlaying]);
 
+  useEffect(() => {
+    if (chatVisible === 0 || chatVisible >= threadMessages.length) return;
+    const id = setTimeout(() => setChatVisible((v) => Math.min(v + 1, threadMessages.length)), 1100);
+    return () => clearTimeout(id);
+  }, [chatVisible]);
+
+  useEffect(() => {
+    if (!gameRunning) return;
+    const id = setInterval(() => {
+      setGoatY((y) => {
+        const nextV = velocity - 0.9;
+        const nextY = Math.max(0, y + nextV);
+        setVelocity(nextY === 0 ? 0 : nextV);
+        return nextY;
+      });
+      setObstacleX((x) => {
+        const next = x - 2.6;
+        if (next < -8) {
+          setScore((s) => s + 1);
+          return 100;
+        }
+        return next;
+      });
+    }, 40);
+    return () => clearInterval(id);
+  }, [gameRunning, velocity]);
+
+  useEffect(() => {
+    if (!gameRunning) return;
+    const goatLeft = 10;
+    const obstacleNear = obstacleX < goatLeft + 8 && obstacleX > goatLeft - 6;
+    if (obstacleNear && goatY < 10) {
+      setGameRunning(false);
+      setBestScore((b) => Math.max(b, score));
+    }
+  }, [obstacleX, goatY, gameRunning, score]);
+
   const canContinue = useMemo(() => {
     if (step === 0) return name.trim().length > 1;
     if (step === 1) return skills.length > 0;
@@ -100,11 +145,25 @@ export default function HomePage() {
 
   const startChatAnimation = () => setChatVisible(1);
 
-  useEffect(() => {
-    if (chatVisible === 0 || chatVisible >= threadMessages.length) return;
-    const id = setTimeout(() => setChatVisible((v) => Math.min(v + 1, threadMessages.length)), 1100);
-    return () => clearTimeout(id);
-  }, [chatVisible]);
+  const goToOnboarding = () => {
+    setOnboardingOpen(true);
+    requestAnimationFrame(() => {
+      document.getElementById('onboarding')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
+  const startGame = () => {
+    setScore(0);
+    setObstacleX(92);
+    setGoatY(0);
+    setVelocity(0);
+    setGameRunning(true);
+  };
+
+  const jump = () => {
+    if (!gameRunning) return;
+    setVelocity(8.5);
+  };
 
   return (
     <div className="min-h-screen w-full bg-[#efe8d8] text-[#23281f]">
@@ -186,9 +245,15 @@ export default function HomePage() {
               <h3 className="text-xl font-semibold">💬 Pre arrival communication</h3>
               <p className="mt-2 text-[#514a36]">This messaging flow demonstrates how approvals, logistics, and readiness updates can happen in a structured conversation channel before arrival.</p>
               <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-[#d9cab0]">
-                <div className="mb-3 flex justify-end">
-                  <button onClick={startChatAnimation} className="rounded-full bg-[#275e85] px-4 py-2 text-sm font-semibold text-white">Start conversation playback</button>
-                </div>
+                {chatVisible === 0 && (
+                  <div className="mb-3 flex justify-end">
+                    <div className="relative rounded-2xl bg-[#e8f1ff] px-4 py-3 text-sm text-[#243f66] ring-1 ring-[#bfd3ef]">
+                      Start simulated host chat
+                      <span className="absolute -right-2 top-4 h-3 w-3 rotate-45 bg-[#e8f1ff] ring-1 ring-[#bfd3ef]" />
+                      <button onClick={startChatAnimation} className="ml-3 rounded-full bg-[#275e85] px-3 py-1 font-semibold text-white">Play</button>
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-2">
                   {threadMessages.slice(0, chatVisible).map((m, i) => {
                     const isHost = m.from.includes('Host');
@@ -207,7 +272,7 @@ export default function HomePage() {
                     <div className="relative rounded-2xl bg-[#dff2e0] px-4 py-3 text-sm text-[#1f4f2d] ring-1 ring-[#b7dcb9]">
                       Continue to onboarding
                       <span className="absolute -right-2 top-4 h-3 w-3 rotate-45 bg-[#dff2e0] ring-1 ring-[#b7dcb9]" />
-                      <a href="#onboarding" className="ml-3 inline-flex rounded-full bg-[#2f6f49] px-3 py-1 font-semibold text-white">Onboarding &gt;</a>
+                      <button onClick={goToOnboarding} className="ml-3 inline-flex rounded-full bg-[#2f6f49] px-3 py-1 font-semibold text-white">Onboarding &gt;</button>
                     </div>
                   </div>
                 )}
@@ -217,7 +282,7 @@ export default function HomePage() {
             <article id="onboarding" className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
               <h3 className="text-xl font-semibold">🤝 Onboarding module</h3>
               <p className="mt-2 text-[#514a36]">This workflow demonstrates configurable readiness capture that each host can adapt without changing the wider application architecture.</p>
-              <details className="mt-4 rounded-2xl border border-[#d8caaf] bg-white p-4">
+              <details open={onboardingOpen} onToggle={(e) => setOnboardingOpen((e.target as HTMLDetailsElement).open)} className="mt-4 rounded-2xl border border-[#d8caaf] bg-white p-4">
                 <summary className="cursor-pointer text-lg font-semibold">Farmer Joe&apos;s Farm</summary>
                 <div className="mt-4 grid gap-5 md:grid-cols-2">
                   <div>
@@ -376,6 +441,26 @@ export default function HomePage() {
                 </article>
               );
             })}
+          </div>
+        </section>
+
+        <section className="rounded-3xl bg-[#ecf3e5] p-6 ring-1 ring-[#c7d7b3]">
+          <h3 className="text-2xl font-semibold">🎮 Community games demo: Goat Run</h3>
+          <p className="mt-2 text-[#43533e]">A light engagement module where WWOOFers can compete on mini challenges inside the same community platform.</p>
+          <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-[#c8d7b5]">
+            <div className="mb-3 flex items-center justify-between text-sm">
+              <p>Score: <span className="font-semibold">{score}</span></p>
+              <p>Best: <span className="font-semibold">{bestScore}</span></p>
+            </div>
+            <div className="relative h-36 overflow-hidden rounded-xl bg-gradient-to-b from-[#d9f1ff] to-[#eef7e6]">
+              <div className="absolute bottom-0 h-8 w-full bg-[#85b66a]" />
+              <div className="absolute bottom-8 text-2xl" style={{ left: '10%', transform: `translateY(-${goatY}px)` }}>🐐</div>
+              <div className="absolute bottom-8 text-2xl" style={{ left: `${obstacleX}%` }}>🌵</div>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button onClick={startGame} className="rounded-full bg-[#2f6f49] px-4 py-2 text-sm font-semibold text-white">Start Goat Run</button>
+              <button onClick={jump} className="rounded-full bg-[#3d7db8] px-4 py-2 text-sm font-semibold text-white">Jump</button>
+            </div>
           </div>
         </section>
 
