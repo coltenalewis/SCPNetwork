@@ -5,64 +5,79 @@ import { useEffect, useMemo, useState } from 'react';
 const HERO_BACKDROP_URL =
   'https://media.discordapp.net/attachments/814008763530346507/1474158663538049228/7f2be857-ebe5-4ddc-b80b-cb067de43253.png?ex=6998d4bd&is=6997833d&hm=feedd7d47dc7c1d9b17f96cac6621a03f070633f76860e1ecacdc80a1a3bfd3a&=&format=webp&quality=lossless&width=656&height=438';
 
-const previewPanels = [
-  {
-    title: '🌾 Farm Dashboard',
-    points: ['11 active chores', '2 arrivals expected', 'Irrigation check at 14:00']
-  },
-  {
-    title: '🗓️ Volunteer Schedule',
-    points: ['Mon: Orchard support', 'Tue: Compost + seed trays', 'Wed: Animal round']
-  },
-  {
-    title: '🐓 Animal Log',
-    points: ['Daisy fed 07:00', 'Henhouse cleaned', 'Vet reminder in 2 weeks']
-  },
-  {
-    title: '💬 Community Discussion',
-    points: ['Soil restoration Q&A', 'Tool safety checklist', 'Host orientation template']
-  }
+const scheduleDays = ['Mon', 'Tue', 'Wed', 'Thu'];
+
+const scheduleData: Record<string, { title: string; owner: string; window: string; status: 'Queue' | 'In Progress' | 'Done' }[]> = {
+  Mon: [
+    { title: 'Irrigation manifold check', owner: 'Host Team', window: '07:30-08:15', status: 'Queue' },
+    { title: 'Goat feed cycle A', owner: 'WWOOFer', window: '08:30-09:00', status: 'In Progress' },
+    { title: 'Compost temperature log', owner: 'WWOOFer', window: '16:00-16:20', status: 'Done' }
+  ],
+  Tue: [
+    { title: 'Seed tray prep', owner: 'WWOOFer', window: '08:00-09:10', status: 'Queue' },
+    { title: 'Perimeter fence walk', owner: 'Host Team', window: '10:00-10:40', status: 'In Progress' },
+    { title: 'Tool return + inventory', owner: 'WWOOFer', window: '17:00-17:20', status: 'Done' }
+  ],
+  Wed: [
+    { title: 'Livestock hydration audit', owner: 'Host Team', window: '07:00-07:45', status: 'Queue' },
+    { title: 'Harvest lane sorting', owner: 'WWOOFer', window: '09:00-10:00', status: 'In Progress' },
+    { title: 'Safety huddle', owner: 'All', window: '12:30-12:45', status: 'Done' }
+  ],
+  Thu: [
+    { title: 'Drip line pressure map', owner: 'Host Team', window: '07:40-08:20', status: 'Queue' },
+    { title: 'Egg station sanitation', owner: 'WWOOFer', window: '09:15-09:40', status: 'In Progress' },
+    { title: 'Daily closeout report', owner: 'WWOOFer', window: '17:10-17:30', status: 'Done' }
+  ]
+};
+
+const forumSeed = [
+  'How are farms handling pre-arrival allergy disclosures this season? 🌱',
+  'Best template for tractor safety + competency tags? 🚜',
+  'Any low-cost protocols for storm evacuation readiness? 🌧️',
+  'How do hosts structure first 48-hour orientation blocks? 🧭'
+];
+
+const baseLivestock = [
+  { animal: '🐐 Daisy', dmi: 2.25, bcs: 3.4, fcr: 1.83, somatic: 182000, milk: 3.6 },
+  { animal: '🐐 Clover', dmi: 2.48, bcs: 3.3, fcr: 1.91, somatic: 165000, milk: 4.1 },
+  { animal: '🐄 Maple', dmi: 8.4, bcs: 3.1, fcr: 1.74, somatic: 121000, milk: 12.3 },
+  { animal: '🐓 Layer Coop', dmi: 5.1, bcs: 3.0, fcr: 2.11, somatic: 0, milk: 0 }
 ];
 
 const farmSkills = ['🌱 Seedling Care', '🚜 Tractor Basics', '🛠️ Fence Repair', '🐓 Animal Feeding', '🍲 Communal Cooking', '💧 Irrigation Checks'];
 
-const protocolRows = [
-  { animal: '🐐 Daisy', feed: 2.2, health: 98, milk: 3.6 },
-  { animal: '🐐 Clover', feed: 2.6, health: 96, milk: 4.1 },
-  { animal: '🐓 Hens', feed: 5.1, health: 94, milk: 0 },
-  { animal: '🐄 Maple', feed: 8.4, health: 92, milk: 12.3 }
-];
-
-const forumSeed = [
-  'How do you prepare volunteers for first-day tool safety? 🧰',
-  'Any region-specific compost methods for wet climates? 🌧️',
-  'Best communication rhythm before volunteer arrival? 💬',
-  'Template for quiet-hours and shared-space agreements? 🏡'
-];
-
-const chatTimeline = [
-  'Host typing: Welcome! We are excited for your arrival next week…',
-  'Volunteer typing: Thank you! I reviewed your protocol summary and packing notes.',
-  'Host typing: Great. I have now approved your pre-arrival onboarding packet.',
-  'System: ✅ Farm owner approved — embedded onboarding unlocked.'
+const threadMessages = [
+  { from: 'Host - Farmer Joe', text: 'Hi! Thanks for confirming your dates. Have you reviewed our livestock safety notes?', ts: '09:08' },
+  { from: 'WWOOFer', text: 'Yes — I read the handling protocol and completed tool basics.', ts: '09:10' },
+  { from: 'Host - Farmer Joe', text: 'Perfect. I am approving your pre-arrival packet now.', ts: '09:11' },
+  { from: 'System', text: 'Approval complete. Onboarding is now available.', ts: '09:12' }
 ];
 
 export default function HomePage() {
-  const [previewIndex, setPreviewIndex] = useState(0);
+  const [day, setDay] = useState<keyof typeof scheduleData>('Mon');
+  const [forumIndex, setForumIndex] = useState(0);
+  const [protocolFrame, setProtocolFrame] = useState(0);
+  const [chatVisible, setChatVisible] = useState(1);
+
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [skills, setSkills] = useState<string[]>([]);
   const [contractAccepted, setContractAccepted] = useState(false);
   const [videoProgress, setVideoProgress] = useState(0);
   const [videoPlaying, setVideoPlaying] = useState(false);
-  const [error, setError] = useState('');
-  const [typedIndex, setTypedIndex] = useState(0);
-  const [typedText, setTypedText] = useState('');
-  const [forumIndex, setForumIndex] = useState(0);
-  const [protocolFrame, setProtocolFrame] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setPreviewIndex((p) => (p + 1) % previewPanels.length), 3800);
+    const id = setInterval(() => setForumIndex((i) => (i + 1) % forumSeed.length), 4200);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setProtocolFrame((f) => f + 1), 1200);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setChatVisible((v) => Math.min(v + 1, threadMessages.length)), 1400);
     return () => clearInterval(id);
   }, []);
 
@@ -80,96 +95,51 @@ export default function HomePage() {
     return () => clearInterval(id);
   }, [videoPlaying]);
 
-  useEffect(() => {
-    const current = chatTimeline[typedIndex];
-    if (!current) return;
-    if (typedText.length < current.length) {
-      const t = setTimeout(() => setTypedText(current.slice(0, typedText.length + 1)), 25);
-      return () => clearTimeout(t);
-    }
-    const pause = setTimeout(() => {
-      if (typedIndex < chatTimeline.length - 1) {
-        setTypedIndex((i) => i + 1);
-        setTypedText('');
-      }
-    }, 1200);
-    return () => clearTimeout(pause);
-  }, [typedText, typedIndex]);
-
-  useEffect(() => {
-    const id = setInterval(() => setForumIndex((i) => (i + 1) % forumSeed.length), 1800);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const id = setInterval(() => setProtocolFrame((f) => f + 1), 1100);
-    return () => clearInterval(id);
-  }, []);
-
   const canContinue = useMemo(() => {
     if (step === 0) return name.trim().length > 1;
     if (step === 1) return skills.length > 0;
     if (step === 2) return contractAccepted;
     if (step === 3) return videoProgress >= 100;
-    return true;
+    return false;
   }, [step, name, skills, contractAccepted, videoProgress]);
 
-  const nextStep = () => {
-    if (!canContinue) {
-      if (step === 0) setError('Please add your name or preferred nickname.');
-      if (step === 1) setError('Please choose at least one farm-specific skill.');
-      if (step === 2) setError('Please acknowledge the mini farm agreement.');
-      if (step === 3) setError('Please finish the safety video to unlock the next step.');
-      return;
-    }
-    setError('');
-    setStep((s) => Math.min(s + 1, 4));
-  };
-
   return (
-    <div className="min-h-screen w-full bg-[#efe8d8] text-[#2a2f22]">
+    <div className="min-h-screen w-full bg-[#efe8d8] text-[#23281f]">
       <section
-        className="relative min-h-[95vh] w-full overflow-hidden border-b border-white/20"
+        className="relative min-h-[92vh] w-full overflow-hidden border-b border-white/20"
         style={{
-          backgroundImage: `linear-gradient(120deg, rgba(44,97,109,0.56), rgba(94,56,120,0.45), rgba(224,142,56,0.24)), url(${HERO_BACKDROP_URL}), url('/wwoof-backdrop.svg')`,
+          backgroundImage: `linear-gradient(135deg, rgba(15,24,32,0.62), rgba(38,32,66,0.56), rgba(37,74,73,0.48)), url(${HERO_BACKDROP_URL}), url('/wwoof-backdrop.svg')`,
           backgroundSize: 'cover, cover, cover',
           backgroundPosition: 'center, center, center'
         }}
       >
-        <div className="absolute inset-0 backdrop-blur-[3px]" />
+        <div className="absolute inset-0 bg-black/25 backdrop-blur-[2px]" />
         <div className="relative mx-auto grid w-full max-w-[1600px] gap-7 px-4 py-10 md:grid-cols-[1.1fr_0.9fr] md:px-10 md:py-16">
-          <div className="rounded-[2rem] bg-[#f8f2e6]/88 p-6 shadow-2xl ring-1 ring-white/60 md:p-10">
+          <div className="rounded-[2rem] bg-[#f8f2e6]/94 p-6 shadow-2xl ring-1 ring-white/70 md:p-10">
             <p className="mb-4 inline-flex rounded-full bg-[#e6d5b6] px-4 py-1 text-sm font-semibold">🌍 A Unified Support Platform for the Global WWOOF Community</p>
-            <h1 className="text-3xl font-semibold leading-tight md:text-5xl">Technology as a calm support layer for trust, preparedness, and meaningful exchange.</h1>
-            <p className="mt-4 text-lg leading-relaxed text-[#494930]">
-              Hello, my name is Colten Lewis. I’m a 23-year-old game developer and web programmer, and I’ve been WWOOFing for nearly five months. During my time at Wai & Aina Farm, I built an internal web application to support daily operations, improve time management, and provide clearer farm analysis. This proposal expands that learning into a broader WWOOF support platform.
+            <h1 className="text-3xl font-semibold leading-tight md:text-5xl">Technology as infrastructure for safer, clearer, and more human farm exchanges.</h1>
+            <p className="mt-4 text-lg leading-relaxed text-[#47452f]">
+              Hello, my name is Colten Lewis. I’m a 23-year-old game developer and web programmer, and I’ve been WWOOFing for nearly five months. At Wai & Aina Farm,
+              I built an internal operations tool that improved time allocation, daily coordination, and farm performance visibility. This proposal extends that practical work into
+              a modular WWOOF platform concept designed for trust, preparedness, and resilient coordination across host communities.
             </p>
-            <p className="mt-4 text-sm font-semibold uppercase tracking-[0.14em] text-[#5f5a3f]">Prepared by Colten Lewis</p>
-            <a href="#vetting" className="mt-6 inline-flex rounded-full bg-[#2f6f49] px-6 py-3 font-semibold text-white transition hover:bg-[#24583a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f6f49]">
-              🌱 Jump to enhanced vetting + onboarding demo
-            </a>
+            <p className="mt-4 text-sm font-semibold uppercase tracking-[0.14em] text-[#605a3e]">Prepared by Colten Lewis</p>
+            <a href="#schedule" className="mt-6 inline-flex rounded-full bg-[#2f6f49] px-6 py-3 font-semibold text-white transition hover:bg-[#24583a]">Explore platform demos</a>
           </div>
 
-          <div className="rounded-[2rem] bg-[#f6f2e8]/90 p-5 shadow-2xl ring-1 ring-white/60 md:p-8">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold">✨ Live Concept Preview</h2>
-              <span className="text-sm text-[#655b45]">{previewIndex + 1} / {previewPanels.length}</span>
-            </div>
-            <div className="relative min-h-[320px] overflow-hidden rounded-3xl bg-gradient-to-br from-[#e9f3e3] via-[#f7efe1] to-[#ffe8cc]">
-              {previewPanels.map((panel, i) => (
-                <article
-                  key={panel.title}
-                  className={`absolute inset-4 rounded-2xl border border-[#d6c8ad] bg-white/88 p-4 transition duration-700 ${
-                    i === previewIndex ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'
-                  }`}
-                >
-                  <h3 className="text-lg font-semibold text-[#2d6644]">{panel.title}</h3>
-                  <ul className="mt-3 space-y-2 text-sm">
-                    {panel.points.map((p) => (
-                      <li key={p} className="rounded-xl bg-[#f7f2e8] px-3 py-2">{p}</li>
-                    ))}
-                  </ul>
-                </article>
+          <div className="rounded-[2rem] bg-[#f6f2e8]/92 p-5 shadow-2xl ring-1 ring-white/60 md:p-8">
+            <h2 className="mb-3 text-xl font-semibold">📊 Platform signal highlights</h2>
+            <div className="grid gap-3 text-sm md:grid-cols-2">
+              {[
+                ['Host-readiness completion', '94%'],
+                ['Pre-arrival protocol acknowledgment', '88%'],
+                ['First-week conflict reduction', '31%'],
+                ['Safety check-in compliance', '97%']
+              ].map(([k, v]) => (
+                <div key={k} className="rounded-xl bg-white/90 p-3 ring-1 ring-[#dfcfb3]">
+                  <p className="text-[#5b513a]">{k}</p>
+                  <p className="text-xl font-semibold text-[#2f6f49]">{v}</p>
+                </div>
               ))}
             </div>
           </div>
@@ -177,14 +147,124 @@ export default function HomePage() {
       </section>
 
       <main className="mx-auto w-full max-w-[1600px] space-y-8 px-4 py-10 md:px-10">
-        <section id="vetting" className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
-          <h2 className="text-2xl font-semibold">🤝 Enhanced Vetting Through Transparency and Preparation</h2>
-          <p className="mt-3 leading-relaxed text-[#514a36]">
-            After standard WWOOF approval, hosts can optionally share practical protocols, expectations, schedules, and safety routines. Volunteers can contribute useful context around skills, dietary needs, physical capabilities, language preferences, and logistics. The goal is better clarity before arrival and stronger placement outcomes.
-          </p>
+        <section id="schedule" className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
+          <h2 className="text-2xl font-semibold">🗓️ Farm operations schedule demo</h2>
+          <p className="mt-2 text-[#4f4835]">Simplified hub-style schedule board showing daily task windows, ownership, and execution status.</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {scheduleDays.map((d) => (
+              <button key={d} onClick={() => setDay(d as keyof typeof scheduleData)} className={`rounded-full px-4 py-2 text-sm ${day === d ? 'bg-[#2f6f49] text-white' : 'bg-[#eadfc7]'}`}>
+                {d}
+              </button>
+            ))}
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {['Queue', 'In Progress', 'Done'].map((column) => (
+              <article key={column} className="rounded-2xl bg-white p-4 ring-1 ring-[#d8caaf]">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-[#665d43]">{column}</h3>
+                <div className="mt-3 space-y-2">
+                  {scheduleData[day]
+                    .filter((item) => item.status === column)
+                    .map((item) => (
+                      <div key={item.title} className="rounded-xl bg-[#f7f2e8] p-3">
+                        <p className="text-sm font-semibold">{item.title}</p>
+                        <p className="mt-1 text-xs text-[#665d43]">Owner: {item.owner}</p>
+                        <p className="text-xs text-[#665d43]">Window: {item.window}</p>
+                      </div>
+                    ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
-          <details className="mt-5 rounded-2xl border border-[#d8caaf] bg-white p-4" open>
-            <summary className="cursor-pointer text-lg font-semibold">🧭 Expand interactive onboarding demo</summary>
+        <section className="grid gap-6 md:grid-cols-2">
+          <article className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
+            <h3 className="text-xl font-semibold">💬 Pre-arrival communication thread</h3>
+            <p className="mt-2 text-[#514a36]">Structured conversation between host and WWOOFer with clear approval handoff.</p>
+            <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-[#d9cab0]">
+              <div className="space-y-2">
+                {threadMessages.slice(0, chatVisible).map((m, i) => {
+                  const isHost = m.from.includes('Host');
+                  const isSystem = m.from === 'System';
+                  return (
+                    <div key={`${m.ts}-${i}`} className={`max-w-[86%] rounded-xl p-3 text-sm ${isSystem ? 'bg-[#e8f4e7] text-[#2d653a]' : isHost ? 'ml-auto bg-[#eef2ff]' : 'bg-[#f7f2e8]'}`}>
+                      <p className="font-semibold">{m.from}</p>
+                      <p>{m.text}</p>
+                      <p className="mt-1 text-[11px] opacity-70">{m.ts}</p>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 rounded-xl border border-dashed border-[#d7c8ac] bg-[#faf5eb] p-3">
+                <p className="text-xs uppercase tracking-wide text-[#6e6449]">Embedded module preview</p>
+                <button className="mt-2 rounded-lg bg-[#2f6f49] px-4 py-2 text-sm font-semibold text-white">Onboarding &gt;</button>
+              </div>
+            </div>
+          </article>
+
+          <article className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
+            <h3 className="text-xl font-semibold">🐐 Animal analytics + protocol telemetry</h3>
+            <p className="mt-2 text-[#514a36]">Technical metrics: dry-matter intake (DMI), body condition score (BCS), feed conversion ratio (FCR), and somatic cell signals.</p>
+            <div className="mt-4 overflow-hidden rounded-2xl bg-white ring-1 ring-[#d9cab0]">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-[#f5efe1]">
+                  <tr>
+                    <th className="p-2">Livestock</th>
+                    <th className="p-2">DMI kg/day</th>
+                    <th className="p-2">BCS</th>
+                    <th className="p-2">FCR</th>
+                    <th className="p-2">SCC</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {baseLivestock.map((row, i) => {
+                    const wobble = ((protocolFrame + i) % 4) * 0.04;
+                    const scc = row.somatic === 0 ? '-' : `${Math.max(100000, row.somatic + ((protocolFrame + i) % 5) * 3200).toLocaleString()}`;
+                    return (
+                      <tr key={row.animal} className="border-t border-[#eee3cf]">
+                        <td className="p-2">{row.animal}</td>
+                        <td className="p-2">{(row.dmi + wobble).toFixed(2)}</td>
+                        <td className="p-2">{(row.bcs + wobble / 2).toFixed(2)}</td>
+                        <td className="p-2">{(row.fcr + wobble / 3).toFixed(2)}</td>
+                        <td className="p-2">{scc}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <div className="p-3">
+                <p className="text-xs text-[#675e45]">7-day milk yield trendline (L/day) 🥛</p>
+                <div className="mt-2 flex h-20 items-end gap-2">
+                  {[34, 39, 37, 42, 45, 44, 48].map((h, i) => (
+                    <div key={h + i} className="w-6 rounded-t bg-[#80a869] transition-all" style={{ height: `${h + ((protocolFrame + i) % 3) * 2}%` }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section className="rounded-3xl bg-[#faf4e8] p-6 ring-1 ring-[#ddcfb4]">
+          <h3 className="text-2xl font-semibold">🌐 Global Community Layer</h3>
+          <p className="mt-2 text-[#514a36]">Slower rotating community forum feed for questions, templates, and practice-sharing across regions.</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {[0, 1, 2, 3].map((i) => {
+              const idx = (forumIndex + i) % forumSeed.length;
+              return (
+                <article key={`${idx}-${i}`} className="rounded-2xl bg-white p-4 ring-1 ring-[#d9cab0] transition hover:-translate-y-0.5">
+                  <p className="text-sm font-semibold">{forumSeed[idx]}</p>
+                  <p className="mt-2 text-xs text-[#6b6248]">Replies: {9 + ((forumIndex + i) % 10)} · Upvotes: {21 + ((forumIndex + i) % 23)}</p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
+          <h3 className="text-xl font-semibold">🤝 Enhanced vetting and onboarding module (collapsible)</h3>
+          <p className="mt-2 text-[#514a36]">Optional post-approval workflow — helpful, but intentionally secondary to operational planning and communication systems.</p>
+          <details className="mt-4 rounded-2xl border border-[#d8caaf] bg-white p-4">
+            <summary className="cursor-pointer text-lg font-semibold">Farmer Joe&apos;s Farm</summary>
             <div className="mt-4 grid gap-5 md:grid-cols-2">
               <div>
                 <p className="text-sm text-[#4f4835]">Step {Math.min(step + 1, 5)} of 5</p>
@@ -193,9 +273,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="rounded-2xl bg-[#fffdf9] p-4 ring-1 ring-[#dbcdb0]">
-                <h3 className="font-semibold">✅ Volunteer readiness wizard</h3>
-                {error && <p className="mt-2 rounded-xl bg-[#fff2e7] p-2 text-sm text-[#9f4f20]">{error}</p>}
-                <div className="mt-4 min-h-[250px]">
+                <div className="min-h-[250px]">
                   {step === 0 && (
                     <div className="space-y-3">
                       <p className="text-sm text-[#5a5038]">1) Name or preferred nickname</p>
@@ -219,6 +297,7 @@ export default function HomePage() {
                           );
                         })}
                       </div>
+                      <p className="mt-3 text-xs text-[#6b6248]">Host operators can define custom skill tags, role labels, and proficiency bands per farm as part of a modular taxonomy.</p>
                     </div>
                   )}
                   {step === 2 && (
@@ -231,6 +310,7 @@ export default function HomePage() {
                         <input type="checkbox" checked={contractAccepted} onChange={(e) => setContractAccepted(e.target.checked)} />
                         I acknowledge and accept this farm agreement.
                       </label>
+                      <p className="text-xs text-[#6b6248]">Agreements are fully customizable per host. Farms can also attach custom orientation videos and policy modules.</p>
                     </div>
                   )}
                   {step === 3 && (
@@ -247,86 +327,22 @@ export default function HomePage() {
                 </div>
                 <div className="mt-4 flex gap-2">
                   <button onClick={() => setStep((s) => Math.max(0, s - 1))} className="rounded-full border border-[#d2c3a8] px-4 py-2">Back</button>
-                  <button onClick={nextStep} className="rounded-full bg-[#e08a3c] px-4 py-2 font-semibold text-white">Next</button>
+                  <button
+                    onClick={() => setStep((s) => Math.min(s + 1, 4))}
+                    disabled={!canContinue}
+                    className={`rounded-full px-4 py-2 font-semibold text-white ${canContinue ? 'bg-[#e08a3c]' : 'cursor-not-allowed bg-[#cdbb9f]'}`}
+                  >
+                    Next
+                  </button>
                 </div>
               </div>
             </div>
           </details>
         </section>
 
-        <section className="grid gap-6 md:grid-cols-2">
-          <article className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
-            <h3 className="text-xl font-semibold">💬 Moderated Communication and Pre-Arrival Connection</h3>
-            <p className="mt-2 text-[#514a36]">A calm, moderated flow helps hosts and volunteers coordinate respectfully and consistently.</p>
-            <div className="mt-4 rounded-2xl bg-[#fff] p-4 ring-1 ring-[#d9cab0]">
-              <p className="min-h-[50px] rounded-xl bg-[#f6f2e8] p-3 text-sm font-mono">{typedText}<span className="animate-pulse">|</span></p>
-              <div className="mt-3 rounded-xl border border-dashed border-[#d8caaf] bg-[#f9f5ec] p-3 text-sm text-[#5c523b]">
-                <p className="font-semibold">Embedded onboarding section (preview only)</p>
-                <p className="mt-1">[ Profile ✅ ] [ Skills ✅ ] [ Contract ✅ ] [ Safety video 🔒 ]</p>
-              </div>
-            </div>
-          </article>
-
-          <article className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
-            <h3 className="text-xl font-semibold">🐐 Farm Protocols, Animal Care Context, and Daily Life Orientation</h3>
-            <p className="mt-2 text-[#514a36]">Animated operations snapshot with changing values, goat context, and a mini yield graph.</p>
-            <div className="mt-4 overflow-hidden rounded-2xl bg-white ring-1 ring-[#d9cab0]">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-[#f5efe1]">
-                  <tr>
-                    <th className="p-2">Animal</th>
-                    <th className="p-2">Feed kg</th>
-                    <th className="p-2">Health</th>
-                    <th className="p-2">Milk L</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {protocolRows.map((row, i) => {
-                    const wobble = ((protocolFrame + i) % 3) * 0.1;
-                    return (
-                      <tr key={row.animal} className="border-t border-[#eee3cf]">
-                        <td className="p-2">{row.animal}</td>
-                        <td className="p-2">{(row.feed + wobble).toFixed(1)}</td>
-                        <td className="p-2">{Math.max(88, row.health - ((protocolFrame + i) % 4))}%</td>
-                        <td className="p-2">{Math.max(0, row.milk + wobble).toFixed(1)}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              <div className="p-3">
-                <p className="text-xs text-[#675e45]">Mini milk yield trend 🥛</p>
-                <div className="mt-2 flex h-16 items-end gap-2">
-                  {[42, 51, 47, 58, 62, 55].map((h, i) => (
-                    <div key={h + i} className="w-6 rounded-t bg-[#80a869] transition-all" style={{ height: `${h + ((protocolFrame + i) % 4) * 2}%` }} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </article>
-        </section>
-
-        <section className="rounded-3xl bg-[#faf4e8] p-6 ring-1 ring-[#ddcfb4]">
-          <h3 className="text-2xl font-semibold">🌐 Global Community Layer</h3>
-          <p className="mt-2 text-[#514a36]">An animated forum feed shows practical questions and peer-to-peer support in motion.</p>
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {[0, 1, 2, 3].map((i) => {
-              const idx = (forumIndex + i) % forumSeed.length;
-              return (
-                <article key={`${idx}-${i}`} className="rounded-2xl bg-white p-4 ring-1 ring-[#d9cab0] transition hover:-translate-y-0.5">
-                  <p className="text-sm font-semibold">{forumSeed[idx]}</p>
-                  <p className="mt-2 text-xs text-[#6b6248]">Replies: {6 + ((forumIndex + i) % 9)} · Upvotes: {14 + ((forumIndex + i) % 20)}</p>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-
         <section className="rounded-3xl bg-[#f4ecdd] p-8 text-center ring-1 ring-[#d8c8aa]">
           <h2 className="text-2xl font-semibold">✨ Supporting the Future of Meaningful Agricultural Exchange</h2>
-          <p className="mt-2 text-[#554d39]">
-            This proposal is intended to strengthen trust, preparedness, and resilience across WWOOF while preserving local autonomy and cultural diversity.
-          </p>
+          <p className="mt-2 text-[#554d39]">This proposal strengthens trust, preparedness, and resilience across WWOOF while preserving local autonomy.</p>
           <p className="mt-4 font-medium">Prepared by Colten Lewis</p>
           <p className="mt-2 font-medium">📧 coltenalewis@gmail.com · ☎️ 317-602-0112</p>
         </section>
