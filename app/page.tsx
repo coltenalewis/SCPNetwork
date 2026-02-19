@@ -5,28 +5,30 @@ import { useEffect, useMemo, useState } from 'react';
 const HERO_BACKDROP_URL =
   'https://media.discordapp.net/attachments/814008763530346507/1474158663538049228/7f2be857-ebe5-4ddc-b80b-cb067de43253.png?ex=6998d4bd&is=6997833d&hm=feedd7d47dc7c1d9b17f96cac6621a03f070633f76860e1ecacdc80a1a3bfd3a&=&format=webp&quality=lossless&width=656&height=438';
 
+type TaskStatus = 'Not Started' | 'In Progress' | 'Complete';
+
 const scheduleDays = ['Mon', 'Tue', 'Wed', 'Thu'];
 
-const scheduleEvents: Record<string, { time: string; title: string; owner: string; color: string }[]> = {
+const scheduleEvents: Record<string, { time: string; title: string; owner: string; color: string; status: TaskStatus }[]> = {
   Mon: [
-    { time: '07:30', title: 'Irrigation manifold check', owner: 'Host Team', color: 'bg-[#d7ecff]' },
-    { time: '09:00', title: 'Goat feed cycle A', owner: 'WWOOFer', color: 'bg-[#e6f7df]' },
-    { time: '16:00', title: 'Compost temperature log', owner: 'WWOOFer', color: 'bg-[#ffeccf]' }
+    { time: '07:30', title: 'Irrigation manifold check', owner: 'Host Team', color: 'bg-[#d7ecff]', status: 'Not Started' },
+    { time: '09:00', title: 'Goat feed cycle A', owner: 'WWOOFer', color: 'bg-[#e6f7df]', status: 'In Progress' },
+    { time: '16:00', title: 'Compost temperature log', owner: 'WWOOFer', color: 'bg-[#ffeccf]', status: 'Complete' }
   ],
   Tue: [
-    { time: '08:00', title: 'Seed tray prep', owner: 'WWOOFer', color: 'bg-[#e6f7df]' },
-    { time: '10:00', title: 'Perimeter fence walk', owner: 'Host Team', color: 'bg-[#d7ecff]' },
-    { time: '17:00', title: 'Tool inventory closeout', owner: 'WWOOFer', color: 'bg-[#ffeccf]' }
+    { time: '08:00', title: 'Seed tray prep', owner: 'WWOOFer', color: 'bg-[#e6f7df]', status: 'Not Started' },
+    { time: '10:00', title: 'Perimeter fence walk', owner: 'Host Team', color: 'bg-[#d7ecff]', status: 'In Progress' },
+    { time: '17:00', title: 'Tool inventory closeout', owner: 'WWOOFer', color: 'bg-[#ffeccf]', status: 'Complete' }
   ],
   Wed: [
-    { time: '07:00', title: 'Livestock hydration audit', owner: 'Host Team', color: 'bg-[#d7ecff]' },
-    { time: '09:15', title: 'Harvest lane sorting', owner: 'WWOOFer', color: 'bg-[#e6f7df]' },
-    { time: '12:30', title: 'Safety huddle', owner: 'All', color: 'bg-[#efe4ff]' }
+    { time: '07:00', title: 'Livestock hydration audit', owner: 'Host Team', color: 'bg-[#d7ecff]', status: 'Not Started' },
+    { time: '09:15', title: 'Harvest lane sorting', owner: 'WWOOFer', color: 'bg-[#e6f7df]', status: 'In Progress' },
+    { time: '12:30', title: 'Safety huddle', owner: 'All', color: 'bg-[#efe4ff]', status: 'Complete' }
   ],
   Thu: [
-    { time: '07:40', title: 'Drip line pressure map', owner: 'Host Team', color: 'bg-[#d7ecff]' },
-    { time: '09:20', title: 'Egg station sanitation', owner: 'WWOOFer', color: 'bg-[#e6f7df]' },
-    { time: '17:10', title: 'Daily closeout report', owner: 'WWOOFer', color: 'bg-[#ffeccf]' }
+    { time: '07:40', title: 'Drip line pressure map', owner: 'Host Team', color: 'bg-[#d7ecff]', status: 'Not Started' },
+    { time: '09:20', title: 'Egg station sanitation', owner: 'WWOOFer', color: 'bg-[#e6f7df]', status: 'In Progress' },
+    { time: '17:10', title: 'Daily closeout report', owner: 'WWOOFer', color: 'bg-[#ffeccf]', status: 'Complete' }
   ]
 };
 
@@ -53,12 +55,19 @@ const threadMessages = [
   { from: 'System', text: 'Approval complete. Onboarding is now available.', ts: '09:12' }
 ];
 
+const statusColors: Record<TaskStatus, string> = {
+  'Not Started': 'bg-[#fef3d8] text-[#8c5d08]',
+  'In Progress': 'bg-[#dff1ff] text-[#0f5a88]',
+  Complete: 'bg-[#dff3df] text-[#1d5a2d]'
+};
+
 export default function HomePage() {
   const [day, setDay] = useState<keyof typeof scheduleEvents>('Mon');
   const [forumIndex, setForumIndex] = useState(0);
   const [protocolFrame, setProtocolFrame] = useState(0);
   const [chatVisible, setChatVisible] = useState(0);
   const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [adminPulse, setAdminPulse] = useState(0);
 
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
@@ -81,6 +90,11 @@ export default function HomePage() {
 
   useEffect(() => {
     const id = setInterval(() => setProtocolFrame((f) => f + 1), 1200);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setAdminPulse((p) => p + 1), 1800);
     return () => clearInterval(id);
   }, []);
 
@@ -135,6 +149,17 @@ export default function HomePage() {
     }
   }, [obstacleX, goatY, gameRunning, score]);
 
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (gameRunning) setVelocity(8.5);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [gameRunning]);
+
   const canContinue = useMemo(() => {
     if (step === 0) return name.trim().length > 1;
     if (step === 1) return skills.length > 0;
@@ -164,6 +189,14 @@ export default function HomePage() {
     if (!gameRunning) return;
     setVelocity(8.5);
   };
+
+  const dayEvents = scheduleEvents[day];
+  const statusCount = {
+    notStarted: dayEvents.filter((e) => e.status === 'Not Started').length,
+    inProgress: dayEvents.filter((e) => e.status === 'In Progress').length,
+    complete: dayEvents.filter((e) => e.status === 'Complete').length
+  };
+  const completion = Math.round((statusCount.complete / dayEvents.length) * 100);
 
   return (
     <div className="min-h-screen w-full bg-[#efe8d8] text-[#23281f]">
@@ -202,7 +235,7 @@ export default function HomePage() {
 
         <section id="schedule" className="rounded-3xl bg-[#fbf7ef] p-6 ring-1 ring-[#ddcfb4]">
           <h2 className="text-2xl font-semibold">🗓️ Farm operations schedule</h2>
-          <p className="mt-2 text-[#4f4835]">A calendar style operations layer centralizes daily priorities, ownership, and execution timing so hosts and volunteers can work from one trusted rhythm.</p>
+          <p className="mt-2 text-[#4f4835]">A calendar style operations layer centralizes daily priorities, ownership, timing, and task status so farms can coordinate clearly and admins can manage performance in real time.</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {scheduleDays.map((d) => (
               <button key={d} onClick={() => setDay(d as keyof typeof scheduleEvents)} className={`rounded-full px-4 py-2 text-sm ${day === d ? 'bg-[#2f6f49] text-white' : 'bg-[#eadfc7]'}`}>
@@ -210,31 +243,59 @@ export default function HomePage() {
               </button>
             ))}
           </div>
-          <div className="mt-5 overflow-hidden rounded-2xl border border-[#d8caaf] bg-white">
-            <div className="grid grid-cols-[80px_1fr] border-b border-[#e8dcc8] bg-[#f8f3ea] text-xs text-[#665d43]">
-              <div className="p-2 font-semibold">Time</div>
-              <div className="p-2 font-semibold">Calendar lane</div>
-            </div>
-            <div className="max-h-[360px] overflow-y-auto">
-              {['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'].map((slot) => {
-                const event = scheduleEvents[day].find((e) => e.time.startsWith(slot.slice(0, 2)));
-                return (
-                  <div key={slot} className="grid grid-cols-[80px_1fr] border-b border-[#f0e6d5]">
-                    <div className="p-2 text-xs text-[#6a6146]">{slot}</div>
-                    <div className="p-2">
-                      {event ? (
-                        <div className={`rounded-xl p-3 text-sm ring-1 ring-[#d3c5ab] ${event.color}`}>
-                          <p className="font-semibold">{event.title}</p>
-                          <p className="text-xs text-[#5f553e]">Owner: {event.owner}</p>
-                          <p className="text-xs text-[#5f553e]">Start: {event.time}</p>
-                        </div>
-                      ) : (
-                        <div className="h-12 rounded-xl bg-[#faf6ee]" />
-                      )}
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            <div className="overflow-hidden rounded-2xl border border-[#d8caaf] bg-white">
+              <div className="grid grid-cols-[80px_1fr] border-b border-[#e8dcc8] bg-[#f8f3ea] text-xs text-[#665d43]">
+                <div className="p-2 font-semibold">Time</div>
+                <div className="p-2 font-semibold">Calendar lane</div>
+              </div>
+              <div className="max-h-[360px] overflow-y-auto">
+                {['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'].map((slot) => {
+                  const event = scheduleEvents[day].find((e) => e.time.startsWith(slot.slice(0, 2)));
+                  return (
+                    <div key={slot} className="grid grid-cols-[80px_1fr] border-b border-[#f0e6d5]">
+                      <div className="p-2 text-xs text-[#6a6146]">{slot}</div>
+                      <div className="p-2">
+                        {event ? (
+                          <div className={`rounded-xl p-3 text-sm ring-1 ring-[#d3c5ab] ${event.color}`}>
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="font-semibold">{event.title}</p>
+                              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusColors[event.status]}`}>{event.status}</span>
+                            </div>
+                            <p className="text-xs text-[#5f553e]">Owner: {event.owner}</p>
+                            <p className="text-xs text-[#5f553e]">Start: {event.time}</p>
+                          </div>
+                        ) : (
+                          <div className="h-12 rounded-xl bg-[#faf6ee]" />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[#d8caaf] bg-white p-4">
+              <h3 className="text-lg font-semibold">🛠️ Admin operations preview</h3>
+              <p className="mt-1 text-sm text-[#5e553e]">Admins can monitor workload distribution, update statuses, and track completion trends to keep field operations efficient and predictable.</p>
+
+              <div className="mt-3 grid grid-cols-3 gap-2 text-center text-sm">
+                <div className="rounded-xl bg-[#fff5de] p-3"><p className="text-xs">Not Started</p><p className="text-xl font-semibold">{statusCount.notStarted}</p></div>
+                <div className="rounded-xl bg-[#e7f3ff] p-3"><p className="text-xs">In Progress</p><p className="text-xl font-semibold">{statusCount.inProgress}</p></div>
+                <div className="rounded-xl bg-[#e5f5e3] p-3"><p className="text-xs">Complete</p><p className="text-xl font-semibold">{statusCount.complete}</p></div>
+              </div>
+
+              <div className="mt-4 rounded-xl bg-[#f7f2e8] p-3">
+                <p className="text-xs text-[#665d43]">Live completion rate</p>
+                <div className="mt-2 h-2 rounded-full bg-[#ddd0b6]"><div className="h-2 rounded-full bg-[#3b8e56] transition-all" style={{ width: `${completion}%` }} /></div>
+                <p className="mt-2 text-sm font-semibold text-[#2f6f49]">{completion}% complete</p>
+              </div>
+
+              <div className="mt-4 rounded-xl border border-[#ded0b4] bg-[#fcfaf4] p-3 text-sm">
+                <p className="font-semibold">Recent admin feed</p>
+                <p className="mt-2">{adminPulse % 3 === 0 ? 'Status update synced from host dashboard.' : adminPulse % 3 === 1 ? 'Volunteer task handoff acknowledged in real time.' : 'Schedule completion analytics recalculated for today.'}</p>
+              </div>
             </div>
           </div>
         </section>
@@ -452,10 +513,11 @@ export default function HomePage() {
               <p>Score: <span className="font-semibold">{score}</span></p>
               <p>Best: <span className="font-semibold">{bestScore}</span></p>
             </div>
-            <div className="relative h-36 overflow-hidden rounded-xl bg-gradient-to-b from-[#d9f1ff] to-[#eef7e6]">
+            <div onClick={jump} className="relative h-36 cursor-pointer overflow-hidden rounded-xl bg-gradient-to-b from-[#d9f1ff] to-[#eef7e6]">
               <div className="absolute bottom-0 h-8 w-full bg-[#85b66a]" />
-              <div className="absolute bottom-8 text-2xl" style={{ left: '10%', transform: `translateY(-${goatY}px)` }}>🐐</div>
+              <div className="absolute bottom-8 text-2xl" style={{ left: '10%', transform: `translateY(-${goatY}px) scaleX(-1)` }}>🐐</div>
               <div className="absolute bottom-8 text-2xl" style={{ left: `${obstacleX}%` }}>🌵</div>
+              {!gameRunning && <p className="absolute left-3 top-3 rounded-lg bg-white/85 px-2 py-1 text-xs">Tap or press Space to jump</p>}
             </div>
             <div className="mt-3 flex gap-2">
               <button onClick={startGame} className="rounded-full bg-[#2f6f49] px-4 py-2 text-sm font-semibold text-white">Start Goat Run</button>
