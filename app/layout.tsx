@@ -3,8 +3,8 @@ import './globals.css';
 import { StoreProvider } from '@/lib/store';
 
 export const metadata: Metadata = {
-  title: 'SCP Facility Console',
-  description: 'SCP management and research simulation console.'
+  title: 'WWOOF Unified Support Platform Proposal',
+  description: 'Interactive proposal microsite for a unified WWOOF coordination platform.'
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

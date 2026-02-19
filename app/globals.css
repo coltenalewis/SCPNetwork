@@ -3,36 +3,25 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  @apply bg-slateCore-950 text-slate-100 min-h-screen;
+  @apply min-h-screen bg-[#efe5d3] text-[#2f2f26];
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-.scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: rgba(148, 163, 184, 0.35);
-  border-radius: 999px;
-}
-
-.scanlines {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-  background-size: 100% 3px;
-}
-
-.redaction {
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(15, 23, 42, 0.9) 0px,
-    rgba(15, 23, 42, 0.9) 6px,
-    rgba(30, 41, 59, 0.9) 6px,
-    rgba(30, 41, 59, 0.9) 12px
-  );
-  border-radius: 2px;
-  color: transparent;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
