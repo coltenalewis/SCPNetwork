@@ -17,7 +17,7 @@ export function Hero() {
       </motion.p>
       <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}>
         <div className="mt-4 flex items-center gap-3">
-          <RobloxCoverImage target="https://www.roblox.com/users/133970833/profile" alt="Roblox Avatar" className="h-14 w-14 overflow-hidden rounded-full border border-cyan-200/50" />
+          <RobloxCoverImage target="https://www.roblox.com/users/133970833/profile" alt="Roblox Avatar" className="relative h-16 w-16 overflow-hidden rounded-full border border-cyan-200/60 bg-white/10 p-0.5 shadow-[0_0_20px_rgba(56,189,248,0.35)]" />
           <h1 className="bg-gradient-to-r from-cyan-100 via-white to-orange-200 bg-clip-text text-5xl font-bold text-transparent md:text-7xl">Colten Lewis</h1>
         </div>
       </motion.div>

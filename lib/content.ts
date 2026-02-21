@@ -26,13 +26,8 @@ export type Project = {
   roleBadges: string[];
   oneLiner: string;
   tags: string[];
-  overview: string;
   responsibilities: string[];
   systems: string[];
-  highlights: string[];
-  problem: string;
-  solution: string;
-  outcome: string;
   media?: MediaItem[];
 };
 
@@ -50,7 +45,6 @@ export const profileLinks = {
   discord: '[DISCORD_PLACEHOLDER]'
 };
 
-
 export const workHistory: WorkEntry[] = [
   {
     id: 'chesapeake',
@@ -58,8 +52,8 @@ export const workHistory: WorkEntry[] = [
     role: 'Creative Producer / Programmer',
     dates: 'Dec 2024 – Dec 2025',
     summary: [
-      'Led production across multiple live Roblox titles by coordinating planning, sprint execution, and feature direction between design, engineering, and content teams. Defined release priorities and translated studio goals into scoped, shippable milestones.',
-      'Oversaw systems updates and live operations loops, while also contributing environmental art direction and UI design across title initiatives like His Majesty’s Government and The Foundation: SCP Roleplay. Used community feedback to guide iteration and maintain quality across updates.'
+      'Led production across multiple live Roblox titles by coordinating planning, sprint execution, feature direction, and team collaboration from design through engineering.',
+      'Oversaw live operations while supporting environment and UI design work across titles including His Majesty’s Government and The Foundation: SCP Roleplay.'
     ],
     links: [
       { label: 'Oath of Office', url: 'https://www.roblox.com/games/110814051639689/Oath-of-Office-Political-Simulator', type: 'game' },
@@ -74,8 +68,8 @@ export const workHistory: WorkEntry[] = [
     role: 'Full Stack Web Developer',
     dates: 'Nov 2025 – Mar 2026',
     summary: [
-      'Built and shipped a full-stack PWA used on both mobile and desktop for farm operations, including staff management and project management dashboards with custom scheduling and role-based user management.',
-      'Delivered animal tracking flows, productivity analytics, and a guide system with AI-assisted report snapshot creation to improve field reporting speed and day-to-day operations visibility.'
+      'Built a full-stack PWA for mobile and desktop with staff management and project management dashboards, scheduling, and user management.',
+      'Implemented animal tracking, productivity analytics, and a guide system with AI-assisted report snapshot creation for operations reporting.'
     ],
     links: [{ label: 'Private client platform (case-study available on request)', url: '#', type: 'community' }]
   },
@@ -85,16 +79,10 @@ export const workHistory: WorkEntry[] = [
     role: 'Programmer',
     dates: 'Nov 2020 – Jan 2021',
     summary: [
-      'Built gameplay-facing systems and implementation support for a high-interest Roblox title that operated at large player scale. Focused on dependable feature delivery and maintainable scripting patterns as the game expanded.',
-      'Worked closely with team leads to ship updates quickly without sacrificing experience consistency.'
+      'Head of programming development with ownership across UI logic, backend systems, and frontend effects.',
+      'Provided feasible delivery timelines while building and maintaining critical gameplay systems at scale.'
     ],
-    links: [
-      {
-        label: 'Attack on Titan: Freedom Awaits',
-        url: 'https://www.roblox.com/games/6034188975/NEW-FOREST-Attack-on-Titan-Freedom-Awaits-Demo?',
-        type: 'game'
-      }
-    ]
+    links: [{ label: 'Attack on Titan: Freedom Awaits', url: 'https://www.roblox.com/games/6034188975/NEW-FOREST-Attack-on-Titan-Freedom-Awaits-Demo?', type: 'game' }]
   },
   {
     id: 'swuo',
@@ -102,16 +90,10 @@ export const workHistory: WorkEntry[] = [
     role: 'Development Manager',
     dates: 'Nov 2018 – Jan 2021',
     summary: [
-      'Managed development coordination across contributors, balancing delivery timelines with quality standards for live content. Supported team communication, task routing, and release readiness for ongoing updates.',
-      'Helped maintain and evolve systems at scale while keeping the content pipeline moving across development, polish, and deployment phases.'
+      'Helped manage a volunteer development team for a large passion project and maintained delivery momentum.',
+      'Contributed map design/development and assisted anti-exploit system support.'
     ],
-    links: [
-      {
-        label: 'Star Wars Universe Online',
-        url: 'https://www.roblox.com/games/3971269762/Star-Wars-Universe-Online-MAIN-MENU-UPDATE?',
-        type: 'game'
-      }
-    ]
+    links: [{ label: 'Star Wars Universe Online', url: 'https://www.roblox.com/games/3971269762/Star-Wars-Universe-Online-MAIN-MENU-UPDATE?', type: 'game' }]
   }
 ];
 
@@ -121,76 +103,76 @@ export const projects: Project[] = [
     title: 'Oath of Office',
     url: 'https://www.roblox.com/games/110814051639689/Oath-of-Office-Political-Simulator',
     roleBadges: ['Producer', 'Programmer', 'Environmental Artist', 'UI Design'],
-    oneLiner: 'Designed and shipped governance, progression, and live-balancing systems for political roleplay loops.',
+    oneLiner: 'Production-led live roleplay development with systems and release ownership.',
     tags: ['Systems', 'Live Ops', 'Production'],
-    overview: 'A live political simulator requiring robust progression states, role permissions, and event reliability.',
-    responsibilities: ['Roadmap planning', 'System direction', 'Engineering execution', 'Release cadence'],
-    systems: ['Role authority framework', 'Session-safe progression', 'Live update controls'],
-    highlights: ['Modular service patterns', 'Runtime balancing support', 'Operational rollout planning'],
-    problem: 'Feature growth risked inconsistent state logic and difficult live update handling.',
-    solution: 'Implemented modular systems and release process checkpoints tied to operational telemetry.',
-    outcome: 'Enabled safer updates, clearer ownership boundaries, and more stable live feature iteration.'
+    responsibilities: [
+      'Roadmap planning',
+      'Live OP update releases and bug testing',
+      'Programming development',
+      'Community feedback collection and engagement',
+      'Business partner handling',
+      'Mixed environment development and design'
+    ],
+    systems: [
+      'Around 10 successful updates delivered',
+      'System performance improvements and updates',
+      'Moderation systems',
+      'Anti-exploit protections',
+      'Admin and developer systems implemented for in-game control',
+      'Complete role framework for future games (modular and customizable)'
+    ]
   },
   {
     slug: 'his-majestys-government',
     title: "His Majesty's Government",
     url: 'https://www.roblox.com/games/97694071689916/His-Majestys-Government',
     roleBadges: ['Producer', 'Programmer', 'Environmental Artist', 'UI Design'],
-    oneLiner: 'Built scalable role and session systems aligned with production milestones and content teams.',
+    oneLiner: 'Live roleplay production with full environmental support and system delivery.',
     tags: ['Systems', 'Production', 'UI'],
-    overview: 'A structure-heavy roleplay title needing reliable state management and predictable feature delivery.',
-    responsibilities: ['Feature scoping', 'Cross-team coordination', 'Gameplay systems implementation'],
-    systems: ['Permission hierarchies', 'Session continuity logic', 'UI flow optimization'],
-    highlights: ['Service-layer architecture', 'Dependency-light UI patterning', 'Milestone release documentation'],
-    problem: 'As scope expanded, feature dependencies became harder to ship cleanly.',
-    solution: 'Introduced defined integration checkpoints and modular systems with clearer interfaces.',
-    outcome: 'Reduced rollout friction and improved handoff quality across disciplines.'
+    responsibilities: [
+      'Roadmap planning',
+      'Live OP update releases and bug testing',
+      'Programming development',
+      'Community feedback collection and engagement',
+      'Business partner handling',
+      'Full environmental design and creation'
+    ],
+    systems: ['Live systems iteration', 'Release quality support', 'UI and content pipeline implementation']
   },
   {
     slug: 'foundation-scp-roleplay',
     title: 'The Foundation: SCP Roleplay',
     url: 'https://www.roblox.com/games/90503149907738/The-Foundation-SCP-Roleplay',
     roleBadges: ['Producer', 'Programmer', 'Environmental Artist', 'UI Design'],
-    oneLiner: 'Directed live systems updates for high-complexity roleplay scenarios and content pacing.',
+    oneLiner: 'SCP roleplay production with iterative updates and systems management.',
     tags: ['Systems', 'Live Ops', 'Performance', 'UI'],
-    overview: 'A live SCP roleplay environment where systems reliability and update quality directly impact retention.',
-    responsibilities: ['Production oversight', 'Live operations planning', 'Systems design and tuning'],
-    systems: ['Round-state management', 'Progression balancing', 'Incident-safe update workflow'],
-    highlights: ['Performance-aware architecture', 'Feedback-loop iteration', 'Operational launch readiness'],
-    problem: 'Frequent live updates required consistency across gameplay and infrastructure.',
-    solution: 'Combined production-level planning with modular system upgrades and guardrails.',
-    outcome: 'Maintained stable experiences while increasing delivery pace.'
+    responsibilities: [
+      'Roadmap planning',
+      'Live OP update releases and bug testing',
+      'Programming development',
+      'Community feedback collection and engagement',
+      'Business partner handling',
+      'Full environmental design and creation'
+    ],
+    systems: ['Around 4 successful updates delivered', 'Live systems updates', 'Performance and stability iteration']
   },
   {
     slug: 'attack-on-titan-freedom-awaits',
     title: 'Attack on Titan: Freedom Awaits',
     url: 'https://www.roblox.com/games/6034188975/NEW-FOREST-Attack-on-Titan-Freedom-Awaits-Demo?',
     roleBadges: ['Programmer'],
-    oneLiner: 'Implemented gameplay systems to support a fast-growing title with large-scale player demand.',
+    oneLiner: 'Core programming ownership across UI, backend, and gameplay support systems.',
     tags: ['Systems', 'Performance', 'UI'],
-    overview: 'Anime-inspired action title requiring responsive systems and maintainable gameplay scripting.',
-    responsibilities: ['Core scripting', 'Gameplay support', 'Update reliability'],
-    systems: ['Combat-adjacent logic hooks', 'Player state handling', 'Patch-safe system adjustments'],
-    highlights: ['Scale-aware implementation', 'Low-friction debug patterns', 'Coordination with design'],
-    problem: 'Rapid growth increased pressure on consistency and runtime performance.',
-    solution: 'Focused on structured code organization and operationally safe feature changes.',
-    outcome: 'Supported large-scale play while preserving a stable development rhythm.',
+    responsibilities: [
+      'Head of all programming development',
+      'Provided feasible development timelines',
+      'Implemented UI logic, backend systems, and frontend effects'
+    ],
+    systems: ['Major bug fixes', 'Main menu', 'Server creator systems', 'Character customization system', 'Crate system', 'Other support tasks'],
     media: [
-      {
-        label: 'Crate system with duplicate-item point refunds for ODM unlock flow',
-        url: 'https://i.gyazo.com/09ab95d6b31e1d2ad15b4a684014ab11.mp4',
-        type: 'video'
-      },
-      {
-        label: 'Character customization system: hair, facial options, clothing, blades, zoom, and rotation',
-        url: 'https://i.gyazo.com/3da6070c0ab6727cee82308aefdccde4.mp4',
-        type: 'video'
-      },
-      {
-        label: 'Menu animation transition sample',
-        url: 'https://images-ext-1.discordapp.net/external/KY6w_jzPamgOsvAI0hTJNQlAKDOZTUAAZrUiXtIgwgQ/https/i.gyazo.com/39df5725926b9dca744655ceb074ea75.mp4',
-        type: 'video'
-      }
+      { label: 'Crate system with duplicate-item point refunds for ODM unlock flow', url: 'https://i.gyazo.com/09ab95d6b31e1d2ad15b4a684014ab11.mp4', type: 'video' },
+      { label: 'Character customization system: hair, facial hair, face, name roll, clothing, blades, rotation, zoom', url: 'https://i.gyazo.com/3da6070c0ab6727cee82308aefdccde4.mp4', type: 'video' },
+      { label: 'Menu animation transition sample', url: 'https://images-ext-1.discordapp.net/external/KY6w_jzPamgOsvAI0hTJNQlAKDOZTUAAZrUiXtIgwgQ/https/i.gyazo.com/39df5725926b9dca744655ceb074ea75.mp4', type: 'video' }
     ]
   },
   {
@@ -198,30 +180,20 @@ export const projects: Project[] = [
     title: 'Star Wars Universe Online',
     url: 'https://www.roblox.com/games/3971269762/Star-Wars-Universe-Online-MAIN-MENU-UPDATE?',
     roleBadges: ['Dev Manager', 'UI Design'],
-    oneLiner: 'Managed contributors and content pipelines while supporting long-running system maintenance.',
+    oneLiner: 'Volunteer-team coordination with map development and anti-exploit support.',
     tags: ['Production', 'Live Ops', 'Systems', 'UI'],
-    overview: 'Long-running project with broad contributor needs and continuous release expectations.',
-    responsibilities: ['Development management', 'Delivery coordination', 'System maintenance planning'],
-    systems: ['Content pipeline support', 'Operational release structure', 'Team coordination workflow'],
-    highlights: ['Cross-discipline planning', 'Scalable process design', 'Long-horizon maintenance'],
-    problem: 'Sustaining quality over long release cycles required stronger coordination systems.',
-    solution: 'Improved production structure, role clarity, and release process consistency.',
-    outcome: 'Enabled steady content output and resilient long-term project operations.'
+    responsibilities: ['Helped manage a small volunteer developer team', 'Supported map design and development', 'Assisted with anti-exploit systems'],
+    systems: ['Team workflow support', 'Map content delivery', 'Live project stability support']
   },
   {
     slug: 'wai-and-aina-farms-pwa',
     title: 'Wai and Aina Farms Operations PWA',
     url: 'https://www.linkedin.com/in/colten-lewis-2b05a7220/',
     roleBadges: ['Full Stack', 'PWA', 'Productivity'],
-    oneLiner: 'Built a cross-device farm operations system for staffing, projects, analytics, and AI-assisted reporting.',
+    oneLiner: 'Cross-device operations platform for scheduling, management, and analytics.',
     tags: ['Web Tools', 'Production', 'Systems'],
-    overview: 'A mobile-and-desktop production platform designed for day-to-day farm operations and team coordination.',
-    responsibilities: ['Full-stack architecture', 'Role and user management', 'Scheduling and operations dashboard design'],
-    systems: ['Custom scheduling engine', 'Animal tracking workflow', 'Guide system with AI-assisted report snapshot creation'],
-    highlights: ['PWA responsiveness', 'Operational analytics views', 'Production-safe management tooling'],
-    problem: 'The team needed one reliable workflow across staff, assets, and project execution on both mobile and desktop.',
-    solution: 'Designed a unified PWA dashboard with management modules, analytics, and practical AI-augmented reporting paths.',
-    outcome: 'Improved operational visibility and reduced administrative overhead for recurring management tasks.'
+    responsibilities: ['Full-stack architecture and implementation', 'User, staff, and project management systems', 'Cross-device responsive PWA delivery'],
+    systems: ['Custom scheduling', 'Animal tracking', 'Productivity analytics', 'AI-assisted guide/report snapshots']
   }
 ];
 
@@ -259,7 +231,12 @@ export const capabilityGroups = [
   },
   {
     title: 'Production',
-    items: ['Project management', 'Feature scoping, milestone delivery, live release lifecycle', 'Cross-discipline coordination']
+    items: [
+      'Project management',
+      'Feature scoping, milestone delivery, live release lifecycle',
+      'Cross-discipline coordination',
+      'Trello, HacknPlan, and sprint-based project management frameworks'
+    ]
   }
 ];
 
@@ -284,10 +261,7 @@ export const personalCreations = {
     'https://gyazo.com/3278e39190ecaccf98d4945ae3134d23.mp4'
   ],
   uiReference: 'https://media.discordapp.net/attachments/884193229686308864/884193396229541888/a27f3710bf581adf0eeab53fe1d74a4d.png?ex=699b79c5&is=699a2845&hm=b43f97723ad182dc16a7d96a83d7308cf8e7371be4e6986dc47cd43397f47748&=&format=webp&quality=lossless&width=1504&height=844',
-  sketchfabEmbeds: [
-    'https://sketchfab.com/models/b73c4d3a76474c3f92ca86833e343417/embed',
-    'https://sketchfab.com/models/13f8f4dde73a4b0b936309fcb2ea732f/embed'
-  ],
+  sketchfabEmbeds: ['https://sketchfab.com/models/b73c4d3a76474c3f92ca86833e343417/embed', 'https://sketchfab.com/models/13f8f4dde73a4b0b936309fcb2ea732f/embed'],
   marvelContribution: {
     title: 'Sub Contribution · Spider-Man Swinging Mechanic',
     description: 'Contributed movement scripting and feel tuning support for Spider-Man swinging in a Marvel-themed Roblox project.',
