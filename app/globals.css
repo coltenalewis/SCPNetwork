@@ -2,26 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: light;
-}
-
-html {
-  scroll-behavior: smooth;
-}
+:root { color-scheme: dark; }
+html { scroll-behavior: smooth; }
 
 body {
-  @apply min-h-screen bg-[#efe5d3] text-[#2f2f26];
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  @apply min-h-screen bg-[#05070d] text-white antialiased;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-x: hidden;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+.space-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.24), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(249, 115, 22, 0.22), transparent 40%),
+    linear-gradient(140deg, #030712, #080d19 40%, #090e1c);
 }
+
+.space-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+  background-size: 120px 120px;
+  opacity: 0.25;
+  transform: perspective(700px) rotateX(50deg) translateY(-20%);
+}
+
+.space-bg::after {
+  content: 'if (systems.stable) { deploy(); } // telemetry::loop :: ai::assist :: cadenced delivery :: production-safe pipelines';
+  position: absolute;
+  inset: auto 5% 3% 5%;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: rgba(148, 163, 184, 0.18);
+  white-space: nowrap;
+  overflow: hidden;
+  animation: ticker 18s linear infinite;
+}
+
+.orb { position: absolute; width: 42vw; height: 42vw; max-width: 600px; max-height: 600px; filter: blur(65px); border-radius: 9999px; opacity: 0.42; animation: drift 16s ease-in-out infinite; }
+.orb-cyan { background: #22d3ee; top: -10%; left: -8%; }
+.orb-orange { background: #fb923c; bottom: -15%; right: -8%; animation-duration: 22s; }
+.orb-violet { background: #6366f1; top: 35%; left: 40%; animation-duration: 19s; }
+
+.floating-shape { position: absolute; border: 1px solid rgba(148, 163, 184, 0.25); transform-style: preserve-3d; backdrop-filter: blur(1px); }
+.shape-a { width: 140px; height: 140px; top: 16%; right: 12%; animation: spin3d 14s linear infinite; }
+.shape-b { width: 90px; height: 90px; bottom: 20%; left: 16%; animation: spin3d 10s linear infinite reverse; }
+.shape-c { width: 60px; height: 60px; top: 58%; right: 30%; animation: spin3d 9s linear infinite; }
+
+.glitch-text { position: relative; transition: text-shadow 200ms ease; }
+.glitch-text:hover { text-shadow: -1px 0 rgba(34, 211, 238, 0.7), 1px 0 rgba(251, 146, 60, 0.7), 0 0 15px rgba(56, 189, 248, 0.35); }
+
+.code-window { background: linear-gradient(180deg, rgba(2, 6, 23, 0.5), rgba(15, 23, 42, 0.7)); box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.15); }
+.reveal-on-scroll { animation: reveal both; animation-timeline: view(); animation-range: entry 15% cover 35%; }
+
+@keyframes drift { 0%,100% { transform: translate3d(0, 0, 0) scale(1);} 33% { transform: translate3d(6vw, -4vh, 0) scale(1.08);} 66% { transform: translate3d(-4vw, 5vh, 0) scale(0.95);} }
+@keyframes ticker { from { transform: translateX(100%);} to { transform: translateX(-120%);} }
+@keyframes reveal { from { opacity: 0; transform: translateY(24px) scale(0.98);} to { opacity: 1; transform: translateY(0) scale(1);} }
+@keyframes spin3d { from { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);} to { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg);} }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .reveal-on-scroll { animation: none; }
+}
+
+
+.merry-stage { perspective: 1000px; height: 280px; display: grid; place-items: center; overflow: hidden; }
+.merry-ring { position: relative; width: 100%; height: 240px; transform-style: preserve-3d; animation: merrySpin 18s linear infinite; }
+.merry-item { position: absolute; top: 20px; left: 50%; width: 320px; height: 200px; margin-left: -160px; border-radius: 14px; border: 1px solid rgba(255,255,255,.18); overflow: hidden; transition: transform .4s ease, box-shadow .3s ease; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+.merry-item:hover { animation-play-state: paused; transform: translateZ(320px) scale(1.06) !important; box-shadow: 0 0 35px rgba(56,189,248,.35); z-index: 5; }
+.merry-item-1 { transform: rotateY(0deg) translateZ(270px); }
+.merry-item-2 { transform: rotateY(120deg) translateZ(270px); }
+.merry-item-3 { transform: rotateY(240deg) translateZ(270px); }
+@keyframes merrySpin { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
