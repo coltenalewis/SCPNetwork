@@ -36,7 +36,11 @@ export default function WorkPage() {
                     {entry.links.map((link) => (
                       <li key={link.url} className="rounded-xl border border-white/10 bg-black/20 p-3">
                         <RobloxCoverImage target={link.url} alt={link.label} />
-                        <a href={link.url} target="_blank" className="mt-2 inline-flex items-center gap-2 text-sm text-orange-200">{link.label} <ExternalLink size={14} /></a>
+                        {link.url === '#' ? (
+                          <span className="mt-2 inline-flex items-center gap-2 text-sm text-slate-300">{link.label}</span>
+                        ) : (
+                          <a href={link.url} target="_blank" className="mt-2 inline-flex items-center gap-2 text-sm text-orange-200">{link.label} <ExternalLink size={14} /></a>
+                        )}
                       </li>
                     ))}
                   </ul>

@@ -15,6 +15,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="orb orb-cyan" />
           <div className="orb orb-orange" />
           <div className="orb orb-violet" />
+          <div className="floating-shape shape-a" />
+          <div className="floating-shape shape-b" />
+          <div className="floating-shape shape-c" />
         </div>
         <div className="relative z-10">{children}</div>
       </body>

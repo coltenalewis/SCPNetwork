@@ -11,6 +11,8 @@ function parseTarget(target: string) {
   if (game) return { kind: 'game' as const, id: game[1] };
   const group = target.match(/roblox\.com\/communities\/(\d+)/);
   if (group) return { kind: 'community' as const, id: group[1] };
+  const user = target.match(/roblox\.com\/users\/(\d+)\/profile/);
+  if (user) return { kind: 'user' as const, id: user[1] };
   return null;
 }
 
@@ -35,6 +37,16 @@ async function fetchGroupImage(groupId: string) {
     next: { revalidate: 3600 }
   });
   if (!res.ok) throw new Error('group thumbnail failed');
+  const data = (await res.json()) as { data?: { imageUrl?: string }[] };
+  return data?.data?.[0]?.imageUrl;
+}
+
+
+async function fetchUserHeadshot(userId: string) {
+  const res = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=true`, {
+    next: { revalidate: 3600 }
+  });
+  if (!res.ok) throw new Error('user headshot failed');
   const data = (await res.json()) as { data?: { imageUrl?: string }[] };
   return data?.data?.[0]?.imageUrl;
 }
@@ -64,6 +76,7 @@ export async function GET(req: NextRequest) {
   try {
     if (parsed?.kind === 'game') imageUrl = (await fetchGameImage(parsed.id)) ?? null;
     if (parsed?.kind === 'community') imageUrl = (await fetchGroupImage(parsed.id)) ?? null;
+    if (parsed?.kind === 'user') imageUrl = (await fetchUserHeadshot(parsed.id)) ?? null;
   } catch {
     imageUrl = null;
   }

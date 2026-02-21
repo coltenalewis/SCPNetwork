@@ -2,13 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: dark;
-}
-
-html {
-  scroll-behavior: smooth;
-}
+:root { color-scheme: dark; }
+html { scroll-behavior: smooth; }
 
 body {
   @apply min-h-screen bg-[#05070d] text-white antialiased;
@@ -30,16 +25,14 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
   background-size: 120px 120px;
   opacity: 0.25;
   transform: perspective(700px) rotateX(50deg) translateY(-20%);
 }
 
 .space-bg::after {
-  content: 'const system = {status: "stable", cadence: "live"};  function sync(){return telemetry.map(analyze);}  // cocodev //';
+  content: 'if (systems.stable) { deploy(); } // telemetry::loop :: ai::assist :: cadenced delivery :: production-safe pipelines';
   position: absolute;
   inset: auto 5% 3% 5%;
   font-size: 11px;
@@ -50,69 +43,28 @@ body {
   animation: ticker 18s linear infinite;
 }
 
-.orb {
-  position: absolute;
-  width: 42vw;
-  height: 42vw;
-  max-width: 600px;
-  max-height: 600px;
-  filter: blur(65px);
-  border-radius: 9999px;
-  opacity: 0.42;
-  animation: drift 16s ease-in-out infinite;
-}
-
+.orb { position: absolute; width: 42vw; height: 42vw; max-width: 600px; max-height: 600px; filter: blur(65px); border-radius: 9999px; opacity: 0.42; animation: drift 16s ease-in-out infinite; }
 .orb-cyan { background: #22d3ee; top: -10%; left: -8%; }
 .orb-orange { background: #fb923c; bottom: -15%; right: -8%; animation-duration: 22s; }
 .orb-violet { background: #6366f1; top: 35%; left: 40%; animation-duration: 19s; }
 
-.glitch-text {
-  position: relative;
-  transition: text-shadow 200ms ease;
-}
+.floating-shape { position: absolute; border: 1px solid rgba(148, 163, 184, 0.25); transform-style: preserve-3d; backdrop-filter: blur(1px); }
+.shape-a { width: 140px; height: 140px; top: 16%; right: 12%; animation: spin3d 14s linear infinite; }
+.shape-b { width: 90px; height: 90px; bottom: 20%; left: 16%; animation: spin3d 10s linear infinite reverse; }
+.shape-c { width: 60px; height: 60px; top: 58%; right: 30%; animation: spin3d 9s linear infinite; }
 
-.glitch-text:hover {
-  text-shadow: -1px 0 rgba(34, 211, 238, 0.7), 1px 0 rgba(251, 146, 60, 0.7), 0 0 15px rgba(56, 189, 248, 0.35);
-}
+.glitch-text { position: relative; transition: text-shadow 200ms ease; }
+.glitch-text:hover { text-shadow: -1px 0 rgba(34, 211, 238, 0.7), 1px 0 rgba(251, 146, 60, 0.7), 0 0 15px rgba(56, 189, 248, 0.35); }
 
-.code-window {
-  background: linear-gradient(180deg, rgba(2, 6, 23, 0.5), rgba(15, 23, 42, 0.7));
-  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.15);
-}
+.code-window { background: linear-gradient(180deg, rgba(2, 6, 23, 0.5), rgba(15, 23, 42, 0.7)); box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.15); }
+.reveal-on-scroll { animation: reveal both; animation-timeline: view(); animation-range: entry 15% cover 35%; }
 
-.reveal-on-scroll {
-  animation: reveal both;
-  animation-timeline: view();
-  animation-range: entry 15% cover 35%;
-}
-
-@keyframes drift {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  33% { transform: translate3d(6vw, -4vh, 0) scale(1.08); }
-  66% { transform: translate3d(-4vw, 5vh, 0) scale(0.95); }
-}
-
-@keyframes ticker {
-  from { transform: translateX(100%); }
-  to { transform: translateX(-120%); }
-}
-
-@keyframes reveal {
-  from { opacity: 0; transform: translateY(24px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
+@keyframes drift { 0%,100% { transform: translate3d(0, 0, 0) scale(1);} 33% { transform: translate3d(6vw, -4vh, 0) scale(1.08);} 66% { transform: translate3d(-4vw, 5vh, 0) scale(0.95);} }
+@keyframes ticker { from { transform: translateX(100%);} to { transform: translateX(-120%);} }
+@keyframes reveal { from { opacity: 0; transform: translateY(24px) scale(0.98);} to { opacity: 1; transform: translateY(0) scale(1);} }
+@keyframes spin3d { from { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);} to { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg);} }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-
-  .reveal-on-scroll {
-    animation: none;
-  }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .reveal-on-scroll { animation: none; }
 }

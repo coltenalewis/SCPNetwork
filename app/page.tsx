@@ -8,6 +8,7 @@ const STORAGE_KEY = 'cocodev-entered';
 
 export default function HomePage() {
   const [entered, setEntered] = useState(false);
+  const [entering, setEntering] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -15,13 +16,17 @@ export default function HomePage() {
   }, []);
 
   const onEnter = () => {
-    localStorage.setItem(STORAGE_KEY, 'true');
-    setEntered(true);
+    setEntering(true);
+    setTimeout(() => {
+      localStorage.setItem(STORAGE_KEY, 'true');
+      setEntered(true);
+      setEntering(false);
+    }, 950);
   };
 
   return (
     <main className="relative">
-      {!entered && <EntryVault onEnter={onEnter} />}
+      {!entered && <EntryVault onEnter={onEnter} entering={entering} />}
       <Hero />
       <WorkHistoryPreview />
       <FeaturedProjects />
