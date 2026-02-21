@@ -21,6 +21,12 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "framer-motion": [
+        "./vendor/framer-motion"
+      ],
+      "lucide-react": [
+        "./vendor/lucide-react"
       ]
     },
     "plugins": [

@@ -1,0 +1,33 @@
+'use client';
+
+import Link from 'next/link';
+import { useMemo, useState } from 'react';
+import { RobloxCoverImage } from '@/components/RobloxCoverImage';
+import { projects } from '@/lib/content';
+
+const filters = ['All', 'Systems', 'Live Ops', 'UI', 'Performance', 'Production', 'Web Tools'];
+
+export default function ProjectsPage() {
+  const [active, setActive] = useState('All');
+  const list = useMemo(() => projects.filter((p) => active === 'All' || p.tags.includes(active)), [active]);
+
+  return (
+    <main className="mx-auto max-w-6xl px-4 py-10 text-white">
+      <Link href="/" className="text-sm text-cyan-200">← Back</Link>
+      <h1 className="mt-3 text-4xl font-semibold">Projects</h1>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {filters.map((f)=><button key={f} onClick={()=>setActive(f)} className={`rounded-full px-3 py-1 text-sm ${active===f?'bg-cyan-300 text-slate-950':'border border-white/30 bg-white/5 text-slate-100'}`}>{f}</button>)}
+      </div>
+      <section className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {list.map((project) => (
+          <article key={project.slug} className="rounded-2xl border border-white/15 bg-[#0a1120]/70 p-4 backdrop-blur-xl">
+            <RobloxCoverImage target={project.url} alt={project.title} />
+            <h2 className="mt-3 text-lg font-semibold">{project.title}</h2>
+            <p className="text-sm text-slate-200">{project.oneLiner}</p>
+            <Link href={`/projects/${project.slug}`} className="mt-2 inline-block text-sm font-semibold text-orange-200">Deep Dive</Link>
+          </article>
+        ))}
+      </section>
+    </main>
+  );
+}
