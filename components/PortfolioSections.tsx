@@ -41,6 +41,9 @@ export function Hero() {
         <a href="/creations" className="rounded-xl border border-cyan-300/60 px-5 py-3 font-semibold text-cyan-100 transition hover:bg-cyan-300/10">
           Creations
         </a>
+        <a href="/code-example" className="rounded-xl border border-violet-300/60 px-5 py-3 font-semibold text-violet-100 transition hover:bg-violet-300/10">
+          Code Example
+        </a>
       </div>
       <div className="mt-6 flex flex-wrap gap-4 text-sm text-cyan-50">
         <a aria-label="LinkedIn profile" className="inline-flex items-center gap-2 hover:text-white" href={profileLinks.linkedIn} target="_blank">
