@@ -72,8 +72,7 @@ body {
 
 .merry-stage { perspective: 1000px; height: 280px; display: grid; place-items: center; overflow: hidden; }
 .merry-ring { position: relative; width: 100%; height: 240px; transform-style: preserve-3d; animation: merrySpin 18s linear infinite; }
-.merry-item { position: absolute; top: 20px; left: 50%; width: 320px; height: 200px; margin-left: -160px; border-radius: 14px; border: 1px solid rgba(255,255,255,.18); overflow: hidden; transition: transform .4s ease, box-shadow .3s ease; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
-.merry-item:hover { animation-play-state: paused; transform: translateZ(320px) scale(1.06) !important; box-shadow: 0 0 35px rgba(56,189,248,.35); z-index: 5; }
+.merry-item { position: absolute; top: 20px; left: 50%; width: 320px; height: 200px; margin-left: -160px; border-radius: 10px; border: 1px solid rgba(255,255,255,.18); overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
 .merry-item-1 { transform: rotateY(0deg) translateZ(270px); }
 .merry-item-2 { transform: rotateY(120deg) translateZ(270px); }
 .merry-item-3 { transform: rotateY(240deg) translateZ(270px); }

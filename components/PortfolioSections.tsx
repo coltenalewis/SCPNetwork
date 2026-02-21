@@ -7,7 +7,7 @@ import { aiIntegrationContent, capabilityGroups, profileLinks, projects, workHis
 import { RobloxCoverImage } from './RobloxCoverImage';
 
 const panel =
-  'rounded-3xl border border-white/15 bg-[#0a1120]/65 backdrop-blur-xl shadow-[0_0_40px_rgba(30,64,175,0.22)] transition duration-300 hover:border-cyan-200/40 hover:shadow-[0_0_45px_rgba(56,189,248,0.2)]';
+  'rounded-2xl border border-white/15 bg-[#0a1120]/65 backdrop-blur-xl shadow-[0_0_40px_rgba(30,64,175,0.22)] transition duration-300 hover:border-cyan-200/40 hover:shadow-[0_0_45px_rgba(56,189,248,0.2)]';
 
 const waiImage =
   'https://media.discordapp.net/attachments/906169400258863114/1474901384934461653/image.png?ex=699b8874&is=699a36f4&hm=f11838aa7ca39d662a92e17b1317a70fec9a33a9ff7acdb8d96fffe909801a2a&=&format=webp&quality=lossless&width=1281&height=535';
@@ -48,9 +48,6 @@ export function Hero() {
         </a>
         <a className="inline-flex items-center gap-2 hover:text-white" href={profileLinks.creatorHub} target="_blank">
           <Roblox size={16} /> Creator Hub
-        </a>
-        <a className="inline-flex items-center gap-2 hover:text-white" href={profileLinks.chesapeake} target="_blank">
-          Chesapeake Studios
         </a>
       </div>
     </section>
@@ -191,7 +188,6 @@ export function AboutSection() {
         <div className="flex flex-wrap gap-3">
           <a href={profileLinks.linkedIn} target="_blank">LinkedIn</a>
           <a href={profileLinks.creatorHub} target="_blank">Creator Hub</a>
-          <a href={profileLinks.chesapeake} target="_blank">Chesapeake Studios</a>
           <span>CocoDev</span>
         </div>
       </footer>
