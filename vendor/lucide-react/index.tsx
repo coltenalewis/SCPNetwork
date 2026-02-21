@@ -17,3 +17,5 @@ export const Copy = icon(<><rect x="9" y="9" width="13" height="13" rx="2" /><pa
 export const ExternalLink = icon(<><path d="M15 3h6v6" /><path d="M10 14 21 3" /><path d="M21 14v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" /></>);
 export const Linkedin = icon(<><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></>);
 export const ChevronDown = icon(<path d="m6 9 6 6 6-6" />);
+
+export const Roblox = icon(<><path d="M4 4h16v16H4z" /><circle cx="9" cy="9" r="1.5" fill="currentColor" stroke="none" /><circle cx="15" cy="15" r="1.5" fill="currentColor" stroke="none" /></>);

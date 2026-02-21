@@ -42,7 +42,7 @@ export const profileLinks = {
   creatorHub: '[CREATOR_HUB_URL_PLACEHOLDER]',
   chesapeake: 'https://www.roblox.com/communities/17005184/Chesapeake-Studios',
   email: '[EMAIL_PLACEHOLDER]',
-  discord: '[DISCORD_PLACEHOLDER]'
+  discord: 'CocoDev'
 };
 
 export const workHistory: WorkEntry[] = [
@@ -111,7 +111,8 @@ export const projects: Project[] = [
       'Programming development',
       'Community feedback collection and engagement',
       'Business partner handling',
-      'Mixed environment development and design'
+      'Mixed environment development and design',
+      'Managed a team consisting of a 3D modeler, builder, UI artist, and music composer'
     ],
     systems: [
       'Around 10 successful updates delivered',
@@ -135,7 +136,8 @@ export const projects: Project[] = [
       'Programming development',
       'Community feedback collection and engagement',
       'Business partner handling',
-      'Full environmental design and creation'
+      'Full environmental design and creation',
+      'Managed a team consisting of a 3D modeler, builder, UI artist, and music composer'
     ],
     systems: ['Live systems iteration', 'Release quality support', 'UI and content pipeline implementation']
   },
@@ -152,7 +154,8 @@ export const projects: Project[] = [
       'Programming development',
       'Community feedback collection and engagement',
       'Business partner handling',
-      'Full environmental design and creation'
+      'Full environmental design and creation',
+      'Managed a team consisting of a 3D modeler, builder, UI artist, and music composer'
     ],
     systems: ['Around 4 successful updates delivered', 'Live systems updates', 'Performance and stability iteration']
   },
@@ -235,7 +238,7 @@ export const capabilityGroups = [
       'Project management',
       'Feature scoping, milestone delivery, live release lifecycle',
       'Cross-discipline coordination',
-      'Trello, HacknPlan, and sprint-based project management frameworks'
+      'Trello, HackNPlan, and sprint-based project management frameworks'
     ]
   }
 ];
@@ -272,36 +275,21 @@ export const personalCreations = {
 
 export const aiIntegrationContent: AiIntegrationContent = {
   intro: [
-    'I design and implement AI-assisted systems as practical infrastructure that enhances both player experiences and development workflows. My focus is on production-ready solutions that improve scalability, operational awareness, and delivery speed rather than novelty features. Across analytics, gameplay, moderation, and project management, I integrate AI as a controlled augmentation layer alongside deterministic systems, ensuring outputs remain reliable, interpretable, and aligned with design intent.',
-    'These capabilities have been applied to interpret complex telemetry, forecast production timelines, generate context-aware content, and streamline repetitive engineering tasks. By embedding AI into internal tooling and pipelines, I reduce manual workload, accelerate iteration cycles, and maintain high code quality, allowing teams to ship features faster without compromising stability or maintainability.'
+    'I use AI as practical production support to improve delivery speed, system reliability, and team workflow efficiency.'
   ],
   applications: [
     {
-      title: 'Analytics Interpretation & Forecasting',
-      description:
-        'AI-assisted pipelines that analyze usage data to surface trends, anomalies, and actionable insights for capacity planning, feature prioritization, and retention strategy.'
+      title: 'Analytics & Forecasting',
+      description: 'Trend analysis and planning support for release priorities and retention decisions.'
     },
     {
-      title: 'Production Modeling & Task Management',
-      description:
-        'Systems that evaluate scope, dependencies, and team velocity to forecast timelines, identify bottlenecks, and optimize milestone planning for live projects.'
+      title: 'Production Modeling',
+      description: 'Timeline and dependency support for milestone planning and bottleneck visibility.'
     },
     {
-      title: 'Dynamic NPC Dialogue Frameworks',
-      description:
-        'Context-aware dialogue generation constrained by gameplay state, tone guidelines, and safety rules, enabling scalable narrative interactions without rigid scripting trees.'
-    },
-    {
-      title: 'Moderation & Community Safety Tooling',
-      description:
-        'AI-assisted workflows that flag high-risk content, prioritize reports, and reduce manual review load while operating alongside rule-based filters for consistency and transparency.'
-    },
-    {
-      title: 'Workflow Automation & Developer Productivity',
-      description:
-        'Internal tools for rapid prototyping, documentation generation, code scaffolding, refactoring, and system design support, significantly reducing development time and repetitive engineering effort.'
+      title: 'Workflow Automation',
+      description: 'Internal tooling for scaffolding, documentation, and repetitive engineering task reduction.'
     }
   ],
-  closing:
-    'Overall, these integrations function as force multipliers for production teams, enabling faster iteration, improved decision-making, and more efficient use of engineering resources while keeping core architecture deterministic, maintainable, and production-safe.'
+  closing: 'AI is used as a controlled force multiplier alongside deterministic systems.'
 };
