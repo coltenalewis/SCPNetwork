@@ -22,8 +22,13 @@ export function EntryVault({ onEnter }: { onEnter: () => void }) {
           <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 20, ease: 'linear' }} className="absolute inset-0 rounded-full border border-cyan-300/40" />
           <motion.div animate={{ rotate: -360 }} transition={{ repeat: Infinity, duration: 13, ease: 'linear' }} className="absolute inset-6 rounded-full border border-orange-300/40" />
           <motion.div animate={{ scale: [1, 1.1, 1], boxShadow: ['0 0 20px rgba(56,189,248,0.3)', '0 0 54px rgba(251,146,60,0.48)', '0 0 20px rgba(56,189,248,0.3)'] }} transition={{ repeat: Infinity, duration: 2.2 }} className="absolute inset-12 rounded-full border border-white/50 bg-black/40" />
+          <motion.div
+            animate={{ opacity: [0.55, 1, 0.55], scale: [1, 1.04, 1] }}
+            transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+            className="absolute inset-16 rounded-full border border-cyan-100/60"
+          />
           {!unlocking ? (
-            <button onClick={handleEnter} className="relative rounded-full border border-white/50 bg-white/10 px-10 py-4 text-sm font-semibold uppercase tracking-[0.2em] text-white backdrop-blur transition hover:scale-105 hover:bg-white/20">Click to Enter</button>
+            <button onClick={handleEnter} className="relative rounded-full border border-cyan-100/70 bg-cyan-200/15 px-10 py-4 text-sm font-semibold uppercase tracking-[0.2em] text-white backdrop-blur transition hover:bg-cyan-100/20">Click to Enter</button>
           ) : (
             <div className="relative h-20 w-20">
               <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }} className="absolute inset-0 rounded-full border-2 border-cyan-300 border-t-transparent" />

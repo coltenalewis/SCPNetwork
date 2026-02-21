@@ -11,10 +11,8 @@ export default function CreationsPage() {
       <h1 className="mt-3 text-4xl font-semibold">Personal Projects & Creations</h1>
       <p className="mt-2 text-slate-300">Interactive showcase of art, systems, and personal prototypes.</p>
 
-      <section className="mt-8 rounded-2xl border border-white/15 bg-[#0a1120]/70 p-5">
-        <h2 className="text-2xl font-semibold">3D Showcase Carousel</h2>
-        <p className="mt-2 text-sm text-slate-300">Hover a card to bring it to the front.</p>
-        <div className="merry-stage mt-4">
+      <section className="mt-8 rounded-xl border border-white/15 bg-[#0a1120]/70 p-5">
+        <div className="merry-stage">
           <div className="merry-ring">
             {personalCreations.environmentalArt.slice(0, 3).map((img, i) => (
               <article key={img} className={`merry-item merry-item-${i + 1}`}>
@@ -25,7 +23,7 @@ export default function CreationsPage() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-2xl border border-white/15 bg-[#0a1120]/70 p-5">
+      <section className="mt-6 rounded-xl border border-white/15 bg-[#0a1120]/70 p-5">
         <h2 className="text-2xl font-semibold">Python Map Chunk Builder Tool</h2>
         <p className="mt-3 text-slate-200">
           Built a custom Python utility that takes map PNG files, converts them into chunk-based world data, and outputs import-ready data for Roblox world
@@ -34,7 +32,7 @@ export default function CreationsPage() {
         <img src={mapToolImage} alt="Python chunk world builder screenshot" className="mt-4 w-full rounded-xl border border-white/10" />
       </section>
 
-      <section className="mt-6 rounded-2xl border border-white/15 bg-[#0a1120]/70 p-5">
+      <section className="mt-6 rounded-xl border border-white/15 bg-[#0a1120]/70 p-5">
         <h2 className="text-2xl font-semibold">Video Reels</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {personalCreations.videos.map((video) => (
@@ -43,7 +41,7 @@ export default function CreationsPage() {
         </div>
       </section>
 
-      <section className="mt-6 grid gap-4 rounded-2xl border border-white/15 bg-[#0a1120]/70 p-5 lg:grid-cols-2">
+      <section className="mt-6 grid gap-4 rounded-xl border border-white/15 bg-[#0a1120]/70 p-5 lg:grid-cols-2">
         <article>
           <h2 className="text-2xl font-semibold">Sketchfab Embeds</h2>
           <div className="mt-3 space-y-4">
