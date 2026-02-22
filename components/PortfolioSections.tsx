@@ -31,6 +31,10 @@ export function Hero() {
       <p className="mt-4 max-w-2xl text-lg text-slate-200/90">
         I build scalable game systems, live experiences, and developer tools from prototype to production.
       </p>
+      <p className="mt-3 max-w-3xl text-sm text-cyan-100/85">
+        I&apos;ve been developing on the platform for about 8 years, starting in 2018 with smaller passion projects before growing into full production and live-ops leadership.
+      </p>
+      <p className="mt-2 text-sm tracking-[0.12em] text-orange-100/90">Primary timezone for hiring: EST (Eastern Standard Time)</p>
       <div className="mt-7 flex flex-wrap gap-3">
         <a href="#work-history" className="rounded-xl bg-cyan-400/90 px-5 py-3 font-semibold text-slate-950 shadow-lg shadow-cyan-400/20">
           View Work
