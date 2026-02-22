@@ -11,6 +11,24 @@ type FileNode = {
   content?: string;
 };
 
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function highlightLua(code: string): string {
+  const escaped = escapeHtml(code);
+  return escaped
+    .replace(/(--\[\[[\s\S]*?\]\]|--[^\n]*)/g, '<span class="text-emerald-300">$1</span>')
+    .replace(/("(?:\\.|[^"])*"|'(?:\\.|[^'])*')/g, '<span class="text-amber-200">$1</span>')
+    .replace(/\b(local|function|if|then|elseif|else|end|for|in|do|while|repeat|until|return|continue|and|or|not|true|false|nil|type|typeof)\b/g, '<span class="text-violet-300">$1</span>')
+    .replace(/\b(game|script|task|table|ipairs|pairs|pcall|warn|print|require|error|os)\b/g, '<span class="text-cyan-300">$1</span>');
+}
+
 const serverCoreCode = `--!strict
 ----------------------------------------------------------------
 -- Service Loader
@@ -235,9 +253,10 @@ return DataService`;
 
 const tree: FileNode[] = [
   {
-    id: 'servercore',
-    label: 'ServerCore',
-    type: 'folder',
+    id: 'servercore-file',
+    label: 'ServerCore.lua',
+    type: 'file',
+    content: serverCoreCode,
     children: [
       {
         id: 'services',
@@ -245,7 +264,6 @@ const tree: FileNode[] = [
         type: 'folder',
         children: [{ id: 'dataservice', label: 'DataService.lua', type: 'file', content: dataServiceCode }],
       },
-      { id: 'servercore-file', label: 'ServerCore.lua', type: 'file', content: serverCoreCode },
     ],
   },
 ];
@@ -265,7 +283,7 @@ function flattenFiles(nodes: FileNode[]): FileNode[] {
 function TreeItem({ node, selectedId, onSelect }: { node: FileNode; selectedId: string; onSelect: (id: string) => void }) {
   const [open, setOpen] = useState(true);
 
-  if (node.type === 'file') {
+  if (node.type === 'file' && !node.children?.length) {
     return (
       <button
         onClick={() => onSelect(node.id)}
@@ -278,8 +296,14 @@ function TreeItem({ node, selectedId, onSelect }: { node: FileNode; selectedId: 
 
   return (
     <div>
-      <button onClick={() => setOpen((prev) => !prev)} className="flex w-full items-center rounded-md px-3 py-2 text-left text-sm text-slate-200 transition hover:bg-white/5">
-        <span className="mr-2">{open ? '▾' : '▸'}</span> 📁 {node.label}
+      <button
+        onClick={() => {
+          if (node.type === 'file') onSelect(node.id);
+          setOpen((prev) => !prev);
+        }}
+        className={`flex w-full items-center rounded-md px-3 py-2 text-left text-sm transition hover:bg-white/5 ${selectedId === node.id ? 'bg-cyan-300/20 text-cyan-100' : 'text-slate-200'}`}
+      >
+        <span className="mr-2">{open ? '▾' : '▸'}</span> {node.type === 'file' ? '📄' : '📁'} {node.label}
       </button>
       {open ? <div className="ml-4 space-y-1 border-l border-white/10 pl-2">{node.children?.map((child) => <TreeItem key={child.id} node={child} selectedId={selectedId} onSelect={onSelect} />)}</div> : null}
     </div>
@@ -295,7 +319,6 @@ export default function CodeExamplePage() {
     <main className="mx-auto max-w-7xl px-4 py-10 text-white">
       <Link href="/" className="text-sm text-cyan-200">← Back</Link>
       <h1 className="mt-3 bg-gradient-to-r from-cyan-100 via-white to-orange-200 bg-clip-text text-4xl font-semibold text-transparent">Code Example // Service Architecture</h1>
-      <p className="mt-2 text-sm tracking-[0.2em] text-cyan-100/80">⚡ BUILD WINDOW: EST (Eastern Standard Time)</p>
       <p className="mt-4 max-w-4xl text-slate-200">
         I build the core structure in a custom single-script architecture similar to Knit: services are loaded, ordered, dependency-checked, and initialized in a cohesive pipeline.
         I then refine and standardize with external dev tooling for formatting, comment hygiene, and robust error handling to keep production code clean, predictable, and documented.
@@ -303,7 +326,6 @@ export default function CodeExamplePage() {
 
       <section className="mt-6 grid gap-4 rounded-xl border border-white/15 bg-[#0a1120]/70 p-4 lg:grid-cols-[280px,1fr]">
         <aside className="rounded-lg border border-white/10 bg-black/25 p-3">
-          <p className="mb-2 text-xs uppercase tracking-[0.16em] text-slate-400">Makeshift File Explorer</p>
           <div className="space-y-1">
             {tree.map((node) => (
               <TreeItem key={node.id} node={node} selectedId={selectedId} onSelect={setSelectedId} />
@@ -317,7 +339,7 @@ export default function CodeExamplePage() {
             <span className="rounded-full border border-orange-300/40 bg-orange-300/10 px-2 py-1 text-xs text-orange-100">Lua (strict)</span>
           </div>
           <pre className="max-h-[70vh] overflow-auto rounded-md border border-white/10 bg-[#05070d] p-4 text-xs leading-6 text-slate-100">
-            <code>{selected.content}</code>
+            <code dangerouslySetInnerHTML={{ __html: highlightLua(selected.content ?? '') }} />
           </pre>
         </article>
       </section>
