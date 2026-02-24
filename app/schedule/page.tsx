@@ -12,6 +12,7 @@ export default function SchedulePage() {
   const [accessCode, setAccessCode] = useState('');
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [error, setError] = useState('');
+  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Pacific/Honolulu';
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -84,7 +85,7 @@ export default function SchedulePage() {
         {isAuthorized ? (
           <div className="mt-8 overflow-hidden rounded-2xl border border-white/15 bg-black/30 p-2">
             <iframe
-              src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Pacific%2FHonolulu&showPrint=0&title=Development%20Schedule&mode=WEEK&src=YWMwZTA5ZmRjZDliZjM2M2M4ODAwZmZmMTIzMjM3MzY2ZjU3Y2VjMTg2YzVmMDlmNzNkYjc3Njg2MGEwYjU5OUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23f4511e"
+              src={`https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=${encodeURIComponent(userTimeZone)}&showPrint=0&title=Development%20Schedule&mode=WEEK&src=YWMwZTA5ZmRjZDliZjM2M2M4ODAwZmZmMTIzMjM3MzY2ZjU3Y2VjMTg2YzVmMDlmNzNkYjc3Njg2MGEwYjU5OUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23f4511e`}
               style={{ border: 'solid 1px #777' }}
               width="800"
               height="600"
