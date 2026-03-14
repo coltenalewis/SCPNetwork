@@ -24,7 +24,7 @@ export default function HomePage() {
   return (
     <main className="relative">
       {!entered && <EntryVault onEnter={onEnter} />}
-      <MouseReveal imageUrl={OATH_COVER} className="min-h-[70vh]">
+      <MouseReveal imageUrl={OATH_COVER} className="min-h-[65vh]">
         <Hero />
       </MouseReveal>
       <WorkHistoryPreview />

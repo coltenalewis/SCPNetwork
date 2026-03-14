@@ -5,30 +5,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        cafe: {
-          cream: '#f6f0e6',
-          paper: '#fffbf5',
-          ink: '#24201a',
-          charcoal: '#1b1a17',
-          gold: '#ad8c52',
-          muted: '#746a59',
-          warm: '#e8dcc8',
-          latte: '#c4a882',
-          espresso: '#3b2f1e',
-          mocha: '#5c4a32'
-        }
-      },
-      boxShadow: {
-        soft: '0 8px 30px rgba(38, 30, 17, 0.08)',
-        'soft-lg': '0 12px 40px rgba(38, 30, 17, 0.12)'
+        surface:  { DEFAULT: '#faf7f2', warm: '#f3ede3', card: '#fffdf9' },
+        ink:      { DEFAULT: '#2c2418', soft: '#4a3f30', mute: '#8a7e6d' },
+        accent:   { DEFAULT: '#9b7e4e', hover: '#7d6438', light: '#c9b48a' },
       },
       fontFamily: {
-        display: ['Playfair Display', 'Georgia', 'serif'],
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif']
-      }
-    }
+        display: ['"DM Serif Display"', 'Georgia', 'serif'],
+        sans:    ['"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+      boxShadow: {
+        soft:   '0 2px 12px rgba(42, 32, 16, 0.06)',
+        medium: '0 8px 30px rgba(42, 32, 16, 0.10)',
+      },
+      borderRadius: {
+        card: '16px',
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 };
 
 export default config;

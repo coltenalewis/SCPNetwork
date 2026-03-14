@@ -11,11 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <div className="cafe-bg" aria-hidden="true">
-          <div className="orb-cafe orb-gold" />
-          <div className="orb-cafe orb-latte" />
-          <div className="orb-cafe orb-espresso" />
-        </div>
+        <div className="page-bg" aria-hidden="true" />
         <div className="relative z-10">{children}</div>
       </body>
     </html>
