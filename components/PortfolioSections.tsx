@@ -6,87 +6,87 @@ import { ArrowRight, ExternalLink, Linkedin, Roblox } from 'lucide-react';
 import { aiIntegrationContent, capabilityGroups, profileLinks, projects, workHistory } from '@/lib/content';
 import { RobloxCoverImage } from './RobloxCoverImage';
 
-const panel =
-  'rounded-2xl border border-white/15 bg-[#0a1120]/65 backdrop-blur-xl shadow-[0_0_40px_rgba(30,64,175,0.22)] transition duration-300 hover:border-cyan-200/40 hover:shadow-[0_0_45px_rgba(56,189,248,0.2)]';
-
 const waiImage =
   'https://media.discordapp.net/attachments/906169400258863114/1474901384934461653/image.png?ex=699b8874&is=699a36f4&hm=f11838aa7ca39d662a92e17b1317a70fec9a33a9ff7acdb8d96fffe909801a2a&=&format=webp&quality=lossless&width=1281&height=535';
 
 export function Hero() {
   return (
-    <section className="mx-auto max-w-6xl px-4 pt-16 text-white md:pt-24">
+    <section className="mx-auto max-w-5xl px-4 pt-20 md:pt-28">
       <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="mt-4 flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <RobloxCoverImage
             target="https://www.roblox.com/users/133970833/profile"
             alt="Roblox Avatar"
-            className="relative h-16 w-16 overflow-hidden rounded-full border border-cyan-200/60 bg-white/10 p-0.5 shadow-[0_0_20px_rgba(56,189,248,0.35)]"
+            className="relative h-20 w-20 overflow-hidden rounded-full border-2 bg-white/50 p-0.5 shadow-soft"
+            style={{ borderColor: 'var(--cafe-gold)' }}
           />
-          <h1 className="bg-gradient-to-r from-cyan-100 via-white to-orange-200 bg-clip-text text-5xl font-bold text-transparent md:text-7xl">
-            Colten Lewis
-          </h1>
+          <div>
+            <h1 className="font-display text-5xl font-bold tracking-tight text-cafe-ink md:text-6xl">
+              Colten Lewis
+            </h1>
+            <p className="mt-1 text-lg font-medium text-cafe-muted">
+              Roblox Systems Developer & Creative Producer
+            </p>
+          </div>
         </div>
       </motion.div>
-      <p className="mt-3 text-lg text-slate-200">Valkorianous · Roblox Systems Developer & Creative Producer</p>
-      <p className="mt-4 max-w-2xl text-lg text-slate-200/90">
-        I build scalable game systems, live experiences, and developer tools from prototype to production.
-      </p>
-      <p className="mt-3 max-w-3xl text-sm text-cyan-100/85">
-        I&apos;ve been developing on the platform for about 8 years, starting in 2018 with smaller passion projects before growing into full production and live-ops leadership.
-      </p>
-      <p className="mt-2 text-sm tracking-[0.12em] text-orange-100/90">Primary timezone for hiring: EST (Eastern Standard Time)</p>
-      <div className="mt-7 flex flex-wrap gap-3">
-        <a href="#work-history" className="rounded-xl bg-cyan-400/90 px-5 py-3 font-semibold text-slate-950 shadow-lg shadow-cyan-400/20">
-          View Work
-        </a>
-        <a href="/projects" className="rounded-xl border border-orange-300/60 px-5 py-3 font-semibold text-orange-100 transition hover:bg-orange-300/10">
-          Projects
-        </a>
-        <a href="/creations" className="rounded-xl border border-cyan-300/60 px-5 py-3 font-semibold text-cyan-100 transition hover:bg-cyan-300/10">
-          Creations
-        </a>
-        <a href="/code-example" className="rounded-xl border border-violet-300/60 px-5 py-3 font-semibold text-violet-100 transition hover:bg-violet-300/10">
-          Code Example
-        </a>
-        <a href="/schedule" className="rounded-xl border border-emerald-300/60 px-5 py-3 font-semibold text-emerald-100 transition hover:bg-emerald-300/10">
-          Client Portal
-        </a>
+
+      <div className="mt-6 max-w-2xl">
+        <p className="text-lg leading-relaxed text-cafe-mocha">
+          8+ years building on Roblox — from early passion projects to producing live-ops titles with 70M+ combined visits. I ship scalable game systems, lead cross-functional dev teams, and own full-lifecycle production.
+        </p>
+        <p className="mt-3 text-sm text-cafe-muted">
+          Primary timezone: EST (Eastern Standard Time)
+        </p>
       </div>
-      <div className="mt-6 flex flex-wrap gap-4 text-sm text-cyan-50">
-        <a aria-label="LinkedIn profile" className="inline-flex items-center gap-2 hover:text-white" href={profileLinks.linkedIn} target="_blank">
+
+      <div className="mt-8 flex flex-wrap gap-3">
+        <a href="#work-history" className="btn-primary">View Work</a>
+        <a href="/projects" className="btn-outline">Projects</a>
+        <a href="/creations" className="btn-outline">Creations</a>
+        <a href="/code-example" className="btn-outline">Code Example</a>
+        <a href="/schedule" className="btn-outline">Client Portal</a>
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-5 text-sm text-cafe-muted">
+        <a aria-label="LinkedIn profile" className="inline-flex items-center gap-2 transition hover:text-cafe-ink" href={profileLinks.linkedIn} target="_blank">
           <Linkedin size={16} /> LinkedIn
         </a>
-        <a className="inline-flex items-center gap-2 hover:text-white" href={profileLinks.creatorHub} target="_blank">
+        <a className="inline-flex items-center gap-2 transition hover:text-cafe-ink" href={profileLinks.creatorHub} target="_blank">
           <Roblox size={16} /> Creator Hub
         </a>
       </div>
+
+      <div className="gold-divider mt-10" />
     </section>
   );
 }
 
 export function WorkHistoryPreview() {
   return (
-    <section id="work-history" className={`reveal-on-scroll mx-auto mt-16 max-w-6xl px-4 py-8 ${panel}`}>
-      <h2 className="text-3xl font-semibold text-white">Work History</h2>
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+    <section id="work-history" className="mx-auto mt-14 max-w-5xl px-4">
+      <h2 className="section-title">Work History</h2>
+      <div className="mt-8 grid gap-5 md:grid-cols-2">
         {workHistory.map((entry) => (
-          <article key={entry.id} className="rounded-2xl border border-white/15 bg-black/30 p-5 transition hover:border-cyan-200/30">
-            <p className="text-sm text-cyan-100/80">{entry.company}</p>
-            <h3 className="glitch-text text-xl font-semibold text-white">{entry.role}</h3>
-            <p className="text-sm text-slate-300">{entry.dates}</p>
+          <article key={entry.id} className="cafe-panel reveal-on-scroll p-6">
+            <p className="text-xs font-semibold uppercase tracking-wider text-cafe-gold">{entry.company}</p>
+            <h3 className="mt-1 font-display text-xl font-semibold text-cafe-ink">{entry.role}</h3>
+            <p className="mt-1 text-sm text-cafe-muted">{entry.dates}</p>
             {entry.summary.map((line) => (
-              <p key={line} className="mt-3 text-sm text-slate-100/90">
+              <p key={line} className="mt-3 text-sm leading-relaxed text-cafe-mocha">
                 {line}
               </p>
             ))}
-            {entry.id === 'wai-and-aina-farms' ? <img src={waiImage} alt="Wai and Aina website" className="mt-4 w-full rounded-xl border border-white/15" /> : null}
-            <ul className="mt-3 space-y-2">
+            {entry.id === 'wai-and-aina-farms' ? (
+              <img src={waiImage} alt="Wai and Aina website" className="mt-4 w-full rounded-xl border border-cafe-gold/20" />
+            ) : null}
+            <ul className="mt-4 space-y-2">
               {entry.links.map((link) => (
                 <li key={link.url + link.label}>
                   {link.url === '#' ? (
-                    <span className="inline-flex items-center gap-2 text-sm text-slate-300">• {link.label}</span>
+                    <span className="inline-flex items-center gap-2 text-sm text-cafe-muted">• {link.label}</span>
                   ) : (
-                    <a href={link.url} target="_blank" className="inline-flex items-center gap-2 text-sm text-orange-200 hover:text-orange-100">
+                    <a href={link.url} target="_blank" className="inline-flex items-center gap-2 text-sm text-cafe-gold transition hover:text-cafe-espresso">
                       • {link.label} <ExternalLink size={14} />
                     </a>
                   )}
@@ -102,36 +102,36 @@ export function WorkHistoryPreview() {
 
 export function FeaturedProjects() {
   return (
-    <section className="mx-auto mt-14 max-w-6xl px-4" id="projects">
-      <div className="mb-5 flex items-end justify-between text-white">
-        <h2 className="text-3xl font-semibold">Featured Projects</h2>
-        <Link href="/projects" className="text-sm font-semibold">
-          View all
+    <section className="mx-auto mt-14 max-w-5xl px-4" id="projects">
+      <div className="mb-6 flex items-end justify-between">
+        <h2 className="section-title">Featured Projects</h2>
+        <Link href="/projects" className="cafe-link">
+          View all <ArrowRight size={14} />
         </Link>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
-          <motion.article key={project.slug} whileHover={{ y: -4, scale: 1.01 }} className={`${panel} reveal-on-scroll p-4`}>
+          <motion.article key={project.slug} whileHover={{ y: -4, scale: 1.01 }} className="cafe-panel reveal-on-scroll overflow-hidden">
             <RobloxCoverImage target={project.url} alt={project.title} />
-            <h3 className="mt-3 text-lg font-semibold text-white">{project.title}</h3>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {project.roleBadges.map((b) => (
-                <span key={b} className="rounded-full bg-cyan-300/15 px-2 py-1 text-xs text-cyan-100">
-                  {b}
-                </span>
-              ))}
+            <div className="p-5">
+              <h3 className="font-display text-lg font-semibold text-cafe-ink">{project.title}</h3>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {project.roleBadges.map((b) => (
+                  <span key={b} className="cafe-badge">{b}</span>
+                ))}
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-cafe-mocha">{project.oneLiner}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {project.tags.map((t) => (
+                  <Link key={t + project.slug} href={`/projects?tag=${encodeURIComponent(t)}`} className="text-xs text-cafe-gold transition hover:text-cafe-espresso">
+                    #{t}
+                  </Link>
+                ))}
+              </div>
+              <Link href={`/projects/${project.slug}`} className="cafe-link mt-4">
+                Deep Dive <ArrowRight size={14} />
+              </Link>
             </div>
-            <p className="mt-2 text-sm text-slate-200">{project.oneLiner}</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {project.tags.map((t) => (
-                <Link key={t + project.slug} href={`/projects?tag=${encodeURIComponent(t)}`} className="text-xs text-orange-200 hover:text-orange-100">
-                  #{t}
-                </Link>
-              ))}
-            </div>
-            <Link href={`/projects/${project.slug}`} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-cyan-100">
-              Deep Dive <ArrowRight size={14} />
-            </Link>
           </motion.article>
         ))}
       </div>
@@ -141,13 +141,13 @@ export function FeaturedProjects() {
 
 export function Capabilities() {
   return (
-    <section id="capabilities" className="mx-auto mt-14 max-w-6xl px-4">
-      <h2 className="text-3xl font-semibold text-white">Systems & Capabilities</h2>
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
+    <section id="capabilities" className="mx-auto mt-14 max-w-5xl px-4">
+      <h2 className="section-title">Systems & Capabilities</h2>
+      <div className="mt-8 grid gap-5 md:grid-cols-2">
         {capabilityGroups.map((g) => (
-          <article key={g.title} className={`${panel} reveal-on-scroll p-5`}>
-            <h3 className="text-xl font-semibold text-cyan-100">{g.title}</h3>
-            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-200">
+          <article key={g.title} className="cafe-panel reveal-on-scroll p-6">
+            <h3 className="font-display text-xl font-semibold text-cafe-gold">{g.title}</h3>
+            <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-cafe-mocha">
               {g.items.map((i) => (
                 <li key={i}>{i}</li>
               ))}
@@ -161,14 +161,14 @@ export function Capabilities() {
 
 export function AIIntegrationSection() {
   return (
-    <section className="mx-auto mt-14 max-w-6xl px-4">
-      <article className={`${panel} reveal-on-scroll p-6`}>
-        <h2 className="text-3xl font-semibold text-white">AI & Intelligent Systems Integration</h2>
-        <p className="mt-3 text-slate-200">I use AI as a practical production tool for faster delivery, cleaner workflows, and better decision support.</p>
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-slate-200">
+    <section className="mx-auto mt-14 max-w-5xl px-4">
+      <article className="cafe-panel reveal-on-scroll p-6">
+        <h2 className="section-title">AI & Intelligent Systems</h2>
+        <p className="mt-4 text-cafe-mocha">I use AI as a practical production tool for faster delivery, cleaner workflows, and better decision support.</p>
+        <ul className="mt-4 list-disc space-y-2 pl-5 text-cafe-mocha">
           {aiIntegrationContent.applications.slice(0, 3).map((app) => (
             <li key={app.title}>
-              <span className="font-semibold text-white">{app.title}:</span> {app.description}
+              <span className="font-semibold text-cafe-ink">{app.title}:</span> {app.description}
             </li>
           ))}
         </ul>
@@ -179,26 +179,28 @@ export function AIIntegrationSection() {
 
 export function AboutSection() {
   return (
-    <section className="mx-auto mt-14 max-w-6xl px-4 pb-12">
-      <article className={`${panel} reveal-on-scroll p-6`}>
-        <h2 className="text-3xl font-semibold text-white">About</h2>
-        <p className="mt-3 max-w-3xl text-slate-200">
+    <section className="mx-auto mt-14 max-w-5xl px-4 pb-16">
+      <article className="cafe-panel reveal-on-scroll p-6">
+        <h2 className="section-title">About</h2>
+        <p className="mt-4 max-w-3xl leading-relaxed text-cafe-mocha">
           I produce and program Roblox experiences with a systems-first mindset: define clear goals, ship clean architecture, and run dependable live operations.
         </p>
       </article>
-      <article className={`${panel} mt-6 p-6`}>
-        <h3 className="text-xl font-semibold text-white">Work Status</h3>
-        <p className="mt-3 flex items-center gap-2 text-slate-100">
-          <span className="inline-block h-2.5 w-2.5 rounded-full bg-emerald-400" /> Available for full-time work.
+
+      <article className="cafe-panel mt-6 p-6">
+        <h3 className="font-display text-xl font-semibold text-cafe-ink">Work Status</h3>
+        <p className="mt-3 flex items-center gap-2 text-cafe-mocha">
+          <span className="inline-block h-2.5 w-2.5 rounded-full bg-emerald-500" /> Available for full-time work.
         </p>
-        <p className="mt-2 text-sm text-slate-200">Payment method: USD only. Payment type can be negotiated.</p>
-        <p className="mt-2 text-sm text-slate-200">Email: coltenalewis@gmail.com</p>
+        <p className="mt-2 text-sm text-cafe-muted">Payment method: USD only. Payment type can be negotiated.</p>
+        <p className="mt-2 text-sm text-cafe-muted">Email: coltenalewis@gmail.com</p>
       </article>
-      <footer className="mt-8 border-t border-white/20 pt-4 text-sm text-cyan-100">
-        <div className="flex flex-wrap gap-3">
-          <a href={profileLinks.linkedIn} target="_blank">LinkedIn</a>
-          <a href={profileLinks.creatorHub} target="_blank">Creator Hub</a>
-          <span>CocoDev</span>
+
+      <footer className="mt-10 border-t pt-5 text-sm text-cafe-muted" style={{ borderColor: 'rgba(173,140,82,0.2)' }}>
+        <div className="flex flex-wrap gap-4">
+          <a href={profileLinks.linkedIn} target="_blank" className="transition hover:text-cafe-ink">LinkedIn</a>
+          <a href={profileLinks.creatorHub} target="_blank" className="transition hover:text-cafe-ink">Creator Hub</a>
+          <span className="text-cafe-latte">CocoDev</span>
         </div>
       </footer>
     </section>

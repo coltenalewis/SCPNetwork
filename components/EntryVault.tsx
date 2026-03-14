@@ -13,30 +13,40 @@ export function EntryVault({ onEnter }: { onEnter: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#04060f]/95 transition-opacity duration-500">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(56,189,248,0.22),transparent_45%),radial-gradient(circle_at_70%_80%,rgba(251,146,60,0.22),transparent_45%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:100%_5px] opacity-20" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-500" style={{ background: 'linear-gradient(135deg, #f6f0e6 0%, #e8dcc8 50%, #d4c4a8 100%)' }}>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(173,140,82,0.15),transparent_50%),radial-gradient(ellipse_at_70%_80%,rgba(92,74,50,0.1),transparent_50%)]" />
       <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10 flex flex-col items-center">
-        <p className="mb-3 text-xs uppercase tracking-[0.35em] text-cyan-100/70">COCODEV // Secure Vault</p>
-        <div className="relative grid h-80 w-80 place-items-center">
-          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 20, ease: 'linear' }} className="absolute inset-0 rounded-full border border-cyan-300/40" />
-          <motion.div animate={{ rotate: -360 }} transition={{ repeat: Infinity, duration: 13, ease: 'linear' }} className="absolute inset-6 rounded-full border border-orange-300/40" />
-          <motion.div animate={{ scale: [1, 1.1, 1], boxShadow: ['0 0 20px rgba(56,189,248,0.3)', '0 0 54px rgba(251,146,60,0.48)', '0 0 20px rgba(56,189,248,0.3)'] }} transition={{ repeat: Infinity, duration: 2.2 }} className="absolute inset-12 rounded-full border border-white/50 bg-black/40" />
+        <p className="mb-2 font-display text-sm uppercase tracking-[0.35em]" style={{ color: 'var(--cafe-muted)' }}>Colten Lewis</p>
+        <p className="mb-6 text-xs uppercase tracking-[0.25em]" style={{ color: 'var(--cafe-latte)' }}>Portfolio</p>
+        <div className="relative grid h-72 w-72 place-items-center">
+          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 20, ease: 'linear' }} className="vault-ring absolute inset-0" style={{ borderColor: 'rgba(173,140,82,0.3)' }} />
+          <motion.div animate={{ rotate: -360 }} transition={{ repeat: Infinity, duration: 13, ease: 'linear' }} className="vault-ring absolute inset-6" style={{ borderColor: 'rgba(196,168,130,0.3)' }} />
           <motion.div
-            animate={{ opacity: [0.55, 1, 0.55], scale: [1, 1.04, 1] }}
-            transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-            className="absolute inset-16 rounded-full border border-cyan-100/60"
+            animate={{ scale: [1, 1.06, 1], boxShadow: ['0 0 20px rgba(173,140,82,0.15)', '0 0 40px rgba(173,140,82,0.3)', '0 0 20px rgba(173,140,82,0.15)'] }}
+            transition={{ repeat: Infinity, duration: 2.5 }}
+            className="absolute inset-12 rounded-full border bg-white/40"
+            style={{ borderColor: 'rgba(173,140,82,0.25)' }}
+          />
+          <motion.div
+            animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.03, 1] }}
+            transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+            className="vault-ring absolute inset-16"
+            style={{ borderColor: 'rgba(173,140,82,0.4)' }}
           />
           {!unlocking ? (
-            <button onClick={handleEnter} className="relative rounded-full border border-cyan-100/70 bg-cyan-200/15 px-10 py-4 text-sm font-semibold uppercase tracking-[0.2em] text-white backdrop-blur transition hover:bg-cyan-100/20">Click to Enter</button>
+            <button onClick={handleEnter} className="btn-primary relative rounded-full px-10 py-4 text-sm uppercase tracking-[0.2em]">
+              Enter
+            </button>
           ) : (
-            <div className="relative h-20 w-20">
-              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }} className="absolute inset-0 rounded-full border-2 border-cyan-300 border-t-transparent" />
-              <motion.div animate={{ rotate: -360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }} className="absolute inset-2 rounded-full border-2 border-orange-300 border-b-transparent" />
+            <div className="relative h-16 w-16">
+              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }} className="absolute inset-0 rounded-full border-2 border-t-transparent" style={{ borderColor: 'rgba(173,140,82,0.6)', borderTopColor: 'transparent' }} />
+              <motion.div animate={{ rotate: -360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }} className="absolute inset-2 rounded-full border-2 border-b-transparent" style={{ borderColor: 'rgba(196,168,130,0.6)', borderBottomColor: 'transparent' }} />
             </div>
           )}
         </div>
-        <p className="mt-4 text-center text-sm tracking-[0.18em] text-slate-300">{unlocking ? 'Unlocking interface...' : 'Animated vault interface engaged. Proceed to portfolio feed.'}</p>
+        <p className="mt-4 text-center text-sm tracking-[0.12em]" style={{ color: 'var(--cafe-muted)' }}>
+          {unlocking ? 'Opening...' : 'Click to view portfolio'}
+        </p>
       </motion.div>
     </div>
   );

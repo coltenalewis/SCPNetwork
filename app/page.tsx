@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import { AIIntegrationSection, AboutSection, Capabilities, FeaturedProjects, Hero, WorkHistoryPreview } from '@/components/PortfolioSections';
 import { EntryVault } from '@/components/EntryVault';
+import { MouseReveal } from '@/components/MouseReveal';
 
 const STORAGE_KEY = 'cocodev-entered';
+const OATH_COVER = '/api/roblox-thumbnail?target=' + encodeURIComponent('https://www.roblox.com/games/110814051639689/Oath-of-Office-Political-Simulator');
 
 export default function HomePage() {
   const [entered, setEntered] = useState(false);
@@ -22,7 +24,9 @@ export default function HomePage() {
   return (
     <main className="relative">
       {!entered && <EntryVault onEnter={onEnter} />}
-      <Hero />
+      <MouseReveal imageUrl={OATH_COVER} className="min-h-[70vh]">
+        <Hero />
+      </MouseReveal>
       <WorkHistoryPreview />
       <FeaturedProjects />
       <Capabilities />
