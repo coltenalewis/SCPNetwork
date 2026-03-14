@@ -17,8 +17,7 @@ export function Hero() {
           <RobloxCoverImage
             target="https://www.roblox.com/users/133970833/profile"
             alt="Roblox Avatar"
-            className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-full shadow-soft"
-            style={{ border: '2px solid var(--accent-light)' }}
+            className="pond-rock-avatar relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-full"
           />
           <div>
             <h1 className="font-display text-4xl md:text-5xl" style={{ color: 'var(--ink)' }}>
@@ -40,7 +39,8 @@ export function Hero() {
         Primary timezone: EST (Eastern Standard Time)
       </p>
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      {/* Buttons act as "rocks" — solid elements the water ripples around */}
+      <div className="pond-rock-row mt-8">
         <a href="#work-history" className="btn-fill">View Work</a>
         <a href="/projects" className="btn-ghost">Projects</a>
         <a href="/creations" className="btn-ghost">Creations</a>
@@ -48,7 +48,7 @@ export function Hero() {
         <a href="/schedule" className="btn-ghost">Client Portal</a>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-5 text-sm" style={{ color: 'var(--ink-mute)' }}>
+      <div className="pond-rock-links mt-6 text-sm" style={{ color: 'var(--ink-mute)' }}>
         <a aria-label="LinkedIn profile" className="inline-flex items-center gap-2 transition-colors hover:text-[var(--ink)]" href={profileLinks.linkedIn} target="_blank">
           <Linkedin size={15} /> LinkedIn
         </a>

@@ -185,13 +185,32 @@ h1, h2, h3, h4 {
 .pond-container {
   position: relative;
   overflow: hidden;
+  cursor: none;
 }
-.pond-surface {
-  position: absolute;
-  inset: 0;
+/* Custom cursor dot */
+.pond-container::after {
+  content: '';
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(155, 126, 78, 0.45);
+  box-shadow: 0 0 12px 4px rgba(155, 126, 78, 0.15);
   pointer-events: none;
-  z-index: 2;
+  z-index: 20;
+  transform: translate(-50%, -50%);
+  left: var(--cursor-x, -100px);
+  top: var(--cursor-y, -100px);
+  transition: opacity 0.3s;
 }
+
+/* Children content floats above water */
+.pond-content {
+  position: relative;
+  z-index: 5;
+}
+
+/* Game cover revealed underneath */
 .pond-backdrop {
   position: absolute;
   inset: 0;
@@ -200,38 +219,130 @@ h1, h2, h3, h4 {
   pointer-events: none;
   z-index: 1;
   opacity: 0;
-  filter: brightness(0.85) saturate(1.1);
-  transition: opacity 0.5s ease;
+  filter: brightness(0.82) saturate(1.15) contrast(1.05);
+  transition: opacity 0.6s ease;
   mask-image: radial-gradient(
-    ellipse 180px 160px at var(--px, -300px) var(--py, -300px),
-    rgba(0,0,0,0.85) 0%,
-    rgba(0,0,0,0.4) 40%,
-    rgba(0,0,0,0.1) 70%,
+    ellipse 200px 180px at var(--px, -400px) var(--py, -400px),
+    rgba(0,0,0,0.90) 0%,
+    rgba(0,0,0,0.55) 35%,
+    rgba(0,0,0,0.18) 65%,
     transparent 100%
   );
   -webkit-mask-image: radial-gradient(
-    ellipse 180px 160px at var(--px, -300px) var(--py, -300px),
-    rgba(0,0,0,0.85) 0%,
-    rgba(0,0,0,0.4) 40%,
-    rgba(0,0,0,0.1) 70%,
+    ellipse 200px 180px at var(--px, -400px) var(--py, -400px),
+    rgba(0,0,0,0.90) 0%,
+    rgba(0,0,0,0.55) 35%,
+    rgba(0,0,0,0.18) 65%,
     transparent 100%
   );
 }
 .pond-container:hover .pond-backdrop {
   opacity: 1;
 }
-/* Ripple rings drawn by JS */
+
+/* Canvas for wake trail */
+.pond-trail-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ── Concentric ripple rings (JS-spawned) ── */
 .pond-ripple {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(155, 126, 78, 0.18);
   pointer-events: none;
-  z-index: 3;
-  animation: ripple-expand 1.6s ease-out forwards;
+  z-index: 4;
+  width: 0;
+  height: 0;
+  transform: translate(-50%, -50%);
+  border-width: var(--ripple-thick, 1px);
+  border-style: solid;
+  border-color: rgba(155, 126, 78, var(--ripple-opacity, 0.3));
+  box-shadow:
+    0 0 6px 0 rgba(155, 126, 78, calc(var(--ripple-opacity, 0.3) * 0.3)),
+    inset 0 0 4px 0 rgba(155, 126, 78, calc(var(--ripple-opacity, 0.3) * 0.15));
+  animation: ripple-expand var(--ripple-dur, 1.6s) ease-out forwards;
 }
 @keyframes ripple-expand {
-  0% { width: 0; height: 0; opacity: 0.5; }
-  100% { width: 300px; height: 300px; opacity: 0; }
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 1;
+    border-width: var(--ripple-thick, 1px);
+  }
+  60% {
+    opacity: 0.5;
+    border-width: calc(var(--ripple-thick, 1px) * 0.6);
+  }
+  100% {
+    width: var(--ripple-size, 300px);
+    height: var(--ripple-size, 300px);
+    opacity: 0;
+    border-width: 0.3px;
+  }
+}
+
+/* ── Rock elements: buttons / avatar that "sit above" the water ── */
+.pond-rock {
+  position: relative;
+  z-index: 6;
+  background: var(--bg);
+  box-shadow:
+    0 1px 3px rgba(42, 32, 16, 0.10),
+    0 0 0 1px rgba(155, 126, 78, 0.10),
+    0 4px 16px -2px rgba(155, 126, 78, 0.08);
+  transition: box-shadow 0.25s ease, transform 0.15s ease;
+}
+.pond-rock:hover {
+  box-shadow:
+    0 2px 6px rgba(42, 32, 16, 0.14),
+    0 0 0 1px rgba(155, 126, 78, 0.18),
+    0 8px 24px -4px rgba(155, 126, 78, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Rock variant for the button row container */
+.pond-rock-row {
+  position: relative;
+  z-index: 6;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--bg);
+  box-shadow:
+    0 1px 4px rgba(42, 32, 16, 0.08),
+    0 0 0 1px rgba(155, 126, 78, 0.08),
+    0 6px 20px -4px rgba(155, 126, 78, 0.10);
+}
+
+/* Avatar rock */
+.pond-rock-avatar {
+  position: relative;
+  z-index: 6;
+  box-shadow:
+    0 0 0 3px var(--bg),
+    0 0 0 4px rgba(155, 126, 78, 0.15),
+    0 4px 16px -2px rgba(155, 126, 78, 0.12);
+}
+
+/* Social links row */
+.pond-rock-links {
+  position: relative;
+  z-index: 6;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: rgba(250, 247, 242, 0.85);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 1px 4px rgba(42, 32, 16, 0.06);
 }
 
 /* ─── Merry-go-round (creations page) ─── */
