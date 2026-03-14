@@ -31,7 +31,7 @@ export function Hero() {
       </motion.div>
 
       <p className="mt-8 max-w-2xl text-[17px] leading-relaxed" style={{ color: 'var(--ink-soft)' }}>
-        8+ years building on Roblox — from early passion projects to producing live-ops titles with 70M+ combined visits.
+        8+ years building on Roblox - from early passion projects to producing live-ops titles with 70M+ combined visits.
         I ship scalable game systems, lead cross-functional dev teams, and own full-lifecycle production from concept through live service.
       </p>
 
@@ -39,7 +39,6 @@ export function Hero() {
         Primary timezone: EST (Eastern Standard Time)
       </p>
 
-      {/* Buttons act as "rocks" — solid elements the water ripples around */}
       <div className="pond-rock-row mt-8">
         <a href="#work-history" className="btn-fill">View Work</a>
         <a href="/projects" className="btn-ghost">Projects</a>
@@ -82,10 +81,10 @@ export function WorkHistoryPreview() {
               {entry.links.map((link) => (
                 <li key={link.url + link.label}>
                   {link.url === '#' ? (
-                    <span className="inline-flex items-center gap-2 text-sm" style={{ color: 'var(--ink-mute)' }}>· {link.label}</span>
+                    <span className="inline-flex items-center gap-2 text-sm" style={{ color: 'var(--ink-mute)' }}>- {link.label}</span>
                   ) : (
                     <a href={link.url} target="_blank" className="link-accent">
-                      · {link.label} <ExternalLink size={13} />
+                      - {link.label} <ExternalLink size={13} />
                     </a>
                   )}
                 </li>
@@ -145,10 +144,11 @@ export function Capabilities() {
         {capabilityGroups.map((g) => (
           <article key={g.title} className="card reveal-on-scroll p-6">
             <h3 className="font-display text-xl" style={{ color: 'var(--accent)' }}>{g.title}</h3>
-            <ul className="mt-4 space-y-2 pl-4 text-sm leading-relaxed" style={{ color: 'var(--ink-soft)' }}>
+            <ul className="mt-4 space-y-2 text-sm leading-relaxed" style={{ color: 'var(--ink-soft)' }}>
               {g.items.map((i) => (
-                <li key={i} className="relative pl-3 before:absolute before:left-0 before:top-[10px] before:h-[4px] before:w-[4px] before:rounded-full" style={{ ['--tw-before-bg' as string]: 'var(--accent)' }}>
-                  <span className="before:bg-[var(--accent)]">{i}</span>
+                <li key={i} className="flex gap-2">
+                  <span style={{ color: 'var(--accent-dim)' }}>-</span>
+                  <span>{i}</span>
                 </li>
               ))}
             </ul>
@@ -167,10 +167,11 @@ export function AIIntegrationSection() {
         <p className="mt-5" style={{ color: 'var(--ink-soft)' }}>
           I use AI as a practical production tool for faster delivery, cleaner workflows, and better decision support.
         </p>
-        <ul className="mt-4 space-y-3 pl-4" style={{ color: 'var(--ink-soft)' }}>
+        <ul className="mt-4 space-y-3" style={{ color: 'var(--ink-soft)' }}>
           {aiIntegrationContent.applications.slice(0, 3).map((app) => (
-            <li key={app.title} className="text-[15px] leading-relaxed">
-              <span className="font-semibold" style={{ color: 'var(--ink)' }}>{app.title}:</span> {app.description}
+            <li key={app.title} className="flex gap-2 text-[15px] leading-relaxed">
+              <span style={{ color: 'var(--accent-dim)' }}>-</span>
+              <span><span className="font-semibold" style={{ color: 'var(--ink)' }}>{app.title}:</span> {app.description}</span>
             </li>
           ))}
         </ul>
@@ -202,7 +203,7 @@ export function AboutSection() {
       <div className="mt-5 flex flex-wrap gap-5 text-sm" style={{ color: 'var(--ink-mute)' }}>
         <a href={profileLinks.linkedIn} target="_blank" className="transition-colors hover:text-[var(--ink)]">LinkedIn</a>
         <a href={profileLinks.creatorHub} target="_blank" className="transition-colors hover:text-[var(--ink)]">Creator Hub</a>
-        <span style={{ color: 'var(--accent-light)' }}>CocoDev</span>
+        <span style={{ color: 'var(--accent-dim)' }}>CocoDev</span>
       </div>
     </section>
   );

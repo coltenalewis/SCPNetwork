@@ -8,67 +8,120 @@ interface MouseRevealProps {
   className?: string;
 }
 
-/* ── Ripple ring config ── */
-const RING_SETS = [
-  { delay: 0,   maxSize: 360, duration: 2.0, thickness: 1.5, opacity: 0.50 },
-  { delay: 80,  maxSize: 260, duration: 1.6, thickness: 1.0, opacity: 0.35 },
-  { delay: 160, maxSize: 180, duration: 1.3, thickness: 0.5, opacity: 0.22 },
-];
+interface Ripple {
+  x: number;
+  y: number;
+  born: number;
+  maxR: number;
+  duration: number;
+}
 
-/* ── Trail droplet config ── */
-const TRAIL_INTERVAL = 40;   // ms between trail dots
-const TRAIL_LIFETIME  = 900; // ms before a trail dot fades
+const RIPPLE_INTERVAL = 180;
+const MAX_RIPPLES = 60;
+const PERSISTENCE = 0.92; // how much old mask persists each frame (0-1)
 
 export function MouseReveal({ imageUrl, children, className }: MouseRevealProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const backdropRef  = useRef<HTMLDivElement>(null);
-  const canvasRef    = useRef<HTMLCanvasElement>(null);
-  const lastRipple   = useRef(0);
-  const lastTrail    = useRef(0);
-  const raf          = useRef(0);
-  const target       = useRef({ x: -400, y: -400 });
-  const current      = useRef({ x: -400, y: -400 });
-  const active       = useRef(false);
-  const trails       = useRef<{ x: number; y: number; born: number }[]>([]);
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const maskCanvas = useRef<HTMLCanvasElement>(null);
+  const ringCanvas = useRef<HTMLCanvasElement>(null);
+  const raf = useRef(0);
+  const ripples = useRef<Ripple[]>([]);
+  const lastSpawn = useRef(0);
+  const mousePos = useRef({ x: -999, y: -999 });
+  const isInside = useRef(false);
 
-  /* ── Smooth lerp loop for reveal mask + trail paint ── */
+  // Main render loop
   useEffect(() => {
     const tick = () => {
-      const cx = current.current;
-      const tx = target.current;
-      cx.x += (tx.x - cx.x) * 0.10;
-      cx.y += (tx.y - cx.y) * 0.10;
-      backdropRef.current?.style.setProperty('--px', `${cx.x}px`);
-      backdropRef.current?.style.setProperty('--py', `${cx.y}px`);
+      const mc = maskCanvas.current;
+      const rc = ringCanvas.current;
+      const bd = backdropRef.current;
+      if (!mc || !rc || !bd) { raf.current = requestAnimationFrame(tick); return; }
 
-      /* Draw trail droplets on canvas */
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          const dpr = window.devicePixelRatio || 1;
-          if (canvas.width !== canvas.offsetWidth * dpr || canvas.height !== canvas.offsetHeight * dpr) {
-            canvas.width  = canvas.offsetWidth * dpr;
-            canvas.height = canvas.offsetHeight * dpr;
-            ctx.scale(dpr, dpr);
-          }
-          ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      const dpr = window.devicePixelRatio || 1;
+      const w = mc.offsetWidth;
+      const h = mc.offsetHeight;
 
-          const now = Date.now();
-          trails.current = trails.current.filter(t => now - t.born < TRAIL_LIFETIME);
+      // Resize canvases if needed
+      if (mc.width !== w * dpr || mc.height !== h * dpr) {
+        mc.width = w * dpr; mc.height = h * dpr;
+        rc.width = w * dpr; rc.height = h * dpr;
+      }
 
-          for (const t of trails.current) {
-            const age = (now - t.born) / TRAIL_LIFETIME; // 0→1
-            const r   = 3 + age * 18;
-            const a   = (1 - age) * 0.18;
-            ctx.beginPath();
-            ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(155, 126, 78, ${a})`;
-            ctx.lineWidth = 0.8 * (1 - age);
-            ctx.stroke();
+      const mctx = mc.getContext('2d')!;
+      const rctx = rc.getContext('2d')!;
+      mctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      rctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // Fade the mask slightly each frame for persistence (old ripples linger)
+      mctx.globalCompositeOperation = 'destination-in';
+      mctx.fillStyle = `rgba(0,0,0,${PERSISTENCE})`;
+      mctx.fillRect(0, 0, w, h);
+      mctx.globalCompositeOperation = 'source-over';
+
+      // Clear ring canvas each frame
+      rctx.clearRect(0, 0, w, h);
+
+      const now = Date.now();
+      ripples.current = ripples.current.filter(r => now - r.born < r.duration);
+
+      for (const r of ripples.current) {
+        const age = (now - r.born) / r.duration;
+        const radius = r.maxR * easeOutCubic(age);
+        const fadeIn = Math.min(age / 0.15, 1);
+        const fadeOut = age > 0.5 ? 1 - (age - 0.5) / 0.5 : 1;
+
+        // Draw on mask canvas - white filled circle = reveal area
+        const maskAlpha = fadeIn * 0.6;
+        const grad = mctx.createRadialGradient(r.x, r.y, 0, r.x, r.y, radius);
+        grad.addColorStop(0, `rgba(255,255,255,${maskAlpha})`);
+        grad.addColorStop(0.6, `rgba(255,255,255,${maskAlpha * 0.5})`);
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        mctx.fillStyle = grad;
+        mctx.beginPath();
+        mctx.arc(r.x, r.y, radius, 0, Math.PI * 2);
+        mctx.fill();
+
+        // Draw ring outline on visible canvas
+        const ringAlpha = fadeIn * fadeOut * 0.35;
+        if (ringAlpha > 0.01) {
+          rctx.beginPath();
+          rctx.arc(r.x, r.y, radius, 0, Math.PI * 2);
+          rctx.strokeStyle = `rgba(201, 169, 110, ${ringAlpha})`;
+          rctx.lineWidth = 1.2 * (1 - age * 0.7);
+          rctx.stroke();
+
+          // Inner ring
+          if (radius > 30) {
+            rctx.beginPath();
+            rctx.arc(r.x, r.y, radius * 0.6, 0, Math.PI * 2);
+            rctx.strokeStyle = `rgba(201, 169, 110, ${ringAlpha * 0.4})`;
+            rctx.lineWidth = 0.6;
+            rctx.stroke();
           }
         }
       }
+
+      // Also draw a soft glow at cursor position
+      if (isInside.current) {
+        const cx = mousePos.current.x;
+        const cy = mousePos.current.y;
+        const cursorGrad = mctx.createRadialGradient(cx, cy, 0, cx, cy, 120);
+        cursorGrad.addColorStop(0, 'rgba(255,255,255,0.5)');
+        cursorGrad.addColorStop(0.4, 'rgba(255,255,255,0.2)');
+        cursorGrad.addColorStop(1, 'rgba(255,255,255,0)');
+        mctx.fillStyle = cursorGrad;
+        mctx.beginPath();
+        mctx.arc(cx, cy, 120, 0, Math.PI * 2);
+        mctx.fill();
+      }
+
+      // Apply the mask canvas as CSS mask on the backdrop
+      bd.style.maskImage = `url(${mc.toDataURL()})`;
+      bd.style.webkitMaskImage = `url(${mc.toDataURL()})`;
+      bd.style.maskSize = `${w}px ${h}px`;
+      bd.style.webkitMaskSize = `${w}px ${h}px`;
 
       raf.current = requestAnimationFrame(tick);
     };
@@ -76,24 +129,12 @@ export function MouseReveal({ imageUrl, children, className }: MouseRevealProps)
     return () => cancelAnimationFrame(raf.current);
   }, []);
 
-  /* ── Spawn a set of concentric ripple rings ── */
-  const spawnRipple = useCallback((x: number, y: number) => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    for (const cfg of RING_SETS) {
-      const ring = document.createElement('div');
-      ring.className = 'pond-ripple';
-      ring.style.left = `${x}px`;
-      ring.style.top  = `${y}px`;
-      ring.style.setProperty('--ripple-size', `${cfg.maxSize}px`);
-      ring.style.setProperty('--ripple-dur', `${cfg.duration}s`);
-      ring.style.setProperty('--ripple-thick', `${cfg.thickness}px`);
-      ring.style.setProperty('--ripple-opacity', `${cfg.opacity}`);
-      ring.style.animationDelay = `${cfg.delay}ms`;
-
-      container.appendChild(ring);
-      ring.addEventListener('animationend', () => ring.remove());
+  const spawnRipple = useCallback((x: number, y: number, large?: boolean) => {
+    const baseR = large ? 280 : 160 + Math.random() * 80;
+    const dur = large ? 2800 : 1800 + Math.random() * 600;
+    ripples.current.push({ x, y, born: Date.now(), maxR: baseR, duration: dur });
+    if (ripples.current.length > MAX_RIPPLES) {
+      ripples.current = ripples.current.slice(-MAX_RIPPLES);
     }
   }, []);
 
@@ -103,43 +144,26 @@ export function MouseReveal({ imageUrl, children, className }: MouseRevealProps)
     const rect = el.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    target.current = { x, y };
-    active.current = true;
-
-    /* Custom cursor dot follows the real cursor */
-    el.style.setProperty('--cursor-x', `${e.clientX}px`);
-    el.style.setProperty('--cursor-y', `${e.clientY}px`);
+    mousePos.current = { x, y };
+    isInside.current = true;
 
     const now = Date.now();
-
-    /* Concentric ripple set every ~280ms */
-    if (now - lastRipple.current > 280) {
-      lastRipple.current = now;
+    if (now - lastSpawn.current > RIPPLE_INTERVAL) {
+      lastSpawn.current = now;
       spawnRipple(x, y);
-    }
-
-    /* Wake trail droplet every ~40ms */
-    if (now - lastTrail.current > TRAIL_INTERVAL) {
-      lastTrail.current = now;
-      trails.current.push({ x, y, born: now });
     }
   }, [spawnRipple]);
 
   const handleMouseLeave = useCallback(() => {
-    active.current = false;
-    target.current = { x: -400, y: -400 };
-    containerRef.current?.style.setProperty('--cursor-x', '-100px');
-    containerRef.current?.style.setProperty('--cursor-y', '-100px');
+    isInside.current = false;
   }, []);
 
-  /* ── Spawn a ripple on click for a satisfying splash ── */
   const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest('a, button')) return;
     const el = containerRef.current;
     if (!el) return;
-    /* Don't steal clicks from actual links/buttons */
-    if ((e.target as HTMLElement).closest('a, button')) return;
     const rect = el.getBoundingClientRect();
-    spawnRipple(e.clientX - rect.left, e.clientY - rect.top);
+    spawnRipple(e.clientX - rect.left, e.clientY - rect.top, true);
   }, [spawnRipple]);
 
   return (
@@ -150,20 +174,22 @@ export function MouseReveal({ imageUrl, children, className }: MouseRevealProps)
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
     >
-      {/* Content (children sit above the water) */}
       <div className="pond-content">{children}</div>
 
-      {/* Game cover revealed underneath */}
       <div
         ref={backdropRef}
         className="pond-backdrop"
         style={{ backgroundImage: `url(${imageUrl})` }}
       />
 
-      {/* Canvas for wake trail droplets */}
-      <canvas ref={canvasRef} className="pond-trail-canvas" />
-
-      {/* Ripple rings are appended here by JS (they live at container level) */}
+      {/* Hidden canvas used to generate the mask */}
+      <canvas ref={maskCanvas} className="pond-mask-canvas" />
+      {/* Visible canvas for ring outlines */}
+      <canvas ref={ringCanvas} className="pond-ring-canvas" />
     </div>
   );
+}
+
+function easeOutCubic(t: number): number {
+  return 1 - Math.pow(1 - t, 3);
 }

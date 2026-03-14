@@ -4,23 +4,23 @@
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
-/* ─── Design tokens ─── */
+/* -- Design tokens (dark) -- */
 :root {
-  color-scheme: light;
-  --bg:       #faf7f2;
-  --bg-warm:  #f3ede3;
-  --bg-card:  #fffdf9;
-  --ink:      #2c2418;
-  --ink-soft: #4a3f30;
-  --ink-mute: #8a7e6d;
-  --accent:   #9b7e4e;
-  --accent-hover: #7d6438;
-  --accent-light: #c9b48a;
-  --accent-bg: rgba(155, 126, 78, 0.07);
-  --border:   rgba(155, 126, 78, 0.15);
-  --border-hover: rgba(155, 126, 78, 0.30);
-  --shadow:   rgba(42, 32, 16, 0.06);
-  --shadow-lg: rgba(42, 32, 16, 0.10);
+  color-scheme: dark;
+  --bg:          #0f0d0a;
+  --bg-raised:   #1a1714;
+  --bg-card:     #1e1b16;
+  --ink:         #e8e0d4;
+  --ink-soft:    #bfb5a4;
+  --ink-mute:    #6b6259;
+  --accent:      #c9a96e;
+  --accent-hover:#dfc08a;
+  --accent-dim:  #8a7444;
+  --accent-bg:   rgba(201, 169, 110, 0.08);
+  --border:      rgba(201, 169, 110, 0.10);
+  --border-hover:rgba(201, 169, 110, 0.22);
+  --shadow:      rgba(0, 0, 0, 0.25);
+  --shadow-lg:   rgba(0, 0, 0, 0.40);
 }
 
 html { scroll-behavior: smooth; }
@@ -41,36 +41,31 @@ h1, h2, h3, h4 {
   letter-spacing: -0.01em;
 }
 
-/* ─── Page background ─── */
+/* -- Page background -- */
 .page-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: var(--bg);
-}
-.page-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 15% 5%, rgba(155, 126, 78, 0.06), transparent),
-    radial-gradient(ellipse 70% 50% at 85% 95%, rgba(155, 126, 78, 0.04), transparent);
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(201, 169, 110, 0.04), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(201, 169, 110, 0.03), transparent),
+    var(--bg);
 }
 .page-bg::after {
   content: '';
   position: absolute;
   inset: 0;
-  opacity: 0.025;
+  opacity: 0.03;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* ─── Card / Panel ─── */
+/* -- Card / Panel -- */
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: 0 2px 12px var(--shadow);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 .card:hover {
   border-color: var(--border-hover);
@@ -82,7 +77,7 @@ h1, h2, h3, h4 {
   border-radius: 16px;
 }
 
-/* ─── Section headings ─── */
+/* -- Section headings -- */
 .heading {
   color: var(--ink);
   font-size: 2rem;
@@ -98,7 +93,7 @@ h1, h2, h3, h4 {
   border-radius: 1px;
 }
 
-/* ─── Buttons ─── */
+/* -- Buttons -- */
 .btn-fill {
   display: inline-flex;
   align-items: center;
@@ -108,11 +103,11 @@ h1, h2, h3, h4 {
   font-weight: 600;
   font-size: 0.875rem;
   letter-spacing: 0.02em;
-  background: var(--ink);
+  background: var(--accent);
   color: var(--bg);
   transition: background 0.2s ease, transform 0.15s ease;
 }
-.btn-fill:hover { background: var(--ink-soft); transform: translateY(-1px); }
+.btn-fill:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
 .btn-ghost {
   display: inline-flex;
@@ -128,7 +123,7 @@ h1, h2, h3, h4 {
 }
 .btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
 
-/* ─── Badge ─── */
+/* -- Badge -- */
 .badge {
   display: inline-flex;
   padding: 4px 12px;
@@ -138,10 +133,10 @@ h1, h2, h3, h4 {
   letter-spacing: 0.02em;
   background: var(--accent-bg);
   color: var(--accent);
-  border: 1px solid rgba(155, 126, 78, 0.12);
+  border: 1px solid rgba(201, 169, 110, 0.12);
 }
 
-/* ─── Links ─── */
+/* -- Links -- */
 .link-accent {
   color: var(--accent);
   font-weight: 600;
@@ -164,13 +159,13 @@ h1, h2, h3, h4 {
 }
 .link-back:hover { color: var(--ink); }
 
-/* ─── Divider ─── */
+/* -- Divider -- */
 .divider {
   height: 1px;
   background: var(--border);
 }
 
-/* ─── Scroll reveal ─── */
+/* -- Scroll reveal -- */
 .reveal-on-scroll {
   animation: reveal both;
   animation-timeline: view();
@@ -181,36 +176,18 @@ h1, h2, h3, h4 {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── Pond Mouse Reveal ─── */
+/* -- Pond ripple mask reveal -- */
 .pond-container {
   position: relative;
   overflow: hidden;
-  cursor: none;
-}
-/* Custom cursor dot */
-.pond-container::after {
-  content: '';
-  position: fixed;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(155, 126, 78, 0.45);
-  box-shadow: 0 0 12px 4px rgba(155, 126, 78, 0.15);
-  pointer-events: none;
-  z-index: 20;
-  transform: translate(-50%, -50%);
-  left: var(--cursor-x, -100px);
-  top: var(--cursor-y, -100px);
-  transition: opacity 0.3s;
 }
 
-/* Children content floats above water */
 .pond-content {
   position: relative;
   z-index: 5;
 }
 
-/* Game cover revealed underneath */
+/* The backdrop image, masked by the ripple canvas */
 .pond-backdrop {
   position: absolute;
   inset: 0;
@@ -218,30 +195,22 @@ h1, h2, h3, h4 {
   background-position: center;
   pointer-events: none;
   z-index: 1;
-  opacity: 0;
-  filter: brightness(0.82) saturate(1.15) contrast(1.05);
-  transition: opacity 0.6s ease;
-  mask-image: radial-gradient(
-    ellipse 200px 180px at var(--px, -400px) var(--py, -400px),
-    rgba(0,0,0,0.90) 0%,
-    rgba(0,0,0,0.55) 35%,
-    rgba(0,0,0,0.18) 65%,
-    transparent 100%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse 200px 180px at var(--px, -400px) var(--py, -400px),
-    rgba(0,0,0,0.90) 0%,
-    rgba(0,0,0,0.55) 35%,
-    rgba(0,0,0,0.18) 65%,
-    transparent 100%
-  );
-}
-.pond-container:hover .pond-backdrop {
-  opacity: 1;
+  filter: brightness(0.75) saturate(1.2);
 }
 
-/* Canvas for wake trail */
-.pond-trail-canvas {
+/* Canvas that generates the alpha mask from ripples */
+.pond-mask-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  display: none; /* hidden, used only as mask source */
+}
+
+/* Visible ripple ring outlines on top for visual flair */
+.pond-ring-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -250,62 +219,7 @@ h1, h2, h3, h4 {
   z-index: 3;
 }
 
-/* ── Concentric ripple rings (JS-spawned) ── */
-.pond-ripple {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 4;
-  width: 0;
-  height: 0;
-  transform: translate(-50%, -50%);
-  border-width: var(--ripple-thick, 1px);
-  border-style: solid;
-  border-color: rgba(155, 126, 78, var(--ripple-opacity, 0.3));
-  box-shadow:
-    0 0 6px 0 rgba(155, 126, 78, calc(var(--ripple-opacity, 0.3) * 0.3)),
-    inset 0 0 4px 0 rgba(155, 126, 78, calc(var(--ripple-opacity, 0.3) * 0.15));
-  animation: ripple-expand var(--ripple-dur, 1.6s) ease-out forwards;
-}
-@keyframes ripple-expand {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 1;
-    border-width: var(--ripple-thick, 1px);
-  }
-  60% {
-    opacity: 0.5;
-    border-width: calc(var(--ripple-thick, 1px) * 0.6);
-  }
-  100% {
-    width: var(--ripple-size, 300px);
-    height: var(--ripple-size, 300px);
-    opacity: 0;
-    border-width: 0.3px;
-  }
-}
-
-/* ── Rock elements: buttons / avatar that "sit above" the water ── */
-.pond-rock {
-  position: relative;
-  z-index: 6;
-  background: var(--bg);
-  box-shadow:
-    0 1px 3px rgba(42, 32, 16, 0.10),
-    0 0 0 1px rgba(155, 126, 78, 0.10),
-    0 4px 16px -2px rgba(155, 126, 78, 0.08);
-  transition: box-shadow 0.25s ease, transform 0.15s ease;
-}
-.pond-rock:hover {
-  box-shadow:
-    0 2px 6px rgba(42, 32, 16, 0.14),
-    0 0 0 1px rgba(155, 126, 78, 0.18),
-    0 8px 24px -4px rgba(155, 126, 78, 0.12);
-  transform: translateY(-1px);
-}
-
-/* Rock variant for the button row container */
+/* Rock elements - buttons that stay solid above the water */
 .pond-rock-row {
   position: relative;
   z-index: 6;
@@ -315,23 +229,19 @@ h1, h2, h3, h4 {
   padding: 10px 14px;
   border-radius: 14px;
   background: var(--bg);
-  box-shadow:
-    0 1px 4px rgba(42, 32, 16, 0.08),
-    0 0 0 1px rgba(155, 126, 78, 0.08),
-    0 6px 20px -4px rgba(155, 126, 78, 0.10);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 12px var(--shadow);
 }
 
-/* Avatar rock */
 .pond-rock-avatar {
   position: relative;
   z-index: 6;
   box-shadow:
     0 0 0 3px var(--bg),
-    0 0 0 4px rgba(155, 126, 78, 0.15),
-    0 4px 16px -2px rgba(155, 126, 78, 0.12);
+    0 0 0 4px rgba(201, 169, 110, 0.15),
+    0 4px 16px -2px rgba(0, 0, 0, 0.3);
 }
 
-/* Social links row */
 .pond-rock-links {
   position: relative;
   z-index: 6;
@@ -340,12 +250,12 @@ h1, h2, h3, h4 {
   gap: 16px;
   padding: 6px 12px;
   border-radius: 10px;
-  background: rgba(250, 247, 242, 0.85);
+  background: rgba(15, 13, 10, 0.85);
   backdrop-filter: blur(4px);
-  box-shadow: 0 1px 4px rgba(42, 32, 16, 0.06);
+  border: 1px solid var(--border);
 }
 
-/* ─── Merry-go-round (creations page) ─── */
+/* -- Merry-go-round (creations page) -- */
 .merry-stage { perspective: 1000px; height: 280px; display: grid; place-items: center; overflow: hidden; }
 .merry-ring { position: relative; width: 100%; height: 240px; transform-style: preserve-3d; animation: merrySpin 22s linear infinite; }
 .merry-item { position: absolute; top: 20px; left: 50%; width: 320px; height: 200px; margin-left: -160px; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 8px 30px var(--shadow-lg); }
@@ -354,22 +264,22 @@ h1, h2, h3, h4 {
 .merry-item-3 { transform: rotateY(240deg) translateZ(270px); }
 @keyframes merrySpin { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
 
-/* ─── Code page syntax ─── */
+/* -- Code page syntax -- */
 .code-block {
-  background: #1c1914;
+  background: #0a0907;
   color: #e8dfd2;
   border-radius: 12px;
-  border: 1px solid rgba(155, 126, 78, 0.2);
+  border: 1px solid var(--border);
 }
 .code-block .text-emerald-300 { color: #7fb385; }
 .code-block .text-amber-200   { color: #d4a95a; }
 .code-block .text-violet-300  { color: #b89ad4; }
 .code-block .text-cyan-300    { color: #7db8c9; }
 
-/* ─── Form inputs ─── */
+/* -- Form inputs -- */
 .input-field {
   border: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--bg-raised);
   color: var(--ink);
   border-radius: 10px;
   padding: 10px 14px;
@@ -385,13 +295,13 @@ h1, h2, h3, h4 {
 }
 select.input-field {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a7e6d' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6259' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 36px;
 }
 
-/* ─── Reduced motion ─── */
+/* -- Reduced motion -- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
