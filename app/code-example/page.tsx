@@ -287,7 +287,13 @@ function TreeItem({ node, selectedId, onSelect }: { node: FileNode; selectedId: 
     return (
       <button
         onClick={() => onSelect(node.id)}
-        className={`flex w-full items-center rounded-md px-3 py-2 text-left text-sm transition ${selectedId === node.id ? 'bg-cyan-300/20 text-cyan-100' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
+        className={`flex w-full items-center rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+          selectedId === node.id ? 'font-medium' : ''
+        }`}
+        style={selectedId === node.id
+          ? { background: 'var(--accent-bg)', color: 'var(--accent)' }
+          : { color: 'var(--ink-soft)' }
+        }
       >
         📄 {node.label}
       </button>
@@ -301,11 +307,19 @@ function TreeItem({ node, selectedId, onSelect }: { node: FileNode; selectedId: 
           if (node.type === 'file') onSelect(node.id);
           setOpen((prev) => !prev);
         }}
-        className={`flex w-full items-center rounded-md px-3 py-2 text-left text-sm transition hover:bg-white/5 ${selectedId === node.id ? 'bg-cyan-300/20 text-cyan-100' : 'text-slate-200'}`}
+        className="flex w-full items-center rounded-lg px-3 py-2 text-left text-sm transition-colors"
+        style={selectedId === node.id
+          ? { background: 'var(--accent-bg)', color: 'var(--accent)' }
+          : { color: 'var(--ink-soft)' }
+        }
       >
         <span className="mr-2">{open ? '▾' : '▸'}</span> {node.type === 'file' ? '📄' : '📁'} {node.label}
       </button>
-      {open ? <div className="ml-4 space-y-1 border-l border-white/10 pl-2">{node.children?.map((child) => <TreeItem key={child.id} node={child} selectedId={selectedId} onSelect={onSelect} />)}</div> : null}
+      {open ? (
+        <div className="ml-4 space-y-0.5 pl-2" style={{ borderLeft: '1px solid var(--border)' }}>
+          {node.children?.map((child) => <TreeItem key={child.id} node={child} selectedId={selectedId} onSelect={onSelect} />)}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -316,29 +330,31 @@ export default function CodeExamplePage() {
   const selected = files.find((f) => f.id === selectedId) ?? files[0];
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-10 text-white">
-      <Link href="/" className="text-sm text-cyan-200">← Back</Link>
-      <h1 className="mt-3 bg-gradient-to-r from-cyan-100 via-white to-orange-200 bg-clip-text text-4xl font-semibold text-transparent">Code Example // Service Architecture</h1>
-      <p className="mt-4 max-w-4xl text-slate-200">
+    <main className="mx-auto max-w-6xl px-6 py-12">
+      <Link href="/" className="link-back">← Back</Link>
+      <h1 className="mt-4 font-display text-4xl" style={{ color: 'var(--ink)' }}>
+        Code Example
+      </h1>
+      <p className="mt-3 max-w-3xl text-[15px] leading-relaxed" style={{ color: 'var(--ink-soft)' }}>
         I build the core structure in a custom single-script architecture similar to Knit: services are loaded, ordered, dependency-checked, and initialized in a cohesive pipeline.
-        I then refine and standardize with external dev tooling for formatting, comment hygiene, and robust error handling to keep production code clean, predictable, and documented.
+        I then refine and standardize with external dev tooling for formatting, comment hygiene, and robust error handling.
       </p>
 
-      <section className="mt-6 grid gap-4 rounded-xl border border-white/15 bg-[#0a1120]/70 p-4 lg:grid-cols-[280px,1fr]">
-        <aside className="rounded-lg border border-white/10 bg-black/25 p-3">
-          <div className="space-y-1">
+      <section className="mt-8 grid gap-5 lg:grid-cols-[260px,1fr]">
+        <aside className="card p-4">
+          <div className="space-y-0.5">
             {tree.map((node) => (
               <TreeItem key={node.id} node={node} selectedId={selectedId} onSelect={setSelectedId} />
             ))}
           </div>
         </aside>
 
-        <article className="rounded-lg border border-white/10 bg-black/30 p-3">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-sm font-semibold text-cyan-100">{selected.label}</p>
-            <span className="rounded-full border border-orange-300/40 bg-orange-300/10 px-2 py-1 text-xs text-orange-100">Lua (strict)</span>
+        <article className="card overflow-hidden p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>{selected.label}</p>
+            <span className="badge">Lua (strict)</span>
           </div>
-          <pre className="max-h-[70vh] overflow-auto rounded-md border border-white/10 bg-[#05070d] p-4 text-xs leading-6 text-slate-100">
+          <pre className="code-block max-h-[70vh] overflow-auto p-5 text-xs leading-6">
             <code dangerouslySetInnerHTML={{ __html: highlightLua(selected.content ?? '') }} />
           </pre>
         </article>

@@ -9,31 +9,47 @@ export default function ProjectsPage({ searchParams }: { searchParams?: { tag?: 
   const list = projects.filter((p) => active === 'All' || p.tags.includes(active));
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 text-white">
-      <Link href="/" className="text-sm text-cyan-200">← Back</Link>
-      <h1 className="mt-3 text-4xl font-semibold">Projects</h1>
-      <p className="mt-2 text-sm text-slate-300">Click any hashtag from cards across the site to jump directly into a filtered project set.</p>
-      <div className="mt-4 flex flex-wrap gap-2">
+    <main className="mx-auto max-w-5xl px-6 py-12">
+      <Link href="/" className="link-back">← Back</Link>
+      <h1 className="mt-4 font-display text-4xl" style={{ color: 'var(--ink)' }}>Projects</h1>
+      <p className="mt-2 text-sm" style={{ color: 'var(--ink-mute)' }}>
+        Click any hashtag from cards across the site to jump directly into a filtered project set.
+      </p>
+      <div className="mt-5 flex flex-wrap gap-2">
         {filters.map((f) => (
-          <Link key={f} href={f === 'All' ? '/projects' : `/projects?tag=${encodeURIComponent(f)}`} className={`rounded-full px-3 py-1 text-sm ${active === f ? 'bg-cyan-300 text-slate-950' : 'border border-white/30 bg-white/5 text-slate-100'}`}>
+          <Link
+            key={f}
+            href={f === 'All' ? '/projects' : `/projects?tag=${encodeURIComponent(f)}`}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+              active === f
+                ? 'text-white'
+                : 'text-[var(--ink-soft)]'
+            }`}
+            style={active === f
+              ? { background: 'var(--ink)', color: 'var(--bg)' }
+              : { border: '1px solid var(--border)', background: 'var(--bg-card)' }
+            }
+          >
             #{f}
           </Link>
         ))}
       </div>
-      <section className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <section className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {list.map((project) => (
-          <article key={project.slug} className="rounded-2xl border border-white/15 bg-[#0a1120]/70 p-4 backdrop-blur-xl">
+          <article key={project.slug} className="card overflow-hidden">
             <RobloxCoverImage target={project.url} alt={project.title} />
-            <h2 className="mt-3 text-lg font-semibold">{project.title}</h2>
-            <p className="text-sm text-slate-200">{project.oneLiner}</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {project.tags.map((projectTag) => (
-                <Link key={projectTag + project.slug} href={`/projects?tag=${encodeURIComponent(projectTag)}`} className="text-xs text-orange-200 hover:text-orange-100">
-                  #{projectTag}
-                </Link>
-              ))}
+            <div className="p-5">
+              <h2 className="font-display text-lg" style={{ color: 'var(--ink)' }}>{project.title}</h2>
+              <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--ink-soft)' }}>{project.oneLiner}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {project.tags.map((projectTag) => (
+                  <Link key={projectTag + project.slug} href={`/projects?tag=${encodeURIComponent(projectTag)}`} className="text-xs" style={{ color: 'var(--accent)' }}>
+                    #{projectTag}
+                  </Link>
+                ))}
+              </div>
+              <Link href={`/projects/${project.slug}`} className="link-accent mt-4">Deep Dive <span>→</span></Link>
             </div>
-            <Link href={`/projects/${project.slug}`} className="mt-2 inline-block text-sm font-semibold text-orange-200">Deep Dive</Link>
           </article>
         ))}
       </section>

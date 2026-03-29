@@ -50,7 +50,7 @@ export const workHistory: WorkEntry[] = [
     id: 'chesapeake',
     company: 'Chesapeake Studios',
     role: 'Creative Producer / Programmer',
-    dates: 'Dec 2024 – Dec 2025',
+    dates: 'Dec 2024 - Dec 2025',
     summary: [
       'Led production across multiple live Roblox titles by coordinating planning, sprint execution, feature direction, and team collaboration from design through engineering.',
       'Oversaw live operations while supporting environment and UI design work across titles including His Majesty’s Government and The Foundation: SCP Roleplay.'
@@ -66,7 +66,7 @@ export const workHistory: WorkEntry[] = [
     id: 'wai-and-aina-farms',
     company: 'Wai and Aina Farms',
     role: 'Full Stack Web Developer',
-    dates: 'Nov 2025 – Mar 2026',
+    dates: 'Nov 2025 - Mar 2026',
     summary: [
       'Built a full-stack PWA for mobile and desktop with staff management and project management dashboards, scheduling, and user management.',
       'Implemented animal tracking, productivity analytics, and a guide system with AI-assisted report snapshot creation for operations reporting.'
@@ -77,7 +77,7 @@ export const workHistory: WorkEntry[] = [
     id: 'aot',
     company: 'Attack on Titan: Freedom Awaits',
     role: 'Programmer',
-    dates: 'Nov 2020 – Jan 2021',
+    dates: 'Nov 2020 - Jan 2021',
     summary: [
       'Head of programming development with ownership across UI logic, backend systems, and frontend effects.',
       'Provided feasible delivery timelines while building and maintaining critical gameplay systems at scale.'
@@ -88,7 +88,7 @@ export const workHistory: WorkEntry[] = [
     id: 'swuo',
     company: 'Star Wars Universe Online',
     role: 'Development Manager',
-    dates: 'Nov 2018 – Jan 2021',
+    dates: 'Nov 2018 - Jan 2021',
     summary: [
       'Helped manage a volunteer development team for a large passion project and maintained delivery momentum.',
       'Contributed map design/development and assisted anti-exploit system support.'
